@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Backy
+namespace BackyLogic
 {
     public interface IFileSystem
     {
@@ -16,6 +16,8 @@ namespace Backy
         IEnumerable<string> GetAllFiles(string source);
 
         IEnumerable<string> GetDirectories(string target);
+
+        DateTime GetLastWriteTime(string fullname);
     }
 
 
@@ -39,6 +41,11 @@ namespace Backy
         public IEnumerable<string> GetDirectories(string target)
         {
             return Directory.GetDirectories(target);
+        }
+
+        public DateTime GetLastWriteTime(string fullname)
+        {
+            return File.GetLastWriteTime(fullname);
         }
     }
 }

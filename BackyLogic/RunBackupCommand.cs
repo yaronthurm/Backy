@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Backy
+namespace BackyLogic
 {
     public class RunBackupCommand
     {
@@ -66,9 +66,9 @@ namespace Backy
             return ret;
         }
 
-        private IEnumerable<FileForBackup> GetNewFiles(State currentState, State lastBackedupState)
+        private IEnumerable<BackyFile> GetNewFiles(State currentState, State lastBackedupState)
         {
-            var ret = new List<FileForBackup>();
+            var ret = new List<BackyFile>();
             foreach (var file in currentState.Files)
             {
                 if (lastBackedupState.Files.Any(x => x.FullName == file.FullName))
@@ -92,9 +92,9 @@ namespace Backy
         private State GetCurrentState()
         {
             var files = _fileSystem.GetAllFiles(_source);
-                
+
             var ret = new State();
-            ret.Files = files.Select(FileForBackup.FromFullFileName).ToList();
+            ret.Files = files.Select(x => BackyFile.FromFullFileName(_fileSystem, x)).ToList();
             return ret;
         }
 
