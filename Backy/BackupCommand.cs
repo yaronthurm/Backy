@@ -10,9 +10,11 @@ namespace Backy
     {
         private string _source;
         private string _target;
+        private IFileSystem _fileSystem;
 
-        public RunBackupCommand(string source, string target)
+        public RunBackupCommand(IFileSystem fileSystem, string source, string target)
         {
+            _fileSystem = fileSystem;
             _source = source;
             _target = target;
         }
@@ -51,16 +53,16 @@ namespace Backy
         {
             var newFiles = GetNewFiles(currentState, lastBackedupState);
             var targetDir = GetTargetDirectoryForNewFiles(lastBackedupState);
-            Directory.CreateDirectory(targetDir);
+            _fileSystem.CreateDirectory(targetDir);
             foreach (var newFile in newFiles)
             {
-                File.Copy(newFile.FullName, Path.Combine(targetDir, newFile.Name));
+                _fileSystem.Copy(newFile.FullName, System.IO.Path.Combine(targetDir, newFile.Name));
             }
         }
 
         private string GetTargetDirectoryForNewFiles(State lastBackedupState)
         {
-            var ret = Path.Combine(_target, lastBackedupState.GetNextDirectory(), "new");
+            var ret = System.IO.Path.Combine(_target, lastBackedupState.GetNextDirectory(), "new");
             return ret;
         }
 
@@ -89,7 +91,8 @@ namespace Backy
 
         private State GetCurrentState()
         {
-            var files = Directory.GetFiles(_source, "*", SearchOption.AllDirectories);
+            var files = _fileSystem.GetAllFiles(_source);
+                
             var ret = new State();
             ret.Files = files.Select(FileForBackup.FromFullFileName).ToList();
             return ret;
@@ -103,8 +106,8 @@ namespace Backy
         private bool IsFirstTime()
         {
             // We expect to see folders in the target directory. If we don't see we assume it's the first time
-            var dirs = Directory.GetDirectories(_target);
-            var ret = dirs.Length == 0;
+            var dirs = _fileSystem.GetDirectories(_target);
+            var ret = dirs.Any() == false;
             return ret;
         }
     }

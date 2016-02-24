@@ -20,7 +20,7 @@ namespace Backy
 
         private void btnRun_Click(object sender, EventArgs e)
         {
-            var backupCommand = new RunBackupCommand(this.txtSource.Text, this.txtTarget.Text);
+            var backupCommand = new RunBackupCommand(new FileSystem(), this.txtSource.Text, this.txtTarget.Text);
             backupCommand.Execute();
         }
     }
