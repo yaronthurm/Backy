@@ -29,12 +29,12 @@ namespace TestBacky
 
         public IEnumerable<string> GetAllFiles(string source)
         {
-            return _sourceFiles.AsEnumerable();
+            return _sourceFiles.Where(x => x.StartsWith(source));
         }
 
         public IEnumerable<string> GetDirectories(string target)
         {
-            var ret = _destinationFiles.Select(Path.GetDirectoryName).ToList();
+            var ret = _destinationFiles.Select(Path.GetDirectoryName).Distinct().ToList();
             return ret;
         }
 
