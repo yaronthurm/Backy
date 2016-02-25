@@ -87,6 +87,10 @@ namespace BackyLogic
 
         private State GetLastBackedUpState()
         {
+            var ret = new State();
+            var allBackupFiles = _fileSystem.GetAllFiles(_target);
+
+
             throw new NotImplementedException();
         }
 
