@@ -88,10 +88,33 @@ namespace BackyLogic
         private State GetLastBackedUpState()
         {
             var ret = new State();
+
+            // Get all backup files
             var allBackupFiles = _fileSystem.GetAllFiles(_target);
+            var allBackupDirectories = State.GetFirstLevelDirectories(_fileSystem, _target).Select(x => System.IO.Path.Combine(_target, x));
 
+            var backyFolders = new List<BackyFolder>();
+            foreach (string dir in allBackupDirectories)
+            {
+                var allFilesForThisDirectory = allBackupFiles.Where(x => x.StartsWith(dir));
+                var newFolder = BackyFolder.FromFileNames(_fileSystem, allFilesForThisDirectory, dir);
+                backyFolders.Add(newFolder);
+            }
 
-            throw new NotImplementedException();
+            foreach (BackyFolder backyFolder in backyFolders.OrderBy(x => x.SerialNumber))
+            {
+                ret.Files.AddRange(backyFolder.New);
+                foreach (var deleted in backyFolder.Deleted)
+                    ret.Files.RemoveAll(x => x.FullName == deleted);
+                foreach (var rename in backyFolder.Renamed)
+                {
+                    var file = ret.Files.First(x => x.FullName == rename.OldName);
+                    file.FullName = rename.NewName;
+                }
+                // TODO: Handle modification
+            }
+
+            return ret;
         }
 
         private State GetCurrentState()

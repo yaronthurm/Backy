@@ -11,7 +11,7 @@ namespace TestBacky
     public class UnitTest1
     {
         [TestMethod]
-        public void Test01_Test_Running_for_the_First_Time()
+        public void Test01_Running_for_the_First_Time()
         {
             var source = @"c:\source";
             var target = @"d:\target";
@@ -30,7 +30,7 @@ namespace TestBacky
 
 
         [TestMethod]
-        public void TestMethod1()
+        public void Test02_Running_for_the_Second_Time()
         {
             var source = @"c:\source";
             var target = @"d:\target";

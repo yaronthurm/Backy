@@ -19,13 +19,14 @@ namespace BackyLogic
             return (max + 1).ToString();
         }
 
-        public IEnumerable<string> GetFirstLevelDirectories(IFileSystem fileSystem, string targetDir)
+        public static IEnumerable<string> GetFirstLevelDirectories(IFileSystem fileSystem, string targetDir)
         {
             // Get all directories in target
             var dirs = fileSystem.GetDirectories(targetDir);
 
             // Get just first level directories
-            var ret = dirs.Select(x => x.Replace(targetDir, "")).Select(x => System.IO.Path.GetPathRoot(x));
+            if (!targetDir.EndsWith("\\")) targetDir += "\\";
+            var ret = dirs.Select(x => x.Replace(targetDir, "")).Select(x => x.Split('\\')[0]).Distinct();
 
             return ret;
         }
@@ -62,10 +63,12 @@ namespace BackyLogic
         {
             // rootDir is expected to be in the format d:\target\1
             var ret = new BackyFolder();
+            ret.SerialNumber = int.Parse(System.IO.Path.GetFileName(rootDir));
+
             ret.New = fileNames
                 .Where(x => x.StartsWith(System.IO.Path.Combine(rootDir, "new")))
                 .Select(x => BackyFile.FromFullFileName(fileSystem, x)).ToList();
-            ret.New = fileNames
+            ret.Modified = fileNames
                 .Where(x => x.StartsWith(System.IO.Path.Combine(rootDir, "modified")))
                 .Select(x => BackyFile.FromFullFileName(fileSystem, x)).ToList();
 
