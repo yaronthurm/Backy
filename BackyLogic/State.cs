@@ -67,10 +67,10 @@ namespace BackyLogic
 
             ret.New = fileNames
                 .Where(x => x.StartsWith(System.IO.Path.Combine(rootDir, "new")))
-                .Select(x => BackyFile.FromFullFileName(fileSystem, x)).ToList();
+                .Select(x => BackyFile.FromTargetFileName(fileSystem, x, rootDir + "\\new")).ToList();
             ret.Modified = fileNames
                 .Where(x => x.StartsWith(System.IO.Path.Combine(rootDir, "modified")))
-                .Select(x => BackyFile.FromFullFileName(fileSystem, x)).ToList();
+                .Select(x => BackyFile.FromTargetFileName(fileSystem, x, rootDir + "\\modified")).ToList();
 
             var deletedName = System.IO.Path.Combine(rootDir, "deleted.txt");
             if (fileNames.Contains(deletedName)) {
