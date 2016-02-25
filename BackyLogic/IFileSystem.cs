@@ -9,13 +9,13 @@ namespace BackyLogic
 {
     public interface IFileSystem
     {
-        void CreateDirectory(string targetDir);
+        void CreateDirectory(string dirName);
 
         void Copy(string sourceFileName, string destFileName);
 
-        IEnumerable<string> GetAllFiles(string source);
+        IEnumerable<string> GetAllFiles(string dirName);
 
-        IEnumerable<string> GetDirectories(string target);
+        IEnumerable<string> GetDirectories(string dirName);
 
         DateTime GetLastWriteTime(string fullname);
     }

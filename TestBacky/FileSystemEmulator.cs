@@ -12,10 +12,10 @@ namespace TestBacky
         private List<string> _sourceFiles;
         private List<string> _destinationFiles;
 
-        public FileSystemEmulator(List<string> sourceFiles, List<string> destinationFiles)
+        public FileSystemEmulator(IEnumerable<string> sourceFiles, IEnumerable<string> destinationFiles)
         {
-            _sourceFiles = sourceFiles;
-            _destinationFiles = destinationFiles;
+            _sourceFiles = sourceFiles.ToList();
+            _destinationFiles = destinationFiles.ToList();
         }
 
         public void Copy(string sourceFileName, string destFileName)
@@ -27,9 +27,9 @@ namespace TestBacky
         {            
         }
 
-        public IEnumerable<string> GetAllFiles(string source)
+        public IEnumerable<string> GetAllFiles(string directory)
         {
-            return _sourceFiles.Where(x => x.StartsWith(source));
+            return _sourceFiles.Union(_destinationFiles).Where(x => x.StartsWith(directory));
         }
 
         public IEnumerable<string> GetDirectories(string target)

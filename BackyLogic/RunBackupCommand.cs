@@ -54,15 +54,16 @@ namespace BackyLogic
             var newFiles = GetNewFiles(currentState, lastBackedupState);
             var targetDir = GetTargetDirectoryForNewFiles(lastBackedupState);
             _fileSystem.CreateDirectory(targetDir);
-            foreach (var newFile in newFiles)
+            foreach (BackyFile newFile in newFiles)
             {
-                _fileSystem.Copy(newFile.FullName, System.IO.Path.Combine(targetDir, newFile.Name));
+                var relativeName = newFile.FullName.Replace(_source + "\\", "");
+                _fileSystem.Copy(newFile.FullName, System.IO.Path.Combine(targetDir, relativeName));
             }
         }
 
         private string GetTargetDirectoryForNewFiles(State lastBackedupState)
         {
-            var ret = System.IO.Path.Combine(_target, lastBackedupState.GetNextDirectory(), "new");
+            var ret = System.IO.Path.Combine(_target, lastBackedupState.GetNextDirectory(_fileSystem, _target), "new");
             return ret;
         }
 
