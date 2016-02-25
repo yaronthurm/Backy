@@ -12,15 +12,22 @@ namespace BackyLogic
 
         internal string GetNextDirectory(IFileSystem fileSystem, string targetDir)
         {
-            // Get all directories in target
-            var dirs = fileSystem.GetDirectories(targetDir);
-
-            // Get just first level directories
-            var firstLevel = dirs.Select(x => x.Replace(targetDir, "")).Select(x => System.IO.Path.GetPathRoot(x));
+            var firstLevel = GetFirstLevelDirectories(fileSystem, targetDir);
 
             // Get highest number
             var max = firstLevel.Union(new[] { "0" }).Select(int.Parse).Max();
             return (max + 1).ToString();
+        }
+
+        public IEnumerable<string> GetFirstLevelDirectories(IFileSystem fileSystem, string targetDir)
+        {
+            // Get all directories in target
+            var dirs = fileSystem.GetDirectories(targetDir);
+
+            // Get just first level directories
+            var ret = dirs.Select(x => x.Replace(targetDir, "")).Select(x => System.IO.Path.GetPathRoot(x));
+
+            return ret;
         }
     }
 
@@ -61,7 +68,27 @@ namespace BackyLogic
             ret.New = fileNames
                 .Where(x => x.StartsWith(System.IO.Path.Combine(rootDir, "modified")))
                 .Select(x => BackyFile.FromFullFileName(fileSystem, x)).ToList();
-            return null;
+
+            var deletedName = System.IO.Path.Combine(rootDir, "deleted.txt");
+            if (fileNames.Contains(deletedName)) {
+                ret.Deleted = fileSystem.ReadLines(deletedName)
+                    .Select(x => Newtonsoft.Json.Linq.JObject.Parse(x))
+                    .Select(x => x.Value<string>("filename")).ToList();
+            }
+            else
+                ret.Deleted = new List<string>();
+
+            var renamedName = System.IO.Path.Combine(rootDir, "renamed.txt");
+            if (fileNames.Contains(renamedName))
+            {
+                ret.Renamed = fileSystem.ReadLines(renamedName)
+                    .Select(x => Newtonsoft.Json.Linq.JObject.Parse(x))
+                    .Select(x => new RenameInfo { OldName = x.Value<string>("oldname"), NewName = x.Value<string>("newname") }).ToList();
+            }
+            else
+                ret.Renamed = new List<RenameInfo>();
+
+            return ret;
         }
     }
 

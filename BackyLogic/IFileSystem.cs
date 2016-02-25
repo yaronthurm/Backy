@@ -18,6 +18,8 @@ namespace BackyLogic
         IEnumerable<string> GetDirectories(string dirName);
 
         DateTime GetLastWriteTime(string fullname);
+
+        IEnumerable<string> ReadLines(string fullname);
     }
 
 
@@ -46,6 +48,11 @@ namespace BackyLogic
         public DateTime GetLastWriteTime(string fullname)
         {
             return File.GetLastWriteTime(fullname);
+        }
+
+        public IEnumerable<string> ReadLines(string fullname)
+        {
+            return new string[0];
         }
     }
 }

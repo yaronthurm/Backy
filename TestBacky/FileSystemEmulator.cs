@@ -40,5 +40,10 @@ namespace TestBacky
         {
             return new DateTime(2016, 1, 13, 13, 0, 0);
         }
+
+        public IEnumerable<string> ReadLines(string fullname)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
