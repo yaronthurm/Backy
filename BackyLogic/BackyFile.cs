@@ -11,9 +11,6 @@ namespace BackyLogic
         public string Root;
         public string RelativeName;
         public string PhysicalPath;
-
-        public string Name;
-        public string FullName;
         public DateTime LastWriteTime;
 
         private BackyFile() { }
@@ -24,10 +21,7 @@ namespace BackyLogic
             ret.Root = sourceDirectory;
             ret.RelativeName = fullname.Replace(sourceDirectory + "\\", "");
             ret.PhysicalPath = fullname;
-
-            ret.FullName = fullname;
             ret.LastWriteTime = fileSystem.GetLastWriteTime(fullname);
-            ret.Name = System.IO.Path.GetFileName(fullname);
             return ret;
         }
 
@@ -45,19 +39,7 @@ namespace BackyLogic
             ret.Root = targetParentDirectory;
             ret.RelativeName = fullname.Replace(ret.Root + "\\", "");
             ret.PhysicalPath = fullname;
-
-            ret.FullName = fullname;
             ret.LastWriteTime = fileSystem.GetLastWriteTime(fullname);
-            ret.Name = System.IO.Path.GetFileName(fullname);
-            return ret;
-        }
-
-        public static BackyFile FromFullFileName(IFileSystem fileSystem, string fullname)
-        {
-            var ret = new BackyFile();
-            ret.FullName = fullname;
-            ret.LastWriteTime = fileSystem.GetLastWriteTime(fullname);
-            ret.Name = System.IO.Path.GetFileName(fullname);
             return ret;
         }
     }

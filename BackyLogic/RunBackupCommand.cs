@@ -56,7 +56,7 @@ namespace BackyLogic
             _fileSystem.CreateDirectory(targetDir);
             foreach (BackyFile newFile in newFiles)
             {
-                _fileSystem.Copy(newFile.FullName, System.IO.Path.Combine(targetDir, newFile.RelativeName));
+                _fileSystem.Copy(newFile.PhysicalPath, System.IO.Path.Combine(targetDir, newFile.RelativeName));
             }
         }
 
@@ -85,7 +85,7 @@ namespace BackyLogic
             foreach (var file in currentState.Files)
             {
                 // look for file in backup
-                var backupfile = lastBackedupState.Files.FirstOrDefault(x => x.FullName == file.FullName);
+                var backupfile = lastBackedupState.Files.FirstOrDefault(x => x.RelativeName == file.RelativeName);
                 if (backupfile == null || backupfile.LastWriteTime == file.LastWriteTime)
                     continue;
                 
@@ -100,7 +100,7 @@ namespace BackyLogic
             foreach (var file in currentState.Files)
             {
                 // look for file in backup
-                var backupfile = lastBackedupState.Files.FirstOrDefault(x => x.FullName == file.FullName);
+                var backupfile = lastBackedupState.Files.FirstOrDefault(x => x.RelativeName == file.RelativeName);
                 if (backupfile == null)
                     ret.Add(file);
             }
@@ -138,11 +138,11 @@ namespace BackyLogic
             {
                 ret.Files.AddRange(backyFolder.New);
                 foreach (var deleted in backyFolder.Deleted)
-                    ret.Files.RemoveAll(x => x.FullName == deleted);
+                    ret.Files.RemoveAll(x => x.RelativeName == deleted);
                 foreach (var rename in backyFolder.Renamed)
                 {
-                    var file = ret.Files.First(x => x.FullName == rename.OldName);
-                    file.FullName = rename.NewName;
+                    var file = ret.Files.First(x => x.RelativeName == rename.OldName);
+                    file.RelativeName = rename.NewName;
                 }
                 // TODO: Handle modification
             }
