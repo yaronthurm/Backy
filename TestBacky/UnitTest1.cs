@@ -11,14 +11,14 @@ namespace TestBacky
     public class UnitTest1
     {
         [TestMethod]
-        public void Test01_Test_Runnoing_for_the_First_Time()
+        public void Test01_Test_Running_for_the_First_Time()
         {
             var source = @"c:\source";
             var target = @"d:\target";
 
             var sourceFiles = new string[] { @"file1.txt", @"file2.txt", @"subdir\file11.txt" };
 
-            var fileSystem = new FileSystemEmulator(sourceFiles.Select(x => Path.Combine(source, x)), new string[0]);
+            var fileSystem = new FileSystemEmulator(sourceFiles.Select(x => Path.Combine(source, x)));
             var cmd = new RunBackupCommand(fileSystem, source, target);
             cmd.Execute();
 
@@ -35,11 +35,12 @@ namespace TestBacky
             var source = @"c:\source";
             var target = @"d:\target";
 
-            var sourceFiles = new string[] { @"file1.txt", @"file2.txt", @"subdir\file11.txt" }; ;
+            var sourceFiles = new string[] { @"file1.txt", @"file2.txt", @"subdir\file11.txt" };
             var destFiles = new string[] { @"1\new\file1.txt", @"1\new\file3.txt", @"1\new\subdir\file11.txt", @"1\new\subdir\file33.txt" };
+            var files = sourceFiles.Select(x => Path.Combine(source, x)).Union(destFiles.Select(x => Path.Combine(target, x)));
 
-            var fileSystem = new FileSystemEmulator(sourceFiles.Select(x => Path.Combine(source, x)), destFiles.Select(x => Path.Combine(target, x)));
-            var cmd = new RunBackupCommand(new FileSystemEmulator(sourceFiles.ToList(), destFiles.ToList()), source, target);
+            var fileSystem = new FileSystemEmulator(files);
+            var cmd = new RunBackupCommand(fileSystem, source, target);
             cmd.Execute();
 
             // Expected that all new files from <source> will be under <target>\2\new

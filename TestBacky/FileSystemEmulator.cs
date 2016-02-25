@@ -9,32 +9,30 @@ namespace TestBacky
 {
     public class FileSystemEmulator : BackyLogic.IFileSystem
     {
-        private List<string> _sourceFiles;
-        private List<string> _destinationFiles;
+        private List<string> _files;
 
-        public FileSystemEmulator(IEnumerable<string> sourceFiles, IEnumerable<string> destinationFiles)
+        public FileSystemEmulator(IEnumerable<string> files)
         {
-            _sourceFiles = sourceFiles.ToList();
-            _destinationFiles = destinationFiles.ToList();
+            _files = files.ToList();
         }
 
         public void Copy(string sourceFileName, string destFileName)
         {
-            _destinationFiles.Add(destFileName);
+            _files.Add(destFileName);
         }
 
         public void CreateDirectory(string targetDir)
-        {            
+        {
         }
 
         public IEnumerable<string> GetAllFiles(string directory)
         {
-            return _sourceFiles.Union(_destinationFiles).Where(x => x.StartsWith(directory));
+            return _files.Where(x => x.StartsWith(directory));
         }
 
-        public IEnumerable<string> GetDirectories(string target)
+        public IEnumerable<string> GetDirectories(string directory)
         {
-            var ret = _destinationFiles.Select(Path.GetDirectoryName).Distinct().ToList();
+            var ret = this.GetAllFiles(directory).Select(Path.GetDirectoryName).Distinct().ToList();
             return ret;
         }
 
