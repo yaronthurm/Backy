@@ -20,6 +20,61 @@ namespace TestBacky
             var files4 = Directory.GetFiles(@"D:\DataFromExternalDrive", "*.*", SearchOption.AllDirectories);
         }
 
+        [TestMethod, Ignore]
+        public void Test00_1_Running_on_real_file_system()
+        {
+            var source = @"D:\FolderForBackyTesting\Source";
+            var target = @"D:\FolderForBackyTesting\Target";
+
+            // Clear target
+            if (Directory.Exists(target)) // This method sometimes return true when the directory doesn't realy exists
+                Directory.Delete(target, true);
+            Directory.CreateDirectory(target);
+
+            // Clear source
+            if (Directory.Exists(source))
+                Directory.Delete(source, true);
+            Directory.CreateDirectory(source);
+
+
+            var cmd = new RunBackupCommand(new FileSystem(), source, target);
+
+            // Create files in source and run first time
+            File.WriteAllText(Path.Combine(source, "file1.txt"), "hello1");
+            File.WriteAllText(Path.Combine(source, "file2.txt"), "hello2");
+            File.WriteAllText(Path.Combine(source, "file3.txt"), "hello3");
+            File.WriteAllText(Path.Combine(source, "file4.doc"), "");
+
+            cmd.Execute();
+
+            // Add new files
+            File.WriteAllText(Path.Combine(source, "file5.txt"), "hello5");
+            File.WriteAllText(Path.Combine(source, "file6.txt"), "hello6");
+
+            cmd.Execute();
+
+            // Delete a few files
+            File.Delete(Path.Combine(source, "file1.txt"));
+            File.Delete(Path.Combine(source, "file2.txt"));
+
+            cmd.Execute();
+
+            // Assertion
+            var actualTargetFiles = Directory.GetFiles(target, "*", SearchOption.AllDirectories);
+            var expectedTargetFiles = new[]
+                { "1\\new\\file1.txt", "1\\new\\file2.txt", "1\\new\\file3.txt", "1\\new\\file4.doc",
+                  "2\\new\\file5.txt", "2\\new\\file6.txt",
+                  "3\\deleted.txt" }.Select(x => Path.Combine(target, x));
+            AssertLists(expectedTargetFiles, actualTargetFiles);
+
+            var expectedDeleted = new[] { "file1.txt", "file2.txt" };
+            var actualDeleted = File.ReadAllLines(Path.Combine(target, "3", "deleted.txt"));
+            AssertLists(expectedDeleted, actualDeleted);
+
+            Directory.Delete(target, true);
+            Directory.Delete(source, true);
+        }
+
         [TestMethod]
         public void Test01_Running_for_the_first_time()
         {
