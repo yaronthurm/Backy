@@ -41,7 +41,15 @@ namespace BackyLogic
 
         private void MarkAllDeletedFiles(State currentState, State lastBackedupState)
         {
-            // TODO
+            var deletedFiles = GetDeletedFiles(currentState, lastBackedupState);
+            if (deletedFiles.Any())
+            {
+                var targetDir = GetTargetDirectory(lastBackedupState);
+                var deletedFilename = System.IO.Path.Combine(targetDir, "deleted.txt");
+                _fileSystem.CreateFile(deletedFilename);
+                foreach (var file in deletedFiles)
+                    _fileSystem.AppendLine(deletedFilename, file.RelativeName);
+            }
         }
 
         private void CopyAllUpdatedFiles(State currentState, State lastBackedupState)
@@ -53,7 +61,6 @@ namespace BackyLogic
         {
             var newFiles = GetNewFiles(currentState, lastBackedupState);
             var targetDir = GetTargetDirectoryForNewFiles(lastBackedupState);
-            _fileSystem.CreateDirectory(targetDir);
             foreach (BackyFile newFile in newFiles)
             {
                 _fileSystem.Copy(newFile.PhysicalPath, System.IO.Path.Combine(targetDir, newFile.RelativeName));
@@ -62,7 +69,13 @@ namespace BackyLogic
 
         private string GetTargetDirectoryForNewFiles(State lastBackedupState)
         {
-            var ret = System.IO.Path.Combine(_target, lastBackedupState.GetNextDirectory(_fileSystem, _target), "new");
+            var ret = System.IO.Path.Combine(GetTargetDirectory(lastBackedupState), "new");
+            return ret;
+        }
+
+        private string GetTargetDirectory(State lastBackedupState)
+        {
+            var ret = System.IO.Path.Combine(_target, lastBackedupState.GetNextDirectory(_fileSystem, _target));
             return ret;
         }
 
@@ -97,11 +110,11 @@ namespace BackyLogic
         private IEnumerable<BackyFile> GetDeletedFiles(State currentState, State lastBackedupState)
         {
             var ret = new List<BackyFile>();
-            foreach (var file in currentState.Files)
+            foreach (var file in lastBackedupState.Files)
             {
-                // look for file in backup
-                var backupfile = lastBackedupState.Files.FirstOrDefault(x => x.RelativeName == file.RelativeName);
-                if (backupfile == null)
+                // look for file in current
+                var currentFile = currentState.Files.FirstOrDefault(x => x.RelativeName == file.RelativeName);
+                if (currentFile == null)
                     ret.Add(file);
             }
             return ret;

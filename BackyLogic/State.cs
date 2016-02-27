@@ -55,7 +55,7 @@ namespace BackyLogic
         ///                 file4, file5
         ///                 subfolder\
         ///                     file6, file7
-        ///             deleted.txt (each row looks like that: {filename: "full name of deleted file"})
+        ///             deleted.txt (each row looks contains the name of the deleted file
         ///             renamed.txt (each row looks like that: {oldname: "full name of file before rename", newname: "full name of file after rename"})
         /// </summary>
         /// <returns></returns>
@@ -74,9 +74,7 @@ namespace BackyLogic
 
             var deletedName = System.IO.Path.Combine(rootDir, "deleted.txt");
             if (fileNames.Contains(deletedName)) {
-                ret.Deleted = fileSystem.ReadLines(deletedName)
-                    .Select(x => Newtonsoft.Json.Linq.JObject.Parse(x))
-                    .Select(x => x.Value<string>("filename")).ToList();
+                ret.Deleted = fileSystem.ReadLines(deletedName).ToList();
             }
             else
                 ret.Deleted = new List<string>();

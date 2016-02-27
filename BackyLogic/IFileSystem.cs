@@ -9,7 +9,7 @@ namespace BackyLogic
 {
     public interface IFileSystem
     {
-        void CreateDirectory(string dirName);
+        void CreateFile(string filename);
 
         void Copy(string sourceFileName, string destFileName);
 
@@ -20,19 +20,26 @@ namespace BackyLogic
         DateTime GetLastWriteTime(string fullname);
 
         IEnumerable<string> ReadLines(string fullname);
+
+        void AppendLine(string filename, string line);
     }
 
 
     public class FileSystem : IFileSystem
     {
+        public void AppendLine(string filename, string line)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Copy(string sourceFileName, string destFileName)
         {
             File.Copy(sourceFileName, destFileName);
         }
 
-        public void CreateDirectory(string targetDir)
+        public void CreateFile(string filename)
         {
-            Directory.CreateDirectory(targetDir);
+            File.CreateText(filename);
         }
 
         public IEnumerable<string> GetAllFiles(string source)
@@ -50,7 +57,7 @@ namespace BackyLogic
             return File.GetLastWriteTime(fullname);
         }
 
-        public IEnumerable<string> ReadLines(string fullname)
+        public IEnumerable<string> ReadLines(string filename)
         {
             return new string[0];
         }

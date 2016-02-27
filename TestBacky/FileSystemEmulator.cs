@@ -9,25 +9,33 @@ namespace TestBacky
 {
     public class FileSystemEmulator : BackyLogic.IFileSystem
     {
-        private List<string> _files;
+        private List<EmulatorFile> _files;
 
         public FileSystemEmulator(IEnumerable<string> files)
         {
-            _files = files.ToList();
+            _files = files.Select(x => new EmulatorFile(x)).ToList();
+        }
+
+
+        public void AppendLine(string filename, string line)
+        {
+            var file = _files.First(x => x.Name == filename);
+            file.Lines.Add(line);
         }
 
         public void Copy(string sourceFileName, string destFileName)
         {
-            _files.Add(destFileName);
+            _files.Add(new EmulatorFile(destFileName));
         }
 
-        public void CreateDirectory(string targetDir)
+        public void CreateFile(string filename)
         {
+            _files.Add(new EmulatorFile(filename));
         }
 
         public IEnumerable<string> GetAllFiles(string directory)
         {
-            return _files.Where(x => x.StartsWith(directory));
+            return _files.Where(x => x.Name.StartsWith(directory)).Select(x => x.Name);
         }
 
         public IEnumerable<string> GetDirectories(string directory)
@@ -41,9 +49,23 @@ namespace TestBacky
             return new DateTime(2016, 1, 13, 13, 0, 0);
         }
 
-        public IEnumerable<string> ReadLines(string fullname)
+        public IEnumerable<string> ReadLines(string filename)
         {
-            throw new NotImplementedException();
+            var file = _files.First(x => x.Name == filename);
+            return file.Lines;
+        }
+
+
+
+        class EmulatorFile
+        {
+            public string Name;
+            public List<string> Lines = new List<string>();
+
+            public EmulatorFile(string name)
+            {
+                this.Name = name;
+            }
         }
     }
 }
