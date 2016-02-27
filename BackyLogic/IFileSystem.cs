@@ -29,17 +29,23 @@ namespace BackyLogic
     {
         public void AppendLine(string filename, string line)
         {
-            throw new NotImplementedException();
+            File.AppendAllLines(filename, new[] { line });
         }
 
         public void Copy(string sourceFileName, string destFileName)
         {
+            if (!Directory.Exists(Path.GetDirectoryName(destFileName)))
+                Directory.CreateDirectory(Path.GetDirectoryName(destFileName));
+
             File.Copy(sourceFileName, destFileName);
         }
 
         public void CreateFile(string filename)
         {
-            File.CreateText(filename);
+            if (!Directory.Exists(Path.GetDirectoryName(filename)))
+                Directory.CreateDirectory(Path.GetDirectoryName(filename));
+
+            File.WriteAllText(filename, "");
         }
 
         public IEnumerable<string> GetAllFiles(string source)
@@ -59,7 +65,8 @@ namespace BackyLogic
 
         public IEnumerable<string> ReadLines(string filename)
         {
-            return new string[0];
+            var ret = File.ReadAllLines(filename);
+            return ret;
         }
     }
 }

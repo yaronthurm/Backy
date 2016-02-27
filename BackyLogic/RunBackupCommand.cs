@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,7 +25,7 @@ namespace BackyLogic
         {
             if (IsFirstTime())
             {
-                RunFirstTimeBackup();
+                RunFirstTimeBackup(Path.Combine(_target, "1"));
                 return;
             }
 
@@ -34,17 +35,17 @@ namespace BackyLogic
             if (NoChangesFromLastBackup(currentState, lastBackedupState))
                 return;
 
-            CopyAllNewFiles(currentState, lastBackedupState);
-            CopyAllUpdatedFiles(currentState, lastBackedupState);
-            MarkAllDeletedFiles(currentState, lastBackedupState);
+            var targetDir = GetTargetDirectory(lastBackedupState);
+            CopyAllNewFiles(targetDir, currentState, lastBackedupState);
+            CopyAllUpdatedFiles(targetDir, currentState, lastBackedupState);
+            MarkAllDeletedFiles(targetDir, currentState, lastBackedupState);
         }
 
-        private void MarkAllDeletedFiles(State currentState, State lastBackedupState)
+        private void MarkAllDeletedFiles(string targetDir, State currentState, State lastBackedupState)
         {
             var deletedFiles = GetDeletedFiles(currentState, lastBackedupState);
             if (deletedFiles.Any())
             {
-                var targetDir = GetTargetDirectory(lastBackedupState);
                 var deletedFilename = System.IO.Path.Combine(targetDir, "deleted.txt");
                 _fileSystem.CreateFile(deletedFilename);
                 foreach (var file in deletedFiles)
@@ -52,25 +53,19 @@ namespace BackyLogic
             }
         }
 
-        private void CopyAllUpdatedFiles(State currentState, State lastBackedupState)
+        private void CopyAllUpdatedFiles(string targetDir, State currentState, State lastBackedupState)
         {
             // TODO
         }
 
-        private void CopyAllNewFiles(State currentState, State lastBackedupState)
+        private void CopyAllNewFiles(string targetDir, State currentState, State lastBackedupState)
         {
             var newFiles = GetNewFiles(currentState, lastBackedupState);
-            var targetDir = GetTargetDirectoryForNewFiles(lastBackedupState);
+            targetDir = Path.Combine(targetDir, "new");
             foreach (BackyFile newFile in newFiles)
             {
                 _fileSystem.Copy(newFile.PhysicalPath, System.IO.Path.Combine(targetDir, newFile.RelativeName));
             }
-        }
-
-        private string GetTargetDirectoryForNewFiles(State lastBackedupState)
-        {
-            var ret = System.IO.Path.Combine(GetTargetDirectory(lastBackedupState), "new");
-            return ret;
         }
 
         private string GetTargetDirectory(State lastBackedupState)
@@ -172,9 +167,9 @@ namespace BackyLogic
             return ret;
         }
 
-        private void RunFirstTimeBackup()
+        private void RunFirstTimeBackup(string targetDir)
         {
-            CopyAllNewFiles(GetCurrentState(), new State());
+            CopyAllNewFiles(targetDir, GetCurrentState(), new State());
         }
 
         private bool IsFirstTime()
