@@ -45,18 +45,29 @@ namespace TestBacky
             File.WriteAllText(Path.Combine(source, "file3.txt"), "hello3");
             File.WriteAllText(Path.Combine(source, "file4.doc"), "");
 
+            // 1
             cmd.Execute();
 
             // Add new files
             File.WriteAllText(Path.Combine(source, "file5.txt"), "hello5");
             File.WriteAllText(Path.Combine(source, "file6.txt"), "hello6");
 
+            // 2
             cmd.Execute();
 
             // Delete a few files
             File.Delete(Path.Combine(source, "file1.txt"));
             File.Delete(Path.Combine(source, "file2.txt"));
 
+            // 3
+            cmd.Execute();
+
+            // Modify and add some files
+            File.WriteAllText(Path.Combine(source, "file5.txt"), "hello5 - modified");
+            File.WriteAllText(Path.Combine(source, "file6.txt"), "hello6 - modified");
+            File.WriteAllText(Path.Combine(source, "file7.txt"), "hello7");
+
+            // 4
             cmd.Execute();
 
             // Assertion
@@ -64,7 +75,9 @@ namespace TestBacky
             var expectedTargetFiles = new[]
                 { "1\\new\\file1.txt", "1\\new\\file2.txt", "1\\new\\file3.txt", "1\\new\\file4.doc",
                   "2\\new\\file5.txt", "2\\new\\file6.txt",
-                  "3\\deleted.txt" }.Select(x => Path.Combine(target, x));
+                  "3\\deleted.txt",
+                  "4\\modified\\file5.txt", "4\\modified\\file6.txt", "4\\new\\file7.txt"
+            }.Select(x => Path.Combine(target, x));
             AssertLists(expectedTargetFiles, actualTargetFiles);
 
             var expectedDeleted = new[] { "file1.txt", "file2.txt" };
