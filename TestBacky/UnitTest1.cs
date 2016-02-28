@@ -262,8 +262,8 @@ namespace TestBacky
 
             var files = new EmulatorFile[] {
                 // Source
-                new EmulatorFile(@"c:\source\file1.txt", new DateTime(2015, 1, 1)), // new file - from 2015
-                new EmulatorFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1)), // new file - from 2015
+                new EmulatorFile(@"c:\source\file1.txt", new DateTime(2015, 1, 1)), // modified file - from 2015
+                new EmulatorFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1)), // modified file - from 2015
                 new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1)),
 
                 // Target
@@ -288,6 +288,105 @@ namespace TestBacky
             };
             var actual = fileSystem.GetAllFiles(@"d:\target");
             AssertLists<string>(expected, actual);
+        }
+
+        [TestMethod]
+        public void Test03_5_Running_for_the_second_time_Modified_and_new_files()
+        {
+            // This test simulates running the tool for the second time after some files were modified and some were added.
+            // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir/file11.txt
+            // In the second run, file1.txt and file2.txt are modified and file3.txt, subdir3/file44.txt were added
+            // We expect that all original files will be found under %target%\1\new
+            // all modified files will be found under %target%\2\modified
+            // and all new files will be found under %target%\2\new
+
+            var files = new EmulatorFile[] {
+                // Source
+                new EmulatorFile(@"c:\source\file1.txt", new DateTime(2015, 1, 1)), // modified file - from 2015
+                new EmulatorFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1)), // modified file - from 2015
+                new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1)), // no change
+                new EmulatorFile(@"c:\source\file3.txt", new DateTime(2010, 1, 1)), // new file
+                new EmulatorFile(@"c:\source\subdir2\file44.txt", new DateTime(2010, 1, 1)), // new file
+
+                // Target
+                new EmulatorFile(@"d:\target\1\new\file1.txt", new DateTime(2010, 1, 1)), // old file - from 2010
+                new EmulatorFile(@"d:\target\1\new\file2.txt", new DateTime(2010, 1, 1)), // old file - from 2010
+                new EmulatorFile(@"d:\target\1\new\subdir\file11.txt", new DateTime(2010, 1, 1)), // same as source
+            };
+
+            var fileSystem = new FileSystemEmulator(files);
+            var cmd = new RunBackupCommand(fileSystem, @"c:\source", @"d:\target");
+            cmd.Execute();
+
+            // Expected that all old files from %source% will remain under %target%\1\new
+            // And modified files will be under %target%\2\modified
+            var expected = new string[] {
+                @"d:\target\1\new\file1.txt",
+                @"d:\target\1\new\file2.txt",
+                @"d:\target\1\new\subdir\file11.txt",
+
+                @"d:\target\2\modified\file1.txt",
+                @"d:\target\2\modified\file2.txt",
+
+                @"d:\target\2\new\file3.txt",
+                @"d:\target\2\new\subdir2\file44.txt"
+            };
+            var actual = fileSystem.GetAllFiles(@"d:\target");
+            AssertLists<string>(expected, actual);
+        }
+
+        [TestMethod]
+        public void Test03_6_Running_for_the_second_time_Modified_new_and_deleted_files()
+        {
+            // This test simulates running the tool for the second time after some files were modified, some were added
+            // and some were deleted.
+            // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir/file11.txt
+            // In the second run, file1.txt and file2.txt are modified, file3.txt and subdir3/file44.txt were added
+            // and subdir\file11.txt was deleted.
+            // We expect that all original files will be found under %target%\1\new
+            // all modified files will be found under %target%\2\modified
+            // all new files will be found under %target%\2\new
+            // and a 'deleted.txt' file will be found containing the name of the deleted file
+
+            var files = new EmulatorFile[] {
+                // Source
+                new EmulatorFile(@"c:\source\file1.txt", new DateTime(2015, 1, 1)), // modified file - from 2015
+                new EmulatorFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1)), // modified file - from 2015
+                // new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1)), // deleted file
+                new EmulatorFile(@"c:\source\file3.txt", new DateTime(2010, 1, 1)), // new file
+                new EmulatorFile(@"c:\source\subdir2\file44.txt", new DateTime(2010, 1, 1)), // new file
+
+                // Target
+                new EmulatorFile(@"d:\target\1\new\file1.txt", new DateTime(2010, 1, 1)), // old file - from 2010
+                new EmulatorFile(@"d:\target\1\new\file2.txt", new DateTime(2010, 1, 1)), // old file - from 2010
+                new EmulatorFile(@"d:\target\1\new\subdir\file11.txt", new DateTime(2010, 1, 1)), // same as source
+            };
+
+            var fileSystem = new FileSystemEmulator(files);
+            var cmd = new RunBackupCommand(fileSystem, @"c:\source", @"d:\target");
+            cmd.Execute();
+
+            // Expected that all old files from %source% will remain under %target%\1\new
+            // And modified files will be under %target%\2\modified
+            var expected = new string[] {
+                @"d:\target\1\new\file1.txt",
+                @"d:\target\1\new\file2.txt",
+                @"d:\target\1\new\subdir\file11.txt",
+
+                @"d:\target\2\modified\file1.txt",
+                @"d:\target\2\modified\file2.txt",
+
+                @"d:\target\2\new\file3.txt",
+                @"d:\target\2\new\subdir2\file44.txt",
+
+                @"d:\target\2\deleted.txt",
+
+            };
+            var actual = fileSystem.GetAllFiles(@"d:\target");
+            AssertLists<string>(expected, actual);
+
+            // Expected to see deleted file
+            AssertLists<string>(new[] { "subdir\\file11.txt" }, fileSystem.ReadLines(Path.Combine(@"d:\target", "2", "deleted.txt")));
         }
 
 
