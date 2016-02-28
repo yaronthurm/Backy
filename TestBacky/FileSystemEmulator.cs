@@ -11,9 +11,9 @@ namespace TestBacky
     {
         private List<EmulatorFile> _files;
 
-        public FileSystemEmulator(IEnumerable<string> files)
+        public FileSystemEmulator(IEnumerable<EmulatorFile> files)
         {
-            _files = files.Select(x => new EmulatorFile(x)).ToList();
+            _files = files.ToList();
         }
 
 
@@ -46,26 +46,32 @@ namespace TestBacky
 
         public DateTime GetLastWriteTime(string fullname)
         {
-            return new DateTime(2016, 1, 13, 13, 0, 0);
+            var file = _files.First(x => x.Name == fullname);
+            return file.LastModified;
         }
 
         public IEnumerable<string> ReadLines(string filename)
         {
             var file = _files.First(x => x.Name == filename);
             return file.Lines;
+        }        
+    }
+
+    public class EmulatorFile
+    {
+        public string Name;
+        public List<string> Lines = new List<string>();
+        public DateTime LastModified;
+
+        public EmulatorFile(string name)
+        {
+            this.Name = name;
         }
 
-
-
-        class EmulatorFile
+        public EmulatorFile(string name, DateTime lastModified)
         {
-            public string Name;
-            public List<string> Lines = new List<string>();
-
-            public EmulatorFile(string name)
-            {
-                this.Name = name;
-            }
+            this.Name = name;
+            this.LastModified = lastModified;
         }
     }
 }

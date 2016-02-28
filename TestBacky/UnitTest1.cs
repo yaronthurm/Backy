@@ -88,7 +88,8 @@ namespace TestBacky
 
             var files = new string[] { @"file1.txt", @"file2.txt", @"subdir\file11.txt" };
 
-            var fileSystem = new FileSystemEmulator(files.Select(x => Path.Combine(source, x)));
+            var emulatorFiles = files.Select(x => Path.Combine(source, x)).Select(x => new EmulatorFile(x));
+            var fileSystem = new FileSystemEmulator(emulatorFiles);
             var cmd = new RunBackupCommand(fileSystem, source, target);
             cmd.Execute();
 
@@ -114,7 +115,7 @@ namespace TestBacky
             var destFiles = new string[] { @"1\new\file1.txt", @"1\new\file2.txt", @"1\new\subdir\file11.txt" };
             var files = sourceFiles.Select(x => Path.Combine(source, x)).Union(destFiles.Select(x => Path.Combine(target, x)));
 
-            var fileSystem = new FileSystemEmulator(files);
+            var fileSystem = new FileSystemEmulator(files.Select(x => new EmulatorFile(x)));
             var cmd = new RunBackupCommand(fileSystem, source, target);
             cmd.Execute();
 
@@ -137,7 +138,7 @@ namespace TestBacky
 
             var files = new string[] { @"file1.txt", @"file2.txt", @"subdir\file11.txt" };
 
-            var fileSystem = new FileSystemEmulator(files.Select(x => Path.Combine(source, x)));
+            var fileSystem = new FileSystemEmulator(files.Select(x => Path.Combine(source, x)).Select(x => new EmulatorFile(x)));
             var cmd = new RunBackupCommand(fileSystem, source, target);
             cmd.Execute();
             cmd.Execute();
@@ -164,7 +165,7 @@ namespace TestBacky
             var destFiles = new string[] { @"1\new\file1.txt", @"1\new\file2.txt", @"1\new\subdir\file11.txt" };
             var files = sourceFiles.Select(x => Path.Combine(source, x)).Union(destFiles.Select(x => Path.Combine(target, x)));
 
-            var fileSystem = new FileSystemEmulator(files);
+            var fileSystem = new FileSystemEmulator(files.Select(x => new EmulatorFile(x)));
             var cmd = new RunBackupCommand(fileSystem, source, target);
             cmd.Execute();
 
@@ -195,7 +196,7 @@ namespace TestBacky
             var destFiles = new string[] { @"1\new\file1.txt", @"1\new\file2.txt", @"1\new\subdir\file11.txt" };
             var files = sourceFiles.Select(x => Path.Combine(source, x)).Union(destFiles.Select(x => Path.Combine(target, x)));
 
-            var fileSystem = new FileSystemEmulator(files);
+            var fileSystem = new FileSystemEmulator(files.Select(x => new EmulatorFile(x)));
             var cmd = new RunBackupCommand(fileSystem, source, target);
             cmd.Execute();
 
@@ -231,7 +232,7 @@ namespace TestBacky
             var destFiles = new string[] { @"1\new\file1.txt", @"1\new\file2.txt", @"1\new\subdir\file11.txt" };
             var files = sourceFiles.Select(x => Path.Combine(source, x)).Union(destFiles.Select(x => Path.Combine(target, x)));
 
-            var fileSystem = new FileSystemEmulator(files);
+            var fileSystem = new FileSystemEmulator(files.Select(x => new EmulatorFile(x)));
             var cmd = new RunBackupCommand(fileSystem, source, target);
             cmd.Execute();
 
