@@ -227,7 +227,7 @@ namespace TestBacky
             var source = @"c:\source";
             var target = @"d:\target";
 
-            var sourceFiles = new string[] { @"file2.txt" };
+            var sourceFiles = new string[] { @"file2.txt", @"file3.txt", @"file4.txt", @"subdir2\file111.txt" };
             var destFiles = new string[] { @"1\new\file1.txt", @"1\new\file2.txt", @"1\new\subdir\file11.txt" };
             var files = sourceFiles.Select(x => Path.Combine(source, x)).Union(destFiles.Select(x => Path.Combine(target, x)));
 
@@ -237,9 +237,11 @@ namespace TestBacky
 
             // Expected that all old files from %source% will remain under %target%\1\new
             // As well as 'deleted.txt' under %target%\2
+            // And all new files will be under %target%\2\new
             var expected = new string[] {
                 @"1\new\file1.txt", @"1\new\file2.txt", @"1\new\subdir\file11.txt", // old files
-                @"2\deleted.txt" // for holding the names of deletd files
+                @"2\deleted.txt", // for holding the names of deletd files
+                @"2\new\file3.txt", @"2\new\file4.txt", @"2\new\subdir2\file111.txt"
                 }.Select(x => Path.Combine(target, x));
             var actual = fileSystem.GetAllFiles(target);
             AssertLists<string>(expected, actual);
