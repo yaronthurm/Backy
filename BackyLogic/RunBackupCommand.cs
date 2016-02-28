@@ -37,7 +37,7 @@ namespace BackyLogic
 
             var targetDir = GetTargetDirectory(lastBackedupState);
             CopyAllNewFiles(targetDir, currentState, lastBackedupState);
-            CopyAllUpdatedFiles(targetDir, currentState, lastBackedupState);
+            CopyAllModifiedFiles(targetDir, currentState, lastBackedupState);
             MarkAllDeletedFiles(targetDir, currentState, lastBackedupState);
         }
 
@@ -53,9 +53,14 @@ namespace BackyLogic
             }
         }
 
-        private void CopyAllUpdatedFiles(string targetDir, State currentState, State lastBackedupState)
+        private void CopyAllModifiedFiles(string targetDir, State currentState, State lastBackedupState)
         {
-            // TODO
+            var modifiedFiles = GetModifiedFiles(currentState, lastBackedupState);
+            targetDir = Path.Combine(targetDir, "modified");
+            foreach (BackyFile newFile in modifiedFiles)
+            {
+                _fileSystem.Copy(newFile.PhysicalPath, System.IO.Path.Combine(targetDir, newFile.RelativeName));
+            }
         }
 
         private void CopyAllNewFiles(string targetDir, State currentState, State lastBackedupState)

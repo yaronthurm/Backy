@@ -251,6 +251,45 @@ namespace TestBacky
             AssertLists<string>(new[] { "file1.txt", "subdir\\file11.txt" }, fileSystem.ReadLines(Path.Combine(target, "2", "deleted.txt")));
         }
 
+        [TestMethod]
+        public void Test03_4_Running_for_the_second_time_Only_modified_files()
+        {
+            // This test simulates running the tool for the second time after some files were modified.
+            // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir/file11.txt
+            // In the second run, file1.txt and file2.txt are modified
+            // We expect that all original files will be found under %target%\1\new
+            // and that the modified files will be found under %target%\2\modified
+
+            var files = new EmulatorFile[] {
+                // Source
+                new EmulatorFile(@"c:\source\file1.txt", new DateTime(2015, 1, 1)), // new file - from 2015
+                new EmulatorFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1)), // new file - from 2015
+                new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1)),
+
+                // Target
+                new EmulatorFile(@"d:\target\1\new\file1.txt", new DateTime(2010, 1, 1)), // old file - from 2010
+                new EmulatorFile(@"d:\target\1\new\file2.txt", new DateTime(2010, 1, 1)), // old file - from 2010
+                new EmulatorFile(@"d:\target\1\new\subdir\file11.txt", new DateTime(2010, 1, 1)), // same as source
+            };
+
+            var fileSystem = new FileSystemEmulator(files);
+            var cmd = new RunBackupCommand(fileSystem, @"c:\source", @"d:\target");
+            cmd.Execute();
+
+            // Expected that all old files from %source% will remain under %target%\1\new
+            // And modified files will be under %target%\2\modified
+            var expected = new string[] {
+                @"d:\target\1\new\file1.txt",
+                @"d:\target\1\new\file2.txt",
+                @"d:\target\1\new\subdir\file11.txt",
+
+                @"d:\target\2\modified\file1.txt",
+                @"d:\target\2\modified\file2.txt"
+            };
+            var actual = fileSystem.GetAllFiles(@"d:\target");
+            AssertLists<string>(expected, actual);
+        }
+
 
 
         private static void AssertLists<T>(IEnumerable<T> expected, IEnumerable<T> actual)
