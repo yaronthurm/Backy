@@ -212,6 +212,42 @@ namespace TestBacky
             AssertLists<string>(new[] { "file1.txt", "subdir\\file11.txt" }, fileSystem.ReadLines(Path.Combine(target, "2", "deleted.txt")));
         }
 
+        [TestMethod]
+        public void Test03_3_Running_for_the_second_time_Both_new_and_deleted_files()
+        {
+            // This test simulates running the tool for the second time after some files were deleted from source and some were added.
+            // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir/file11.txt
+            // In the second run, 2 file were deleted: file1.txt, subdir\file11.txt
+            // and 3 files were added: file3.txt, file4.txt, subdir2\file111.txt
+            // We expect that all original files will still be found under %target%\1\new
+            // That a 'deleted.txt' file with the names of the files that were deleted will be found
+            // under %target%\2\deleted.txt
+            // And that all new files will be under %target%\2\new
+
+            var source = @"c:\source";
+            var target = @"d:\target";
+
+            var sourceFiles = new string[] { @"file2.txt" };
+            var destFiles = new string[] { @"1\new\file1.txt", @"1\new\file2.txt", @"1\new\subdir\file11.txt" };
+            var files = sourceFiles.Select(x => Path.Combine(source, x)).Union(destFiles.Select(x => Path.Combine(target, x)));
+
+            var fileSystem = new FileSystemEmulator(files);
+            var cmd = new RunBackupCommand(fileSystem, source, target);
+            cmd.Execute();
+
+            // Expected that all old files from %source% will remain under %target%\1\new
+            // As well as 'deleted.txt' under %target%\2
+            var expected = new string[] {
+                @"1\new\file1.txt", @"1\new\file2.txt", @"1\new\subdir\file11.txt", // old files
+                @"2\deleted.txt" // for holding the names of deletd files
+                }.Select(x => Path.Combine(target, x));
+            var actual = fileSystem.GetAllFiles(target);
+            AssertLists<string>(expected, actual);
+
+            // Expected to see "file1.txt" and "subdir\file11.txt" in the deleted file
+            AssertLists<string>(new[] { "file1.txt", "subdir\\file11.txt" }, fileSystem.ReadLines(Path.Combine(target, "2", "deleted.txt")));
+        }
+
 
 
         private static void AssertLists<T>(IEnumerable<T> expected, IEnumerable<T> actual)
