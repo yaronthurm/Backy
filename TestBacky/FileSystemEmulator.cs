@@ -25,7 +25,8 @@ namespace TestBacky
 
         public void Copy(string sourceFileName, string destFileName)
         {
-            _files.Add(new EmulatorFile(destFileName));
+            var source = _files.First(x => x.Name == sourceFileName);
+            _files.Add(new EmulatorFile(destFileName, source.LastModified));
         }
 
         public void CreateFile(string filename)

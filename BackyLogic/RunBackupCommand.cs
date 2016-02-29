@@ -149,15 +149,27 @@ namespace BackyLogic
 
             foreach (BackyFolder backyFolder in backyFolders.OrderBy(x => x.SerialNumber))
             {
+                // Add new files
                 ret.Files.AddRange(backyFolder.New);
+
+                // Remove deleted files
                 foreach (var deleted in backyFolder.Deleted)
                     ret.Files.RemoveAll(x => x.RelativeName == deleted);
+
+                // Handle renamed files
                 foreach (var rename in backyFolder.Renamed)
                 {
                     var file = ret.Files.First(x => x.RelativeName == rename.OldName);
                     file.RelativeName = rename.NewName;
                 }
-                // TODO: Handle modification
+
+                // Handle modified files
+                foreach (var modified in backyFolder.Modified)
+                {
+                    var file = ret.Files.First(x => x.RelativeName == modified.RelativeName);
+                    ret.Files.Remove(file);
+                    ret.Files.Add(modified);
+                }
             }
 
             return ret;
