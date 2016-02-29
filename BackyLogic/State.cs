@@ -56,7 +56,7 @@ namespace BackyLogic
         ///                 subfolder\
         ///                     file6, file7
         ///             deleted.txt (each row looks contains the name of the deleted file
-        ///             renamed.txt (each row looks like that: {oldname: "full name of file before rename", newname: "full name of file after rename"})
+        ///             renamed.txt (each row looks like that: {oldName: "relative path before rename", newName: "relative name after rename"})
         /// </summary>
         /// <returns></returns>
         public static BackyFolder FromFileNames(IFileSystem fileSystem, IEnumerable<string> fileNames, string rootDir)
@@ -84,7 +84,7 @@ namespace BackyLogic
             {
                 ret.Renamed = fileSystem.ReadLines(renamedName)
                     .Select(x => Newtonsoft.Json.Linq.JObject.Parse(x))
-                    .Select(x => new RenameInfo { OldName = x.Value<string>("oldname"), NewName = x.Value<string>("newname") }).ToList();
+                    .Select(x => new RenameInfo { OldName = x.Value<string>("oldName"), NewName = x.Value<string>("newName") }).ToList();
             }
             else
                 ret.Renamed = new List<RenameInfo>();

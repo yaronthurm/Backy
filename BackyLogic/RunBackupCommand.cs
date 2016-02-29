@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -32,7 +33,7 @@ namespace BackyLogic
             State currentState = GetCurrentState();
             State lastBackedupState = GetLastBackedUpState();
 
-            var diff = FoldersDiff.GetDiff(currentState, lastBackedupState);
+            var diff = FoldersDiff.GetDiff(_fileSystem, currentState, lastBackedupState);
 
             if (NoChangesFromLastBackup(diff))
                 return;
@@ -41,6 +42,22 @@ namespace BackyLogic
             CopyAllNewFiles(targetDir, diff);
             CopyAllModifiedFiles(targetDir, diff);
             MarkAllDeletedFiles(targetDir, diff);
+            MarkAllRenamedFiles(targetDir, diff);
+        }
+
+        private void MarkAllRenamedFiles(string targetDir, FoldersDiff diff)
+        {
+            var renamedFiles = diff.RenamedFiles;
+            if (renamedFiles.Any())
+            {
+                var renamedFilename = System.IO.Path.Combine(targetDir, "renamed.txt");
+                _fileSystem.CreateFile(renamedFilename);
+                foreach (var file in renamedFiles)
+                {
+                    string renameLine = new JObject(new JProperty("oldName", file.OldName), new JProperty("newName", file.NewName)).ToString(Newtonsoft.Json.Formatting.None);
+                    _fileSystem.AppendLine(renamedFilename, renameLine);
+                }
+            }
         }
 
         private void MarkAllDeletedFiles(string targetDir, FoldersDiff diff)
@@ -88,6 +105,8 @@ namespace BackyLogic
             if (diff.ModifiedFiles.Any())
                 return false;
             if (diff.DeletedFiles.Any())
+                return false;
+            if (diff.RenamedFiles.Any())
                 return false;
             return true;
         }
@@ -147,7 +166,7 @@ namespace BackyLogic
 
         private void RunFirstTimeBackup(string targetDir)
         {
-            var diff = FoldersDiff.GetDiff(GetCurrentState(), new State());
+            var diff = FoldersDiff.GetDiff(_fileSystem, GetCurrentState(), new State());
             CopyAllNewFiles(targetDir, diff);
         }
 

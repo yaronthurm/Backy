@@ -19,11 +19,11 @@ namespace BackyLogic
 
         DateTime GetLastWriteTime(string fullname);
 
-        DateTime GetCreationTime(string fullname);
-
         IEnumerable<string> ReadLines(string fullname);
 
         void AppendLine(string filename, string line);
+
+        byte[] GetContent(string physicalPath);
     }
 
 
@@ -55,9 +55,10 @@ namespace BackyLogic
             return Directory.GetFiles(source, "*", SearchOption.AllDirectories);
         }
 
-        public DateTime GetCreationTime(string fullname)
+        public byte[] GetContent(string physicalPath)
         {
-            return File.GetCreationTime(fullname);
+            var ret = File.ReadAllBytes(physicalPath);
+            return ret;
         }
 
         public IEnumerable<string> GetDirectories(string target)

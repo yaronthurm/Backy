@@ -39,9 +39,11 @@ namespace TestBacky
             return _files.Where(x => x.Name.StartsWith(directory)).Select(x => x.Name);
         }
 
-        public DateTime GetCreationTime(string fullname)
+        public byte[] GetContent(string physicalPath)
         {
-            throw new NotImplementedException();
+            var file = _files.First(x => x.Name == physicalPath);
+            var ret = string.Join(Environment.NewLine, file.Lines) ?? "";
+            return Encoding.UTF8.GetBytes(ret);
         }
 
         public IEnumerable<string> GetDirectories(string directory)
@@ -68,7 +70,6 @@ namespace TestBacky
         public string Name;
         public List<string> Lines = new List<string>();
         public DateTime LastModified;
-        public DateTime Created;
 
         public EmulatorFile(string name)
         {
@@ -78,11 +79,6 @@ namespace TestBacky
         public EmulatorFile(string name, DateTime lastModified): this (name)
         {
             this.LastModified = lastModified;
-        }
-
-        public EmulatorFile(string name, DateTime lastModified, DateTime creationTime) : this(name, lastModified)
-        {
-            this.Created = creationTime;
         }
     }
 }
