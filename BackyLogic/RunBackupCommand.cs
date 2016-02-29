@@ -32,18 +32,20 @@ namespace BackyLogic
             State currentState = GetCurrentState();
             State lastBackedupState = GetLastBackedUpState();
 
-            if (NoChangesFromLastBackup(currentState, lastBackedupState))
+            var diff = FoldersDiff.GetDiff(currentState, lastBackedupState);
+
+            if (NoChangesFromLastBackup(diff))
                 return;
 
             var targetDir = GetTargetDirectory(lastBackedupState);
-            CopyAllNewFiles(targetDir, currentState, lastBackedupState);
-            CopyAllModifiedFiles(targetDir, currentState, lastBackedupState);
-            MarkAllDeletedFiles(targetDir, currentState, lastBackedupState);
+            CopyAllNewFiles(targetDir, diff);
+            CopyAllModifiedFiles(targetDir, diff);
+            MarkAllDeletedFiles(targetDir, diff);
         }
 
-        private void MarkAllDeletedFiles(string targetDir, State currentState, State lastBackedupState)
+        private void MarkAllDeletedFiles(string targetDir, FoldersDiff diff)
         {
-            var deletedFiles = GetDeletedFiles(currentState, lastBackedupState);
+            var deletedFiles = diff.DeletedFiles;
             if (deletedFiles.Any())
             {
                 var deletedFilename = System.IO.Path.Combine(targetDir, "deleted.txt");
@@ -53,9 +55,9 @@ namespace BackyLogic
             }
         }
 
-        private void CopyAllModifiedFiles(string targetDir, State currentState, State lastBackedupState)
+        private void CopyAllModifiedFiles(string targetDir, FoldersDiff diff)
         {
-            var modifiedFiles = GetModifiedFiles(currentState, lastBackedupState);
+            var modifiedFiles = diff.ModifiedFiles;
             targetDir = Path.Combine(targetDir, "modified");
             foreach (BackyFile newFile in modifiedFiles)
             {
@@ -63,9 +65,9 @@ namespace BackyLogic
             }
         }
 
-        private void CopyAllNewFiles(string targetDir, State currentState, State lastBackedupState)
+        private void CopyAllNewFiles(string targetDir, FoldersDiff diff)
         {
-            var newFiles = GetNewFiles(currentState, lastBackedupState);
+            var newFiles = diff.NewFiles;
             targetDir = Path.Combine(targetDir, "new");
             foreach (BackyFile newFile in newFiles)
             {
@@ -79,54 +81,13 @@ namespace BackyLogic
             return ret;
         }
 
-        private IEnumerable<BackyFile> GetNewFiles(State currentState, State lastBackedupState)
+        private bool NoChangesFromLastBackup(FoldersDiff diff)
         {
-            var ret = new List<BackyFile>();
-            foreach (var file in currentState.Files)
-            {
-                if (lastBackedupState.Files.Any(x => x.RelativeName == file.RelativeName))
-                    // not new
-                    continue;
-                ret.Add(file);
-            }
-            return ret;
-        }
-
-        private IEnumerable<BackyFile> GetModifiedFiles(State currentState, State lastBackedupState)
-        {
-            var ret = new List<BackyFile>();
-            foreach (var file in currentState.Files)
-            {
-                // look for file in backup
-                var backupfile = lastBackedupState.Files.FirstOrDefault(x => x.RelativeName == file.RelativeName);
-                if (backupfile == null || backupfile.LastWriteTime == file.LastWriteTime)
-                    continue;
-                
-                ret.Add(file);
-            }
-            return ret;
-        }
-
-        private IEnumerable<BackyFile> GetDeletedFiles(State currentState, State lastBackedupState)
-        {
-            var ret = new List<BackyFile>();
-            foreach (var file in lastBackedupState.Files)
-            {
-                // look for file in current
-                var currentFile = currentState.Files.FirstOrDefault(x => x.RelativeName == file.RelativeName);
-                if (currentFile == null)
-                    ret.Add(file);
-            }
-            return ret;
-        }
-
-        private bool NoChangesFromLastBackup(State currentState, State lastBackedupState)
-        {
-            if (GetNewFiles(currentState, lastBackedupState).Any())
+            if (diff.NewFiles.Any())
                 return false;
-            if (GetModifiedFiles(currentState, lastBackedupState).Any())
+            if (diff.ModifiedFiles.Any())
                 return false;
-            if (GetDeletedFiles(currentState, lastBackedupState).Any())
+            if (diff.DeletedFiles.Any())
                 return false;
             return true;
         }
@@ -186,7 +147,8 @@ namespace BackyLogic
 
         private void RunFirstTimeBackup(string targetDir)
         {
-            CopyAllNewFiles(targetDir, GetCurrentState(), new State());
+            var diff = FoldersDiff.GetDiff(GetCurrentState(), new State());
+            CopyAllNewFiles(targetDir, diff);
         }
 
         private bool IsFirstTime()
