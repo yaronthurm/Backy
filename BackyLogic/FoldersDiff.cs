@@ -53,6 +53,9 @@ namespace BackyLogic
                 if (matchingFile != null)
                 {
                     renameSuspects.Add(new { OldFile = deleted, NewFile = matchingFile });
+
+                    // Remove the matched file from the list
+                    newFiles = newFiles.Where(x => x != matchingFile).ToList();
                 }
             }
 
