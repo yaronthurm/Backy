@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BackProgress.cs" />
     <Compile Include="BackyFile.cs" />
     <Compile Include="FoldersDiff.cs" />
     <Compile Include="State.cs" />

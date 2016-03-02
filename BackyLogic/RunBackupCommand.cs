@@ -13,6 +13,10 @@ namespace BackyLogic
         private string _source;
         private string _target;
         private IFileSystem _fileSystem;
+        private BackyProgress _progress = new BackyProgress();
+
+        public event Action<BackyProgress> OnProgress;
+
 
         public RunBackupCommand(IFileSystem fileSystem, string source, string target)
         {
@@ -32,11 +36,19 @@ namespace BackyLogic
 
             State currentState = GetCurrentState();
             State lastBackedupState = GetLastBackedUpState();
+            _progress.CalculateDiffFinished = true;
+            RaiseOnProgress();
 
             var diff = FoldersDiff.GetDiff(_fileSystem, currentState, lastBackedupState);
+            _progress.CalculateDiffFinished = true;
+            RaiseOnProgress();
 
             if (NoChangesFromLastBackup(diff))
+            {
+                _progress.NoChangeDetected = true;
+                RaiseOnProgress();
                 return;
+            }
 
             var targetDir = GetTargetDirectory(lastBackedupState);
             CopyAllNewFiles(targetDir, diff);
@@ -45,9 +57,16 @@ namespace BackyLogic
             MarkAllRenamedFiles(targetDir, diff);
         }
 
+        private void RaiseOnProgress()
+        {
+            if (OnProgress != null)
+                OnProgress(_progress);
+        }
+
         private void MarkAllRenamedFiles(string targetDir, FoldersDiff diff)
         {
             var renamedFiles = diff.RenamedFiles;
+            _progress.RenamedFilesTotal = renamedFiles.Count;
             if (renamedFiles.Any())
             {
                 var renamedFilename = System.IO.Path.Combine(targetDir, "renamed.txt");
@@ -56,6 +75,8 @@ namespace BackyLogic
                 {
                     string renameLine = new JObject(new JProperty("oldName", file.OldName), new JProperty("newName", file.NewName)).ToString(Newtonsoft.Json.Formatting.None);
                     _fileSystem.AppendLine(renamedFilename, renameLine);
+                    _progress.RenamedFilesFinished++;
+                    RaiseOnProgress();
                 }
             }
         }
@@ -63,32 +84,43 @@ namespace BackyLogic
         private void MarkAllDeletedFiles(string targetDir, FoldersDiff diff)
         {
             var deletedFiles = diff.DeletedFiles;
+            _progress.DeletedFilesTotal = deletedFiles.Count;
             if (deletedFiles.Any())
             {
                 var deletedFilename = System.IO.Path.Combine(targetDir, "deleted.txt");
                 _fileSystem.CreateFile(deletedFilename);
                 foreach (var file in deletedFiles)
+                {
                     _fileSystem.AppendLine(deletedFilename, file.RelativeName);
+                    _progress.DeletedFilesFinished++;
+                    RaiseOnProgress();
+                }
             }
         }
 
         private void CopyAllModifiedFiles(string targetDir, FoldersDiff diff)
         {
             var modifiedFiles = diff.ModifiedFiles;
+            _progress.ModifiedFilesTotal = modifiedFiles.Count;
             targetDir = Path.Combine(targetDir, "modified");
             foreach (BackyFile newFile in modifiedFiles)
             {
                 _fileSystem.Copy(newFile.PhysicalPath, System.IO.Path.Combine(targetDir, newFile.RelativeName));
+                _progress.ModifiedFilesFinished++;
+                RaiseOnProgress();
             }
         }
 
         private void CopyAllNewFiles(string targetDir, FoldersDiff diff)
         {
             var newFiles = diff.NewFiles;
+            _progress.NewFilesTotal = newFiles.Count;
             targetDir = Path.Combine(targetDir, "new");
             foreach (BackyFile newFile in newFiles)
             {
                 _fileSystem.Copy(newFile.PhysicalPath, System.IO.Path.Combine(targetDir, newFile.RelativeName));
+                _progress.NewFilesFinished++;
+                RaiseOnProgress();
             }
         }
 
