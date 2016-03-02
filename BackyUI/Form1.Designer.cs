@@ -37,6 +37,7 @@
             this.progressModifiedFiles = new System.Windows.Forms.ProgressBar();
             this.lblProgressNewFiles = new System.Windows.Forms.Label();
             this.lblProgressModifiedFiles = new System.Windows.Forms.Label();
+            this.btnAbort = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -115,11 +116,23 @@
             this.lblProgressModifiedFiles.TabIndex = 9;
             this.lblProgressModifiedFiles.Text = "modified files";
             // 
+            // btnAbort
+            // 
+            this.btnAbort.Enabled = false;
+            this.btnAbort.Location = new System.Drawing.Point(173, 106);
+            this.btnAbort.Name = "btnAbort";
+            this.btnAbort.Size = new System.Drawing.Size(75, 23);
+            this.btnAbort.TabIndex = 10;
+            this.btnAbort.Text = "Abort";
+            this.btnAbort.UseVisualStyleBackColor = true;
+            this.btnAbort.Click += new System.EventHandler(this.btnAbort_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(485, 258);
+            this.Controls.Add(this.btnAbort);
             this.Controls.Add(this.lblProgressModifiedFiles);
             this.Controls.Add(this.lblProgressNewFiles);
             this.Controls.Add(this.progressModifiedFiles);
@@ -147,6 +160,7 @@
         private System.Windows.Forms.ProgressBar progressModifiedFiles;
         private System.Windows.Forms.Label lblProgressNewFiles;
         private System.Windows.Forms.Label lblProgressModifiedFiles;
+        private System.Windows.Forms.Button btnAbort;
     }
 }
 

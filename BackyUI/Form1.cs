@@ -14,6 +14,8 @@ namespace Backy
 {
     public partial class Form1 : Form
     {
+        private RunBackupCommand _backupCommand;
+
         public Form1()
         {
             InitializeComponent();
@@ -21,9 +23,12 @@ namespace Backy
 
         private void btnRun_Click(object sender, EventArgs e)
         {
-            var backupCommand = new RunBackupCommand(new FileSystem(), this.txtSource.Text, this.txtTarget.Text);
-            backupCommand.OnProgress += BackupCommand_OnProgress;
-            Task.Run(() => backupCommand.Execute());
+            _backupCommand = new RunBackupCommand(new FileSystem(), this.txtSource.Text, this.txtTarget.Text);
+            _backupCommand.OnProgress += BackupCommand_OnProgress;
+            Task.Run(() => _backupCommand.Execute());
+
+            this.btnAbort.Enabled = true;
+            this.btnRun.Enabled = false;
         }
 
         private void BackupCommand_OnProgress(BackyProgress obj)
@@ -41,6 +46,19 @@ namespace Backy
             this.progressModifiedFiles.Maximum = obj.ModifiedFilesTotal;
             this.progressModifiedFiles.Value = obj.ModifiedFilesFinished;
             this.lblProgressModifiedFiles.Text = $"{ obj.ModifiedFilesFinished }/{ obj.ModifiedFilesTotal   }";
+
+            if (obj.Done())
+            {
+                this.btnRun.Enabled = true;
+                this.btnAbort.Enabled = false;
+            }
+        }
+
+        private void btnAbort_Click(object sender, EventArgs e)
+        {
+            _backupCommand.Abort();
+            this.btnAbort.Enabled = false;
+            this.btnRun.Enabled = true;
         }
     }
 }

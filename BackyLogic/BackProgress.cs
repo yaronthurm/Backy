@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace BackyLogic
 {
@@ -20,5 +21,15 @@ namespace BackyLogic
 
         public int RenamedFilesTotal { get; internal set; }
         public int RenamedFilesFinished { get; internal set; }
+
+        public bool Done()
+        {
+            var ret = CalculateDiffFinished &&
+                NewFilesFinished == NewFilesTotal &&
+                DeletedFilesFinished == DeletedFilesTotal &&
+                ModifiedFilesFinished == ModifiedFilesTotal &&
+                RenamedFilesFinished == RenamedFilesTotal;
+            return ret;
+        }
     }
 }
