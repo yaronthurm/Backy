@@ -103,11 +103,18 @@ namespace BackyLogic
             var modifiedFiles = diff.ModifiedFiles;
             _progress.ModifiedFilesTotal = modifiedFiles.Count;
             targetDir = Path.Combine(targetDir, "modified");
-            foreach (BackyFile newFile in modifiedFiles)
+            foreach (BackyFile file in modifiedFiles)
             {
-                _fileSystem.Copy(newFile.PhysicalPath, System.IO.Path.Combine(targetDir, newFile.RelativeName));
-                _progress.ModifiedFilesFinished++;
-                RaiseOnProgress();
+                try {
+                    _fileSystem.Copy(file.PhysicalPath, System.IO.Path.Combine(targetDir, file.RelativeName));
+                    _progress.ModifiedFilesFinished++;
+                    RaiseOnProgress();
+                }
+                catch
+                {
+                    _progress.Failed.Add(file.RelativeName);
+                    RaiseOnProgress();
+                }
             }
         }
 
@@ -116,11 +123,18 @@ namespace BackyLogic
             var newFiles = diff.NewFiles;
             _progress.NewFilesTotal = newFiles.Count;
             targetDir = Path.Combine(targetDir, "new");
-            foreach (BackyFile newFile in newFiles)
+            foreach (BackyFile file in newFiles)
             {
-                _fileSystem.Copy(newFile.PhysicalPath, System.IO.Path.Combine(targetDir, newFile.RelativeName));
-                _progress.NewFilesFinished++;
-                RaiseOnProgress();
+                try {
+                    _fileSystem.Copy(file.PhysicalPath, System.IO.Path.Combine(targetDir, file.RelativeName));
+                    _progress.NewFilesFinished++;
+                    RaiseOnProgress();
+                }
+                catch
+                {
+                    _progress.Failed.Add(file.RelativeName);
+                    RaiseOnProgress();
+                }
             }
         }
 
