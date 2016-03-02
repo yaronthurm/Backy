@@ -245,7 +245,7 @@ namespace TestBacky
             var destFiles = new string[] { @"1\new\file1.txt", @"1\new\file2.txt", @"1\new\subdir\file11.txt" };
             var files = sourceFiles.Select(x => Path.Combine(source, x)).Union(destFiles.Select(x => Path.Combine(target, x)));
 
-            var fileSystem = new FileSystemEmulator(files.Select(x => new EmulatorFile(x)));
+            var fileSystem = new FileSystemEmulator(files.Select(x => new EmulatorFile(x) { Lines = new List<string> { x } }));
             var cmd = new RunBackupCommand(fileSystem, source, target);
             cmd.Execute();
 
@@ -366,8 +366,8 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file1.txt", new DateTime(2015, 1, 1)), // modified file - from 2015
                 new EmulatorFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1)), // modified file - from 2015
                 // new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1)), // deleted file
-                new EmulatorFile(@"c:\source\file3.txt", new DateTime(2010, 1, 1)), // new file
-                new EmulatorFile(@"c:\source\subdir2\file44.txt", new DateTime(2010, 1, 1)), // new file
+                new EmulatorFile(@"c:\source\file3.txt", new DateTime(2010, 1, 1)) { Lines = new List<string> { "123" } }, // new file
+                new EmulatorFile(@"c:\source\subdir2\file44.txt", new DateTime(2010, 1, 1)) { Lines = new List<string> { "123" } }, // new file
 
                 // Target
                 new EmulatorFile(@"d:\target\1\new\file1.txt", new DateTime(2010, 1, 1)), // old file - from 2010
