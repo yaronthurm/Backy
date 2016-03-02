@@ -199,6 +199,8 @@ namespace BackyLogic
         private void RunFirstTimeBackup(string targetDir)
         {
             var diff = FoldersDiff.GetDiff(_fileSystem, GetCurrentState(), new State());
+            _progress.CalculateDiffFinished = true;
+            RaiseOnProgress();
             CopyAllNewFiles(targetDir, diff);
         }
 

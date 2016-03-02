@@ -22,7 +22,25 @@ namespace Backy
         private void btnRun_Click(object sender, EventArgs e)
         {
             var backupCommand = new RunBackupCommand(new FileSystem(), this.txtSource.Text, this.txtTarget.Text);
-            backupCommand.Execute();
+            backupCommand.OnProgress += BackupCommand_OnProgress;
+            Task.Run(() => backupCommand.Execute());
+        }
+
+        private void BackupCommand_OnProgress(BackyProgress obj)
+        {
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke((Action<BackyProgress>)this.BackupCommand_OnProgress, obj);
+                return;
+            }
+
+            this.progressNewFiles.Maximum = obj.NewFilesTotal;
+            this.progressNewFiles.Value = obj.NewFilesFinished;
+            this.lblProgressNewFiles.Text = $"{ obj.NewFilesFinished }/{ obj.NewFilesTotal   }";
+
+            this.progressModifiedFiles.Maximum = obj.ModifiedFilesTotal;
+            this.progressModifiedFiles.Value = obj.ModifiedFilesFinished;
+            this.lblProgressModifiedFiles.Text = $"{ obj.ModifiedFilesFinished }/{ obj.ModifiedFilesTotal   }";
         }
     }
 }
