@@ -145,7 +145,7 @@ namespace Backy
             if (string.IsNullOrEmpty(_currentDirectory))
                 return this._files;
 
-            var ret = _files.Where(x => x.LogicalPath.StartsWith(_currentDirectory));
+            var ret = _files.Where(x => x.LogicalPath.StartsWith(_currentDirectory + "\\"));
             return ret;
         }
 
@@ -179,5 +179,10 @@ namespace Backy
     {
         public string LogicalPath;
         public string PhysicalPath;
+
+        public override string ToString()
+        {
+            return LogicalPath;
+        }
     }
 }

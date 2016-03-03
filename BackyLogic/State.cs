@@ -136,8 +136,12 @@ namespace BackyLogic
                 // Handle renamed files
                 foreach (var rename in backyFolder.Renamed)
                 {
+                    // In order to not touching the refernce, we will clone the file and modify it.
                     var file = ret.Files.First(x => x.RelativeName == rename.OldName);
-                    file.RelativeName = rename.NewName;
+                    ret.Files.Remove(file);
+                    var renamedFile = file.Clone();
+                    renamedFile.RelativeName = rename.NewName;
+                    ret.Files.Add(renamedFile);
                 }
 
                 // Handle modified files

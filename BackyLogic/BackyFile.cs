@@ -15,6 +15,18 @@ namespace BackyLogic
 
         private BackyFile() { }
 
+        public BackyFile Clone()
+        {
+            var ret = new BackyFile
+            {
+                LastWriteTime = this.LastWriteTime,
+                PhysicalPath = this.PhysicalPath,
+                RelativeName = this.RelativeName,
+                Root = this.Root
+            };
+            return ret;
+        }
+
         public static BackyFile FromSourceFileName(IFileSystem fileSystem, string fullname, string sourceDirectory)
         {
             var ret = new BackyFile();
