@@ -12,6 +12,7 @@ namespace Backy
     {
         private FileView _file;
         public event Action OnChange;
+        public event Action<FileView> DoubleClick;
 
         public LargeFileView()
         {
@@ -47,7 +48,12 @@ namespace Backy
 
         private void BindCtrlToMouseDoubleClick(Control ctrl)
         {
-            ctrl.DoubleClick += (s, e) => Process.Start(_file.PhysicalPath);
+            ctrl.DoubleClick += (s, e) =>
+            {
+                if (this.DoubleClick != null)
+                    this.DoubleClick(_file);
+            };
+            //Process.Start(_file.PhysicalPath);
         }
 
         public void SetData(Bitmap thumbnail, FileView file)

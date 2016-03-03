@@ -4,6 +4,7 @@ using System.Linq;
 using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.Shell;
 using System.IO;
+using System.Diagnostics;
 
 namespace Backy
 {
@@ -12,8 +13,7 @@ namespace Backy
         private List<FileView> _files = new List<FileView>();
         private string _rootDirectory;
         private int _currentPage;
-
-        public event Action OnChange;
+        private string _currentDirectory = "";
 
         public FilesPanel()
         {
@@ -27,6 +27,7 @@ namespace Backy
                 return (int)this.numericUpDown1.Value;
             }
         }
+
         private int TotalPages
         {
             get
@@ -42,7 +43,13 @@ namespace Backy
         {
             _files = files.ToList();
             _rootDirectory = rootDirectory;
-            if (_files.Count < PageSize)
+            _currentPage = 1;
+            this.FillPanel();
+        }
+
+        private void EnableDisabledNavigationButtons(int numberOfTotalItems)
+        {
+            if (numberOfTotalItems < PageSize)
             {
                 this.btnNext.Enabled = false;
                 this.btnPrev.Enabled = false;
@@ -52,9 +59,6 @@ namespace Backy
                 this.btnNext.Enabled = true;
                 this.btnPrev.Enabled = false;
             }
-            
-            _currentPage = 1;
-            this.FillPanel();
         }
 
         private void btnNext_Click(object sender, EventArgs e)
@@ -77,61 +81,96 @@ namespace Backy
 
         private void FillPanel()
         {
-            //foreach (LargeFileWithTag item in this.flowLayoutPanel1.Controls)
-                //item.OnChange -= this.OnChangeHandler;
             this.flowLayoutPanel1.Controls.Clear();
 
-            // Find first level folders
-            var folders = GetFirstLevelDirectories(_files.Select(x => x.LogicalPath));
-            var folderItems = folders
+            var includedFiles = GetFilesToInclude();
+            var firstLevelDirectories = GetFirstLevelDirectories(includedFiles);
+            var firstLevelFiles = GetFirstLevelFiles(includedFiles, firstLevelDirectories);
+
+            var directoeiresControls = GetDirectoriesControls(firstLevelDirectories);
+            var filesControls = GetFilesControls(firstLevelFiles);
+
+            int start = (_currentPage - 1) * PageSize + 1;
+
+            var allControls = directoeiresControls.Union(filesControls).ToArray();
+            var pageControls = allControls.Skip(start - 1).Take(PageSize).ToArray();
+
+            int end = Math.Min(start + PageSize - 1, pageControls.Length);
+            lblCount.Text = string.Format("{0}-{1}/{2}", start, end, allControls.Length);
+
+            this.flowLayoutPanel1.Controls.AddRange(allControls);
+            EnableDisabledNavigationButtons(allControls.Length);
+        }
+
+        private IEnumerable<LargeFileView> GetFilesControls(IEnumerable<FileView> firstLevelFiles)
+        {
+            var ret = firstLevelFiles
+                .Select(x =>
+                {
+                    var item = new LargeFileView();
+                    var shellFile = ShellFolder.FromParsingName(x.PhysicalPath);
+                    shellFile.Thumbnail.FormatOption = ShellThumbnailFormatOption.Default;
+                    item.SetData(shellFile.Thumbnail.MediumBitmap, x);
+                    item.DoubleClick += fileView => Process.Start(fileView.PhysicalPath);
+                    return item;
+                });
+            return ret;
+        }
+
+
+        private IEnumerable<LargeFileView> GetDirectoriesControls(IEnumerable<string> firstLevelDirectories)
+        {
+            var ret = firstLevelDirectories
                 .Select(x =>
                 {
                     var item = new LargeFileView();
                     var shellFile = ShellFolder.FromParsingName(_rootDirectory);
                     shellFile.Thumbnail.FormatOption = ShellThumbnailFormatOption.Default;
                     item.SetData(shellFile.Thumbnail.MediumBitmap, new FileView { LogicalPath = x, PhysicalPath = x });
-                    item.OnChange += this.OnChangeHandler;
+                    item.DoubleClick += fileView =>
+                    {
+                        _currentDirectory = Path.Combine(_currentDirectory, fileView.LogicalPath) + "\\";
+                        this.FillPanel();
+                    };
                     return item;
-                }).ToArray();
-
-            int start = (_currentPage - 1) * PageSize + 1;
-
-            var filesWithoutFolders = _files.Where(x => folders.All(y => !x.LogicalPath.StartsWith(y + "\\")));
-
-            var fileItems = filesWithoutFolders
-                .Skip(start - 1)
-                .Take(PageSize)
-                .Select(x =>
-            {
-                var item = new LargeFileView();
-                var shellFile = ShellFolder.FromParsingName(x.PhysicalPath);
-                shellFile.Thumbnail.FormatOption = ShellThumbnailFormatOption.Default;
-                item.SetData(shellFile.Thumbnail.MediumBitmap, x);
-                item.OnChange += this.OnChangeHandler;
-                return item;
-            }).ToArray();
-
-
-            var totalItem = folderItems.Length + fileItems.Length;
-            int end = Math.Min(start + PageSize - 1, totalItem);
-            lblCount.Text = string.Format("{0}-{1}/{2}", start, end, totalItem);
-
-            this.flowLayoutPanel1.Controls.AddRange(folderItems);
-            this.flowLayoutPanel1.Controls.AddRange(fileItems);
-        }
-
-        public static IEnumerable<string> GetFirstLevelDirectories(IEnumerable<string> paths)
-        {
-            // Get just first level directories
-            var ret = paths.Select(x => x.Split('\\')).Where(x => x.Length > 1).Select(x => x[0]).Distinct();
-
+                });
             return ret;
         }
 
-        private void OnChangeHandler()
+        private IEnumerable<FileView> GetFirstLevelFiles(IEnumerable<FileView> includedFiles, IEnumerable<string> firstLevelDirectories)
         {
-            if (this.OnChange != null)
-                this.OnChange();
+            var ret = includedFiles
+                .Where(x => firstLevelDirectories.All(y => !x.LogicalPath.StartsWith(_currentDirectory + y + "\\")));
+            return ret;
+        }
+
+        private IEnumerable<FileView> GetFilesToInclude()
+        {
+            // Only return files that start with the current directory;
+            if (string.IsNullOrEmpty(_currentDirectory))
+                return this._files;
+
+            var ret = _files.Where(x => x.LogicalPath.StartsWith(_currentDirectory));
+            return ret;
+        }
+
+        public IEnumerable<string> GetFirstLevelDirectories(IEnumerable<FileView> files)
+        {
+            IEnumerable<string> ret;
+            if (_currentDirectory == "")
+            {
+                ret = files
+                    .Select(x => x.LogicalPath.Split('\\'))
+                    .Where(x => x.Length > 1).Select(x => x[0]).Distinct();
+            }
+            else
+            {
+                ret = files
+                    .Select(x => x.LogicalPath.Replace(_currentDirectory, "").Split('\\'))
+                    .Where(x => x.Length > 1).Select(x => x[0]).Distinct();
+            }
+
+            return ret;
         }
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
