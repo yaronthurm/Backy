@@ -87,7 +87,7 @@ namespace Backy
                 .Select(x =>
                 {
                     var item = new LargeFileView();
-                    var shellFile = ShellFolder.FromParsingName(Path.Combine(_rootDirectory, x));
+                    var shellFile = ShellFolder.FromParsingName(_rootDirectory);
                     shellFile.Thumbnail.FormatOption = ShellThumbnailFormatOption.Default;
                     item.SetData(shellFile.Thumbnail.MediumBitmap, new FileView { LogicalPath = x, PhysicalPath = x });
                     item.OnChange += this.OnChangeHandler;

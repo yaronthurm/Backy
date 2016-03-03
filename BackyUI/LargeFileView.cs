@@ -54,6 +54,7 @@ namespace Backy
         {
             _file = file;
 
+            thumbnail.MakeTransparent();
             this.pictureBox1.Image = thumbnail;
             this.lblFileName.Text = Path.GetFileName(file.PhysicalPath);
         }
