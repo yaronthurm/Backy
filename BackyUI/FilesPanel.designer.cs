@@ -1,4 +1,4 @@
-﻿namespace TestTagFolders
+﻿namespace Backy
 {
     partial class FilesPanel
     {

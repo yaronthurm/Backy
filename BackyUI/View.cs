@@ -16,5 +16,10 @@ namespace Backy
         {
             InitializeComponent();
         }
+
+        public void SetFiles(IEnumerable<Backy.FileView> files, string rootDirectory)
+        {
+            this.filesPanel1.PopulateFiles(files, rootDirectory);
+        }
     }
 }

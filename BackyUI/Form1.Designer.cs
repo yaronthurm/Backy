@@ -43,6 +43,7 @@
             this.label6 = new System.Windows.Forms.Label();
             this.lblProgressRenameDetection = new System.Windows.Forms.Label();
             this.progressRenameDetection = new System.Windows.Forms.ProgressBar();
+            this.btnView = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -175,11 +176,22 @@
             this.progressRenameDetection.Size = new System.Drawing.Size(272, 23);
             this.progressRenameDetection.TabIndex = 13;
             // 
+            // btnView
+            // 
+            this.btnView.Location = new System.Drawing.Point(280, 106);
+            this.btnView.Name = "btnView";
+            this.btnView.Size = new System.Drawing.Size(75, 23);
+            this.btnView.TabIndex = 18;
+            this.btnView.Text = "View";
+            this.btnView.UseVisualStyleBackColor = true;
+            this.btnView.Click += new System.EventHandler(this.btnView_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(474, 267);
+            this.Controls.Add(this.btnView);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.lblProgressRenameDetection);
             this.Controls.Add(this.progressRenameDetection);
@@ -219,6 +231,7 @@
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label lblProgressRenameDetection;
         private System.Windows.Forms.ProgressBar progressRenameDetection;
+        private System.Windows.Forms.Button btnView;
     }
 }
 

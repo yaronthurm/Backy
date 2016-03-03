@@ -30,8 +30,8 @@ namespace BackyLogic
 
         public void Execute()
         {
-            State currentState = GetCurrentState();
-            State lastBackedupState = GetLastBackedUpState();
+            State currentState = State.GetCurrentState(_fileSystem, _source);
+            State lastBackedupState = State.GetLastBackedUpState(_fileSystem, _target);
             _diff = GetDiff(currentState, lastBackedupState);
             _diff.CalculateDiff();
             _progress.NewFilesTotal = _diff.NewFiles.Count;
@@ -174,59 +174,6 @@ namespace BackyLogic
             if (diff.RenamedFiles.Any())
                 return false;
             return true;
-        }
-
-        private State GetLastBackedUpState()
-        {
-            var ret = new State();
-
-            // Get all backup files
-            var allBackupFiles = _fileSystem.GetAllFiles(_target);
-            var allBackupDirectories = State.GetFirstLevelDirectories(_fileSystem, _target).Select(x => System.IO.Path.Combine(_target, x));
-
-            var backyFolders = new List<BackyFolder>();
-            foreach (string dir in allBackupDirectories)
-            {
-                var allFilesForThisDirectory = allBackupFiles.Where(x => x.StartsWith(dir));
-                var newFolder = BackyFolder.FromFileNames(_fileSystem, allFilesForThisDirectory, dir);
-                backyFolders.Add(newFolder);
-            }
-
-            foreach (BackyFolder backyFolder in backyFolders.OrderBy(x => x.SerialNumber))
-            {
-                // Add new files
-                ret.Files.AddRange(backyFolder.New);
-
-                // Remove deleted files
-                foreach (var deleted in backyFolder.Deleted)
-                    ret.Files.RemoveAll(x => x.RelativeName == deleted);
-
-                // Handle renamed files
-                foreach (var rename in backyFolder.Renamed)
-                {
-                    var file = ret.Files.First(x => x.RelativeName == rename.OldName);
-                    file.RelativeName = rename.NewName;
-                }
-
-                // Handle modified files
-                foreach (var modified in backyFolder.Modified)
-                {
-                    var file = ret.Files.First(x => x.RelativeName == modified.RelativeName);
-                    ret.Files.Remove(file);
-                    ret.Files.Add(modified);
-                }
-            }
-
-            return ret;
-        }
-
-        private State GetCurrentState()
-        {
-            var files = _fileSystem.GetAllFiles(_source);
-
-            var ret = new State();
-            ret.Files = files.Select(x => BackyFile.FromSourceFileName(_fileSystem, x, _source)).ToList();
-            return ret;
         }
         
         private bool IsFirstTime()

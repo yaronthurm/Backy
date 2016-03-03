@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.Shell;
+using System.IO;
 
-namespace TestTagFolders
+namespace Backy
 {
     public partial class FilesPanel : UserControl
     {
-        private List<FileView> _files;
+        private List<FileView> _files = new List<FileView>();
+        private string _rootDirectory;
         private int _currentPage;
 
         public event Action OnChange;
@@ -36,9 +38,10 @@ namespace TestTagFolders
             }
         }
 
-        public void PopulateFiles(IEnumerable<FileView> files)
+        public void PopulateFiles(IEnumerable<FileView> files, string rootDirectory)
         {
             _files = files.ToList();
+            _rootDirectory = rootDirectory;
             if (_files.Count < PageSize)
             {
                 this.btnNext.Enabled = false;
@@ -78,18 +81,30 @@ namespace TestTagFolders
                 //item.OnChange -= this.OnChangeHandler;
             this.flowLayoutPanel1.Controls.Clear();
 
+            // Find first level folders
+            var folders = GetFirstLevelDirectories(_files.Select(x => x.LogicalPath));
+            var folderItems = folders
+                .Select(x =>
+                {
+                    var item = new LargeFileView();
+                    var shellFile = ShellFolder.FromParsingName(Path.Combine(_rootDirectory, x));
+                    shellFile.Thumbnail.FormatOption = ShellThumbnailFormatOption.Default;
+                    item.SetData(shellFile.Thumbnail.MediumBitmap, new FileView { LogicalPath = x, PhysicalPath = x });
+                    item.OnChange += this.OnChangeHandler;
+                    return item;
+                }).ToArray();
+
             int start = (_currentPage - 1) * PageSize + 1;
-            int end = Math.Min(start + PageSize - 1, _files.Count);
 
-            lblCount.Text = string.Format("{0}-{1}/{2}", start, end, _files.Count);
+            var filesWithoutFolders = _files.Where(x => folders.All(y => !x.LogicalPath.StartsWith(y + "\\")));
 
-            var items = _files
+            var fileItems = filesWithoutFolders
                 .Skip(start - 1)
                 .Take(PageSize)
                 .Select(x =>
             {
                 var item = new LargeFileView();
-                var shellFile = ShellFile.FromFilePath(x.PhysicalPath);
+                var shellFile = ShellFolder.FromParsingName(x.PhysicalPath);
                 shellFile.Thumbnail.FormatOption = ShellThumbnailFormatOption.Default;
                 item.SetData(shellFile.Thumbnail.MediumBitmap, x);
                 item.OnChange += this.OnChangeHandler;
@@ -97,7 +112,20 @@ namespace TestTagFolders
             }).ToArray();
 
 
-            this.flowLayoutPanel1.Controls.AddRange(items);
+            var totalItem = folderItems.Length + fileItems.Length;
+            int end = Math.Min(start + PageSize - 1, totalItem);
+            lblCount.Text = string.Format("{0}-{1}/{2}", start, end, totalItem);
+
+            this.flowLayoutPanel1.Controls.AddRange(folderItems);
+            this.flowLayoutPanel1.Controls.AddRange(fileItems);
+        }
+
+        public static IEnumerable<string> GetFirstLevelDirectories(IEnumerable<string> paths)
+        {
+            // Get just first level directories
+            var ret = paths.Select(x => x.Split('\\')).Where(x => x.Length > 1).Select(x => x[0]).Distinct();
+
+            return ret;
         }
 
         private void OnChangeHandler()
@@ -115,6 +143,7 @@ namespace TestTagFolders
 
     public class FileView
     {
+        public string LogicalPath;
         public string PhysicalPath;
     }
 }

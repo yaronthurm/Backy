@@ -64,5 +64,15 @@ namespace Backy
             this.btnAbort.Enabled = false;
             this.btnRun.Enabled = true;
         }
+
+        private void btnView_Click(object sender, EventArgs e)
+        {
+            var viewForm = new Backy.View();
+            var backupState = State.GetLastBackedUpState(new FileSystem(), this.txtTarget.Text);
+            viewForm.SetFiles(
+                backupState.Files.Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }),
+                this.txtTarget.Text);
+            viewForm.Show();
+        }
     }
 }
