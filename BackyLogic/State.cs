@@ -9,6 +9,7 @@ namespace BackyLogic
     public class State
     {
         public List<BackyFile> Files = new List<BackyFile>();
+        public int Version;
 
         internal string GetNextDirectory(IFileSystem fileSystem, string targetDir)
         {
@@ -81,6 +82,73 @@ namespace BackyLogic
 
             var ret = new State();
             ret.Files = files.Select(x => BackyFile.FromSourceFileName(fileSystem, x, source)).ToList();
+            return ret;
+        }
+    }
+
+
+    public class TransientState
+    {
+        List<BackyFolder> _backyFolders;
+
+        public TransientState(IFileSystem fileSystem, string target)
+        {
+            // Get all backup files
+            var allBackupFiles = fileSystem.GetAllFiles(target);
+            var allBackupDirectories = State.GetFirstLevelDirectories(fileSystem, target).Select(x => System.IO.Path.Combine(target, x));
+
+            var backyFolders = new List<BackyFolder>();
+            foreach (string dir in allBackupDirectories)
+            {
+                var allFilesForThisDirectory = allBackupFiles.Where(x => x.StartsWith(dir));
+                var newFolder = BackyFolder.FromFileNames(fileSystem, allFilesForThisDirectory, dir);
+                backyFolders.Add(newFolder);
+            }
+
+            _backyFolders = backyFolders;
+        }
+
+        public int MaxVersion
+        {
+            get { return _backyFolders.Count; }
+        }
+
+        public State GetLastState()
+        {
+            return this.GetState(this.MaxVersion);
+        }
+
+        public State GetState(int version)
+        {
+            if (version > this.MaxVersion)
+                throw new ApplicationException("max version exeeded");
+
+            var ret = new State();
+            foreach (BackyFolder backyFolder in _backyFolders.OrderBy(x => x.SerialNumber).Take(version))
+           {
+                // Add new files
+                ret.Files.AddRange(backyFolder.New);
+
+                // Remove deleted files
+                foreach (var deleted in backyFolder.Deleted)
+                    ret.Files.RemoveAll(x => x.RelativeName == deleted);
+
+                // Handle renamed files
+                foreach (var rename in backyFolder.Renamed)
+                {
+                    var file = ret.Files.First(x => x.RelativeName == rename.OldName);
+                    file.RelativeName = rename.NewName;
+                }
+
+                // Handle modified files
+                foreach (var modified in backyFolder.Modified)
+                {
+                    var file = ret.Files.First(x => x.RelativeName == modified.RelativeName);
+                    ret.Files.Remove(file);
+                    ret.Files.Add(modified);
+                }
+            }
+
             return ret;
         }
     }
