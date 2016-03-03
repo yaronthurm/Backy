@@ -47,6 +47,10 @@ namespace Backy
             this.progressModifiedFiles.Value = obj.ModifiedFilesFinished;
             this.lblProgressModifiedFiles.Text = $"{ obj.ModifiedFilesFinished }/{ obj.ModifiedFilesTotal   }";
 
+            this.progressRenameDetection.Maximum = obj.RenameDetectionTotal;
+            this.progressRenameDetection.Value = obj.RenameDetectionFinish;
+            this.lblProgressRenameDetection.Text = $"{ obj.RenameDetectionFinish }/{ obj.RenameDetectionTotal   }";
+
             if (obj.Done())
             {
                 this.btnRun.Enabled = true;

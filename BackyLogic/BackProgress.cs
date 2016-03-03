@@ -21,6 +21,8 @@ namespace BackyLogic
 
         public int RenamedFilesTotal { get; internal set; }
         public int RenamedFilesFinished { get; internal set; }
+        public int RenameDetectionTotal { get; internal set; }
+        public int RenameDetectionFinish { get; internal set; }
 
         public bool Done()
         {
@@ -31,5 +33,12 @@ namespace BackyLogic
                 RenamedFilesFinished == RenamedFilesTotal;
             return ret;
         }
+    }
+
+
+    public class DiffProgress
+    {
+        public int RenameDetectionFinished { get; internal set; }
+        public int RenameDetectionTotal { get; internal set; }
     }
 }

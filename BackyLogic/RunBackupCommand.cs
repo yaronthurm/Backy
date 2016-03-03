@@ -31,7 +31,7 @@ namespace BackyLogic
         {
             State currentState = GetCurrentState();
             State lastBackedupState = GetLastBackedUpState();
-            var diff = FoldersDiff.GetDiff(_fileSystem, currentState, lastBackedupState);
+            var diff = FoldersDiff.GetDiff(_fileSystem, currentState, lastBackedupState, OnDiffProgress);
             _progress.NewFilesTotal = diff.NewFiles.Count;
             _progress.ModifiedFilesTotal = diff.ModifiedFiles.Count;
             _progress.DeletedFilesTotal = diff.DeletedFiles.Count;
@@ -51,6 +51,13 @@ namespace BackyLogic
             CopyAllModifiedFiles(targetDir, diff);
             MarkAllDeletedFiles(targetDir, diff);
             MarkAllRenamedFiles(targetDir, diff);
+        }
+
+        private void OnDiffProgress(DiffProgress obj)
+        {
+            _progress.RenameDetectionTotal = obj.RenameDetectionTotal;
+            _progress.RenameDetectionFinish = obj.RenameDetectionFinished;
+            RaiseOnProgress();
         }
 
         public void Abort()

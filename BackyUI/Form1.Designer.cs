@@ -38,6 +38,11 @@
             this.lblProgressNewFiles = new System.Windows.Forms.Label();
             this.lblProgressModifiedFiles = new System.Windows.Forms.Label();
             this.btnAbort = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.lblProgressRenameDetection = new System.Windows.Forms.Label();
+            this.progressRenameDetection = new System.Windows.Forms.ProgressBar();
             this.SuspendLayout();
             // 
             // label1
@@ -86,14 +91,14 @@
             // 
             // progressNewFiles
             // 
-            this.progressNewFiles.Location = new System.Drawing.Point(83, 135);
+            this.progressNewFiles.Location = new System.Drawing.Point(104, 183);
             this.progressNewFiles.Name = "progressNewFiles";
             this.progressNewFiles.Size = new System.Drawing.Size(272, 23);
             this.progressNewFiles.TabIndex = 6;
             // 
             // progressModifiedFiles
             // 
-            this.progressModifiedFiles.Location = new System.Drawing.Point(83, 164);
+            this.progressModifiedFiles.Location = new System.Drawing.Point(104, 212);
             this.progressModifiedFiles.Name = "progressModifiedFiles";
             this.progressModifiedFiles.Size = new System.Drawing.Size(272, 23);
             this.progressModifiedFiles.TabIndex = 7;
@@ -101,20 +106,20 @@
             // lblProgressNewFiles
             // 
             this.lblProgressNewFiles.AutoSize = true;
-            this.lblProgressNewFiles.Location = new System.Drawing.Point(361, 135);
+            this.lblProgressNewFiles.Location = new System.Drawing.Point(382, 183);
             this.lblProgressNewFiles.Name = "lblProgressNewFiles";
-            this.lblProgressNewFiles.Size = new System.Drawing.Size(48, 13);
+            this.lblProgressNewFiles.Size = new System.Drawing.Size(24, 13);
             this.lblProgressNewFiles.TabIndex = 8;
-            this.lblProgressNewFiles.Text = "new files";
+            this.lblProgressNewFiles.Text = "0/0";
             // 
             // lblProgressModifiedFiles
             // 
             this.lblProgressModifiedFiles.AutoSize = true;
-            this.lblProgressModifiedFiles.Location = new System.Drawing.Point(361, 164);
+            this.lblProgressModifiedFiles.Location = new System.Drawing.Point(382, 212);
             this.lblProgressModifiedFiles.Name = "lblProgressModifiedFiles";
-            this.lblProgressModifiedFiles.Size = new System.Drawing.Size(67, 13);
+            this.lblProgressModifiedFiles.Size = new System.Drawing.Size(24, 13);
             this.lblProgressModifiedFiles.TabIndex = 9;
-            this.lblProgressModifiedFiles.Text = "modified files";
+            this.lblProgressModifiedFiles.Text = "0/0";
             // 
             // btnAbort
             // 
@@ -127,11 +132,59 @@
             this.btnAbort.UseVisualStyleBackColor = true;
             this.btnAbort.Click += new System.EventHandler(this.btnAbort_Click);
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(47, 183);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(48, 13);
+            this.label3.TabIndex = 11;
+            this.label3.Text = "new files";
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(28, 212);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(67, 13);
+            this.label4.TabIndex = 12;
+            this.label4.Text = "modified files";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(6, 154);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(89, 13);
+            this.label6.TabIndex = 17;
+            this.label6.Text = "rename detection";
+            // 
+            // lblProgressRenameDetection
+            // 
+            this.lblProgressRenameDetection.AutoSize = true;
+            this.lblProgressRenameDetection.Location = new System.Drawing.Point(382, 154);
+            this.lblProgressRenameDetection.Name = "lblProgressRenameDetection";
+            this.lblProgressRenameDetection.Size = new System.Drawing.Size(24, 13);
+            this.lblProgressRenameDetection.TabIndex = 15;
+            this.lblProgressRenameDetection.Text = "0/0";
+            // 
+            // progressRenameDetection
+            // 
+            this.progressRenameDetection.Location = new System.Drawing.Point(104, 154);
+            this.progressRenameDetection.Name = "progressRenameDetection";
+            this.progressRenameDetection.Size = new System.Drawing.Size(272, 23);
+            this.progressRenameDetection.TabIndex = 13;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(485, 258);
+            this.ClientSize = new System.Drawing.Size(474, 267);
+            this.Controls.Add(this.label6);
+            this.Controls.Add(this.lblProgressRenameDetection);
+            this.Controls.Add(this.progressRenameDetection);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.btnAbort);
             this.Controls.Add(this.lblProgressModifiedFiles);
             this.Controls.Add(this.lblProgressNewFiles);
@@ -161,6 +214,11 @@
         private System.Windows.Forms.Label lblProgressNewFiles;
         private System.Windows.Forms.Label lblProgressModifiedFiles;
         private System.Windows.Forms.Button btnAbort;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label lblProgressRenameDetection;
+        private System.Windows.Forms.ProgressBar progressRenameDetection;
     }
 }
 
