@@ -14,6 +14,7 @@ namespace Backy
         private string _rootDirectory;
         private int _currentPage;
         private string _currentDirectory = "";
+        private int _currentViewTotalItems;
 
         public FilesPanel()
         {
@@ -32,10 +33,10 @@ namespace Backy
         {
             get
             {
-                if (_files.Count % PageSize == 0)
-                    return _files.Count / PageSize;
+                if (_currentViewTotalItems % PageSize == 0)
+                    return _currentViewTotalItems / PageSize;
                 else
-                    return _files.Count / PageSize + 1;
+                    return _currentViewTotalItems / PageSize + 1;
             }
         }
 
@@ -47,35 +48,21 @@ namespace Backy
             this.FillPanel();
         }
 
-        private void EnableDisabledNavigationButtons(int numberOfTotalItems)
+        private void EnableDisabledNavigationButtons()
         {
-            if (numberOfTotalItems < PageSize)
-            {
-                this.btnNext.Enabled = false;
-                this.btnPrev.Enabled = false;
-            }
-            else
-            {
-                this.btnNext.Enabled = true;
-                this.btnPrev.Enabled = false;
-            }
+            this.btnNext.Enabled = _currentPage < TotalPages;
+            this.btnPrev.Enabled = _currentPage > 1;
         }
 
         private void btnNext_Click(object sender, EventArgs e)
-        {
-            this.btnPrev.Enabled = true;
+        {            
             this._currentPage++;
-            if (_currentPage == TotalPages)
-                this.btnNext.Enabled = false;
             this.FillPanel();
         }
 
         private void btnPrev_Click(object sender, EventArgs e)
         {
-            this.btnNext.Enabled = true;
             this._currentPage--;
-            if (_currentPage == 1)
-                this.btnPrev.Enabled = false;
             this.FillPanel();
         }
 
@@ -84,22 +71,23 @@ namespace Backy
             this.flowLayoutPanel1.Controls.Clear();
 
             var includedFiles = GetFilesToInclude();
-            var firstLevelDirectories = GetFirstLevelDirectories(includedFiles);
-            var firstLevelFiles = GetFirstLevelFiles(includedFiles, firstLevelDirectories);
+            var firstLevelDirectories = GetFirstLevelDirectories(includedFiles).ToArray();
+            var firstLevelFiles = GetFirstLevelFiles(includedFiles, firstLevelDirectories).ToArray();
 
-            var directoeiresControls = GetDirectoriesControls(firstLevelDirectories);
-            var filesControls = GetFilesControls(firstLevelFiles);
+            var directoeiresControls = GetDirectoriesControls(firstLevelDirectories); // This is heavy job so 
+            var filesControls = GetFilesControls(firstLevelFiles);                    // we do differ execution
 
             int start = (_currentPage - 1) * PageSize + 1;
 
-            var allControls = directoeiresControls.Union(filesControls).ToArray();
-            var pageControls = allControls.Skip(start - 1).Take(PageSize).ToArray();
+            var pageControls = directoeiresControls.Union(filesControls)
+                .Skip(start - 1).Take(PageSize).ToArray();
 
-            int end = Math.Min(start + PageSize - 1, pageControls.Length);
-            lblCount.Text = string.Format("{0}-{1}/{2}", start, end, allControls.Length);
+            _currentViewTotalItems = firstLevelDirectories.Length + firstLevelFiles.Length;
+            int end = Math.Min(start + PageSize - 1, _currentViewTotalItems);
+            lblCount.Text = $"{start}-{end}/{_currentViewTotalItems}";
 
-            this.flowLayoutPanel1.Controls.AddRange(allControls);
-            EnableDisabledNavigationButtons(allControls.Length);
+            this.flowLayoutPanel1.Controls.AddRange(pageControls);
+            EnableDisabledNavigationButtons();
         }
 
         private IEnumerable<LargeFileView> GetFilesControls(IEnumerable<FileView> firstLevelFiles)
