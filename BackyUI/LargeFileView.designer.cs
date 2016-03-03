@@ -36,7 +36,7 @@
             // pictureBox1
             // 
             this.pictureBox1.BackColor = System.Drawing.Color.Transparent;
-            this.pictureBox1.Location = new System.Drawing.Point(4, 1);
+            this.pictureBox1.Location = new System.Drawing.Point(4, 3);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(95, 95);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
@@ -46,7 +46,7 @@
             // lblFileName
             // 
             this.lblFileName.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblFileName.Location = new System.Drawing.Point(4, 99);
+            this.lblFileName.Location = new System.Drawing.Point(4, 101);
             this.lblFileName.MaximumSize = new System.Drawing.Size(90, 100);
             this.lblFileName.Name = "lblFileName";
             this.lblFileName.Size = new System.Drawing.Size(90, 100);
@@ -62,7 +62,7 @@
             this.Controls.Add(this.lblFileName);
             this.Controls.Add(this.pictureBox1);
             this.Name = "LargeFileView";
-            this.Size = new System.Drawing.Size(105, 162);
+            this.Size = new System.Drawing.Size(103, 180);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
 
