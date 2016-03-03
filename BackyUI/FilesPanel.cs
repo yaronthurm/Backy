@@ -8,7 +8,7 @@ namespace TestTagFolders
 {
     public partial class FilesPanel : UserControl
     {
-        private List<TaggedFile> _files;
+        private List<FileView> _files;
         private int _currentPage;
 
         public event Action OnChange;
@@ -36,7 +36,7 @@ namespace TestTagFolders
             }
         }
 
-        public void PopulateFiles(IEnumerable<TaggedFile> files)
+        public void PopulateFiles(IEnumerable<FileView> files)
         {
             _files = files.ToList();
             if (_files.Count < PageSize)
@@ -74,8 +74,8 @@ namespace TestTagFolders
 
         private void FillPanel()
         {
-            foreach (LargeFileWithTag item in this.flowLayoutPanel1.Controls)
-                item.OnChange -= this.OnChangeHandler;
+            //foreach (LargeFileWithTag item in this.flowLayoutPanel1.Controls)
+                //item.OnChange -= this.OnChangeHandler;
             this.flowLayoutPanel1.Controls.Clear();
 
             int start = (_currentPage - 1) * PageSize + 1;
@@ -88,8 +88,8 @@ namespace TestTagFolders
                 .Take(PageSize)
                 .Select(x =>
             {
-                var item = new LargeFileWithTag();
-                var shellFile = ShellFile.FromFilePath(x.FileName);
+                var item = new LargeFileView();
+                var shellFile = ShellFile.FromFilePath(x.PhysicalPath);
                 shellFile.Thumbnail.FormatOption = ShellThumbnailFormatOption.Default;
                 item.SetData(shellFile.Thumbnail.MediumBitmap, x);
                 item.OnChange += this.OnChangeHandler;
@@ -110,5 +110,11 @@ namespace TestTagFolders
         {
             //_currentPage = Math.Min(_currentPage, TotalPages - 1);
         }
+    }
+
+
+    public class FileView
+    {
+        public string PhysicalPath;
     }
 }
