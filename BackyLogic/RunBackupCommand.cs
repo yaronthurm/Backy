@@ -15,6 +15,7 @@ namespace BackyLogic
         private IFileSystem _fileSystem;
         private BackyProgress _progress = new BackyProgress();
         private bool _abort;
+        private FoldersDiff _diff;
 
         public event Action<BackyProgress> OnProgress;
 
@@ -31,15 +32,16 @@ namespace BackyLogic
         {
             State currentState = GetCurrentState();
             State lastBackedupState = GetLastBackedUpState();
-            var diff = FoldersDiff.GetDiff(_fileSystem, currentState, lastBackedupState, OnDiffProgress);
-            _progress.NewFilesTotal = diff.NewFiles.Count;
-            _progress.ModifiedFilesTotal = diff.ModifiedFiles.Count;
-            _progress.DeletedFilesTotal = diff.DeletedFiles.Count;
-            _progress.RenamedFilesTotal = diff.RenamedFiles.Count;
+            _diff = GetDiff(currentState, lastBackedupState);
+            _diff.CalculateDiff();
+            _progress.NewFilesTotal = _diff.NewFiles.Count;
+            _progress.ModifiedFilesTotal = _diff.ModifiedFiles.Count;
+            _progress.DeletedFilesTotal = _diff.DeletedFiles.Count;
+            _progress.RenamedFilesTotal = _diff.RenamedFiles.Count;
             _progress.CalculateDiffFinished = true;
             RaiseOnProgress();
 
-            if (NoChangesFromLastBackup(diff))
+            if (NoChangesFromLastBackup(_diff))
             {
                 _progress.NoChangeDetected = true;
                 RaiseOnProgress();
@@ -47,10 +49,17 @@ namespace BackyLogic
             }
 
             var targetDir = GetTargetDirectory(lastBackedupState);
-            CopyAllNewFiles(targetDir, diff);
-            CopyAllModifiedFiles(targetDir, diff);
-            MarkAllDeletedFiles(targetDir, diff);
-            MarkAllRenamedFiles(targetDir, diff);
+            CopyAllNewFiles(targetDir, _diff);
+            CopyAllModifiedFiles(targetDir, _diff);
+            MarkAllDeletedFiles(targetDir, _diff);
+            MarkAllRenamedFiles(targetDir, _diff);
+        }
+
+        private FoldersDiff GetDiff(State currentState, State lastBackedupState)
+        {
+            var ret = new FoldersDiff(_fileSystem, currentState, lastBackedupState);
+            ret.OnProgress += OnDiffProgress;
+            return ret;
         }
 
         private void OnDiffProgress(DiffProgress obj)
@@ -63,6 +72,8 @@ namespace BackyLogic
         public void Abort()
         {
             _abort = true;
+            if (_diff != null)
+                _diff.Abort();
         }
 
         private void RaiseOnProgress()

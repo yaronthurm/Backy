@@ -8,9 +8,10 @@ namespace BackyLogic
 {
     public class FoldersDiff
     {
-        IFileSystem _fileSystem;
-        State _currentState;
-        State _lastBackedupState;
+        private IFileSystem _fileSystem;
+        private State _currentState;
+        private State _lastBackedupState;
+        private bool _abort;
 
 
         public List<BackyFile> NewFiles;
@@ -21,20 +22,12 @@ namespace BackyLogic
         public event Action<DiffProgress> OnProgress;
         private DiffProgress _progress = new DiffProgress();
 
-        private FoldersDiff(IFileSystem fileSystem, State currentState, State lastBackedupState)
+
+        public FoldersDiff(IFileSystem fileSystem, State currentState, State lastBackedupState)
         {
             _fileSystem = fileSystem;
             _currentState = currentState;
             _lastBackedupState = lastBackedupState;
-        }
-
-
-        public static FoldersDiff GetDiff(IFileSystem fileSystem, State currentState, State lastBackedupState, Action<DiffProgress> OnProgress)
-        {
-            var ret = new FoldersDiff(fileSystem, currentState, lastBackedupState);
-            ret.OnProgress += OnProgress;
-            ret.CalculateDiff();
-            return ret;
         }
 
         private void RaiseOnProgress()
@@ -43,7 +36,7 @@ namespace BackyLogic
                 OnProgress(_progress);
         }
 
-        private void CalculateDiff()
+        public void CalculateDiff()
         {
             // First we need to take all the new and deleted files and check whether those are actually renames.
             var newFiles = GetNewFiles();
@@ -54,6 +47,11 @@ namespace BackyLogic
             this.NewFiles = GetNewFilesMinusRenames(newFiles, renames);
             this.ModifiedFiles = GetModifiedFiles();
             this.DeletedFiles = GetDeletedFilesMinusRenames(deletedFiles, renames);
+        }
+
+        public void Abort()
+        {
+            _abort = true;
         }
 
         private static List<BackyFile> GetDeletedFilesMinusRenames(List<BackyFile> deletedFiles, List<RenameInfo> renames)
@@ -76,6 +74,7 @@ namespace BackyLogic
             var renameSuspects = new[] { new { OldFile = (BackyFile)null, NewFile = (BackyFile)null } }.Skip(1).ToList();
             foreach (var deleted in deletedFiles)
             {
+                if (_abort) break;
                 var matchingFile = newFiles.FirstOrDefault(x => x.LastWriteTime == deleted.LastWriteTime);
                 if (matchingFile != null)
                 {
@@ -92,6 +91,8 @@ namespace BackyLogic
             // For each suspect, check the content of both files
             foreach (var suspect in renameSuspects)
             {
+                if (_abort)
+                    break;
                 byte[] deletedContent = _fileSystem.GetContent(suspect.OldFile.PhysicalPath);
                 byte[] newContent = _fileSystem.GetContent(suspect.NewFile.PhysicalPath);
                 if (Enumerable.SequenceEqual(deletedContent, newContent))
