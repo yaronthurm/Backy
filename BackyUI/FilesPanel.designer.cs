@@ -33,6 +33,7 @@
             this.btnPrev = new System.Windows.Forms.Button();
             this.lblCount = new System.Windows.Forms.Label();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.btnUp = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -50,7 +51,7 @@
             // 
             // btnNext
             // 
-            this.btnNext.Location = new System.Drawing.Point(84, 3);
+            this.btnNext.Location = new System.Drawing.Point(179, 3);
             this.btnNext.Name = "btnNext";
             this.btnNext.Size = new System.Drawing.Size(75, 23);
             this.btnNext.TabIndex = 1;
@@ -60,7 +61,7 @@
             // 
             // btnPrev
             // 
-            this.btnPrev.Location = new System.Drawing.Point(3, 3);
+            this.btnPrev.Location = new System.Drawing.Point(98, 3);
             this.btnPrev.Name = "btnPrev";
             this.btnPrev.Size = new System.Drawing.Size(75, 23);
             this.btnPrev.TabIndex = 2;
@@ -72,7 +73,7 @@
             // 
             this.lblCount.AutoSize = true;
             this.lblCount.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-            this.lblCount.Location = new System.Drawing.Point(216, 6);
+            this.lblCount.Location = new System.Drawing.Point(311, 6);
             this.lblCount.Name = "lblCount";
             this.lblCount.Size = new System.Drawing.Size(65, 17);
             this.lblCount.TabIndex = 3;
@@ -86,7 +87,7 @@
             0,
             0,
             0});
-            this.numericUpDown1.Location = new System.Drawing.Point(168, 4);
+            this.numericUpDown1.Location = new System.Drawing.Point(263, 4);
             this.numericUpDown1.Minimum = new decimal(new int[] {
             10,
             0,
@@ -102,11 +103,22 @@
             0});
             this.numericUpDown1.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
             // 
+            // btnUp
+            // 
+            this.btnUp.Location = new System.Drawing.Point(3, 3);
+            this.btnUp.Name = "btnUp";
+            this.btnUp.Size = new System.Drawing.Size(75, 23);
+            this.btnUp.TabIndex = 5;
+            this.btnUp.Text = "Up";
+            this.btnUp.UseVisualStyleBackColor = true;
+            this.btnUp.Click += new System.EventHandler(this.btnUp_Click);
+            // 
             // FilesPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Transparent;
+            this.Controls.Add(this.btnUp);
             this.Controls.Add(this.numericUpDown1);
             this.Controls.Add(this.lblCount);
             this.Controls.Add(this.btnPrev);
@@ -127,5 +139,6 @@
         private System.Windows.Forms.Button btnPrev;
         private System.Windows.Forms.Label lblCount;
         private System.Windows.Forms.NumericUpDown numericUpDown1;
+        private System.Windows.Forms.Button btnUp;
     }
 }

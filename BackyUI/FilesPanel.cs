@@ -52,6 +52,7 @@ namespace Backy
         {
             this.btnNext.Enabled = _currentPage < TotalPages;
             this.btnPrev.Enabled = _currentPage > 1;
+            this.btnUp.Enabled = _currentDirectory != "";
         }
 
         private void btnNext_Click(object sender, EventArgs e)
@@ -63,6 +64,12 @@ namespace Backy
         private void btnPrev_Click(object sender, EventArgs e)
         {
             this._currentPage--;
+            this.FillPanel();
+        }
+
+        private void btnUp_Click(object sender, EventArgs e)
+        {
+            _currentDirectory = Path.Combine(_currentDirectory.Split(new[] { "\\" }, StringSplitOptions.RemoveEmptyEntries).Reverse().Skip(1).Reverse().ToArray());
             this.FillPanel();
         }
 
@@ -117,7 +124,7 @@ namespace Backy
                     item.SetData(shellFile.Thumbnail.MediumBitmap, new FileView { LogicalPath = x, PhysicalPath = x });
                     item.DoubleClick += fileView =>
                     {
-                        _currentDirectory = Path.Combine(_currentDirectory, fileView.LogicalPath) + "\\";
+                        _currentDirectory = Path.Combine(_currentDirectory, fileView.LogicalPath);
                         this.FillPanel();
                     };
                     return item;
@@ -128,7 +135,7 @@ namespace Backy
         private IEnumerable<FileView> GetFirstLevelFiles(IEnumerable<FileView> includedFiles, IEnumerable<string> firstLevelDirectories)
         {
             var ret = includedFiles
-                .Where(x => firstLevelDirectories.All(y => !x.LogicalPath.StartsWith(_currentDirectory + y + "\\")));
+                .Where(x => firstLevelDirectories.All(y => !x.LogicalPath.StartsWith(Path.Combine(_currentDirectory, y) + "\\")));
             return ret;
         }
 
@@ -154,7 +161,7 @@ namespace Backy
             else
             {
                 ret = files
-                    .Select(x => x.LogicalPath.Replace(_currentDirectory, "").Split('\\'))
+                    .Select(x => x.LogicalPath.Replace(_currentDirectory + "\\", "").Split('\\'))
                     .Where(x => x.Length > 1).Select(x => x[0]).Distinct();
             }
 
