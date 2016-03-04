@@ -34,6 +34,7 @@
             this.lblCount = new System.Windows.Forms.Label();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.btnUp = new System.Windows.Forms.Button();
+            this.lblCurrentDirectory = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -44,9 +45,9 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flowLayoutPanel1.AutoScroll = true;
             this.flowLayoutPanel1.BackColor = System.Drawing.Color.Transparent;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 41);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(0, 59);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(440, 355);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(440, 337);
             this.flowLayoutPanel1.TabIndex = 0;
             // 
             // btnNext
@@ -113,11 +114,22 @@
             this.btnUp.UseVisualStyleBackColor = true;
             this.btnUp.Click += new System.EventHandler(this.btnUp_Click);
             // 
+            // lblCurrentDirectory
+            // 
+            this.lblCurrentDirectory.AutoSize = true;
+            this.lblCurrentDirectory.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblCurrentDirectory.Location = new System.Drawing.Point(3, 34);
+            this.lblCurrentDirectory.Name = "lblCurrentDirectory";
+            this.lblCurrentDirectory.Size = new System.Drawing.Size(54, 15);
+            this.lblCurrentDirectory.TabIndex = 0;
+            this.lblCurrentDirectory.Text = "directory";
+            // 
             // FilesPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Transparent;
+            this.Controls.Add(this.lblCurrentDirectory);
             this.Controls.Add(this.btnUp);
             this.Controls.Add(this.numericUpDown1);
             this.Controls.Add(this.lblCount);
@@ -140,5 +152,6 @@
         private System.Windows.Forms.Label lblCount;
         private System.Windows.Forms.NumericUpDown numericUpDown1;
         private System.Windows.Forms.Button btnUp;
+        private System.Windows.Forms.Label lblCurrentDirectory;
     }
 }

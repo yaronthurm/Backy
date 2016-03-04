@@ -16,6 +16,7 @@ namespace Backy
         private int _currentPage;
         private string _currentDirectory = "";
         private int _currentViewTotalItems;
+        private Dictionary<string, int> _pageNumberPerDirectory = new Dictionary<string, int>();
 
         public FilesPanel()
         {
@@ -47,6 +48,7 @@ namespace Backy
                 _tree.Add(file);
             _rootDirectory = rootDirectory;
             _currentPage = 1;
+            this.CaptureCurrentPage();
             this.FillPanel();
         }
 
@@ -60,23 +62,38 @@ namespace Backy
         private void btnNext_Click(object sender, EventArgs e)
         {            
             this._currentPage++;
+            this.CaptureCurrentPage();
             this.FillPanel();
         }
 
         private void btnPrev_Click(object sender, EventArgs e)
         {
             this._currentPage--;
+            this.CaptureCurrentPage();
             this.FillPanel();
         }
 
         private void btnUp_Click(object sender, EventArgs e)
         {
+            this.CaptureCurrentPage();
             _currentDirectory = Path.Combine(_currentDirectory.Split(new[] { "\\" }, StringSplitOptions.RemoveEmptyEntries).Reverse().Skip(1).Reverse().ToArray());
             this.FillPanel();
         }
 
+        private void CaptureCurrentPage()
+        {
+            _pageNumberPerDirectory[_currentDirectory] = _currentPage;
+
+        }
         private void FillPanel()
         {
+            if (_pageNumberPerDirectory.ContainsKey(_currentDirectory))
+                _currentPage = _pageNumberPerDirectory[_currentDirectory];
+            else
+                _currentPage = 1;
+
+            this.lblCurrentDirectory.Text = _currentDirectory;
+
             this.flowLayoutPanel1.Controls.Clear();
 
             var firstLevelDirectories = GetFirstLevelDirectories().ToArray();
@@ -125,6 +142,7 @@ namespace Backy
                     item.SetData(shellFile.Thumbnail.MediumBitmap, new FileView { LogicalPath = x, PhysicalPath = x });
                     item.DoubleClick += fileView =>
                     {
+                        this.CaptureCurrentPage();
                         _currentDirectory = Path.Combine(_currentDirectory, fileView.LogicalPath);
                         this.FillPanel();
                     };
