@@ -88,27 +88,66 @@ namespace BackyLogic
 
     public class FilesAndDirectoriesTree
     {
-        private List<IVirtualFile> _files = new List<IVirtualFile>();
+        private Dictionary<string, IVirtualFile> _files = new Dictionary<string, IVirtualFile>();
         private Dictionary<string, FilesAndDirectoriesTree> _directories = new Dictionary<string, FilesAndDirectoriesTree>();
         
 
-        public void Add(string[] keyPath, IVirtualFile file)
+        public void Add(IVirtualFile file)
         {
-            var currentDirectory = this;
+            var keyPath = file.GetPath();
+            var currentDirectory = this.GetByPath(keyPath, true);
+            currentDirectory._files.Add(keyPath[keyPath.Length - 1], file);
+        }
+
+
+        public IEnumerable<IVirtualFile> GetFirstLevelFiles(params string[] keyPath)
+        {
+            var ret = new List<IVirtualFile>();
+            if (keyPath.Last() != "") keyPath = keyPath.Concat(new[] { "" }).ToArray();
+            var directory = this.GetByPath(keyPath, false);
+            if (directory != null)
+                ret.AddRange(directory._files.Values);
+            return ret;
+        }
+
+        public IEnumerable<string> GetFirstLevelDirectories(params string[] keyPath)
+        {
+            var ret = new List<string>();
+            if (keyPath.Last() != "") keyPath = keyPath.Union(new[] { "" }).ToArray();
+            var directory = this.GetByPath(keyPath, false);
+            if (directory != null)
+                ret.AddRange(directory._directories.Keys);
+            return ret;
+        }
+
+
+        private FilesAndDirectoriesTree GetByPath(string[] keyPath, bool createIfMissing)
+        {
+            var ret = this;
             for (int i = 0; i < keyPath.Length - 1; i++)
             {
+                var key = keyPath[i];
                 FilesAndDirectoriesTree nextDirectory;
-                if (!currentDirectory._directories.TryGetValue(keyPath[i], out nextDirectory))
+                if (!ret._directories.TryGetValue(key, out nextDirectory))
                 {
-                    nextDirectory = new FilesAndDirectoriesTree();
-                    currentDirectory._directories.Add(keyPath[i], nextDirectory);
+                    if (!createIfMissing)
+                        return null;
+                    else {
+                        nextDirectory = new FilesAndDirectoriesTree();
+                        ret._directories.Add(key, nextDirectory);
+                    }
                 }
-                currentDirectory = nextDirectory;
+                ret = nextDirectory;
             }
+
+            return ret;
         }
     }
 
-    public interface IVirtualFile { }
+    public interface IVirtualFile {
+        string LogicalName { get; }
+        string[] GetPath();
+    }
 
 
     public class TransientState
