@@ -107,7 +107,7 @@ namespace BackyLogic
         private List<BackyFile> GetNewFiles()
         {
             var ret = new List<BackyFile>();
-            foreach (var file in _currentState.Files)
+            foreach (var file in _currentState.GetFiles())
             {
                 //if (_lastBackedupState.Files.Any(x => x.RelativeName == file.RelativeName))
                 if (_lastBackedupState.ContainsFile(file.RelativeName))
@@ -122,10 +122,10 @@ namespace BackyLogic
         private List<BackyFile> GetModifiedFiles()
         {
             var ret = new List<BackyFile>();
-            foreach (var file in _currentState.Files)
+            foreach (var file in _currentState.GetFiles())
             {
                 // look for file in backup
-                var backupfile = _lastBackedupState.Files.FirstOrDefault(x => x.RelativeName == file.RelativeName);
+                var backupfile = _lastBackedupState.FindFile(file.RelativeName);
                 if (backupfile == null || backupfile.LastWriteTime == file.LastWriteTime)
                     continue;
 
@@ -137,10 +137,10 @@ namespace BackyLogic
         private List<BackyFile> GetDeletedFiles()
         {
             var ret = new List<BackyFile>();
-            foreach (var file in _lastBackedupState.Files)
+            foreach (var file in _lastBackedupState.GetFiles())
             {
                 // look for file in current
-                var currentFile = _currentState.Files.FirstOrDefault(x => x.RelativeName == file.RelativeName);
+                var currentFile = _currentState.FindFile(file.RelativeName);
                 if (currentFile == null)
                     ret.Add(file);
             }

@@ -38,7 +38,7 @@ namespace Backy
 
             var backupState = _state.GetState(currentVersion);
             this.lblCurrentVersion.Text = currentVersion.ToString();
-            this.SetFiles(backupState.Files.Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
+            this.SetFiles(backupState.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
 
             if (currentVersion == 1)
                 this.btnPrev.Enabled = false;
@@ -53,7 +53,7 @@ namespace Backy
 
             var backupState = _state.GetState(currentVersion);
             this.lblCurrentVersion.Text = currentVersion.ToString();
-            this.SetFiles(backupState.Files.Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
+            this.SetFiles(backupState.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
 
             if (currentVersion == _state.MaxVersion)
                 this.btnNext.Enabled = false;
@@ -63,7 +63,7 @@ namespace Backy
         {
             var backupState = _state.GetLastState();
             this.lblCurrentVersion.Text = _state.MaxVersion.ToString();
-            this.SetFiles(backupState.Files.Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
+            this.SetFiles(backupState.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
 
             this.btnPrev.Enabled = _state.MaxVersion > 1;
             this.btnNext.Enabled = false;

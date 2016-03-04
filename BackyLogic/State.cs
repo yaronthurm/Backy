@@ -8,8 +8,7 @@ namespace BackyLogic
 {
     public class State
     {
-        public List<BackyFile> Files = new List<BackyFile>();
-        private FilesAndDirectoriesTree _tree;
+        private FilesAndDirectoriesTree _tree = new FilesAndDirectoriesTree();
         public int Version;
 
         internal string GetNextDirectory(IFileSystem fileSystem, string targetDir)
@@ -45,11 +44,25 @@ namespace BackyLogic
             var files = fileSystem.GetAllFiles(source);
 
             var ret = new State();
-            ret.Files = files.Select(x => BackyFile.FromSourceFileName(fileSystem, x, source)).ToList();
+            foreach (var file in files)
+            {
+                var backy = BackyFile.FromSourceFileName(fileSystem, file, source);
+                ret.AddFile(backy);
+            }
             return ret;
         }
 
-        
+        public IEnumerable<BackyFile> GetFiles()
+        {
+            var ret = _tree.GetAllFiles().Cast<BackyFile>();
+            return ret;
+        }
+
+        public void AddFile(IVirtualFile file)
+        {
+            _tree.Add(file);
+        }
+
         public bool ContainsFile(string fileRelativePath)
         {
             var keys = fileRelativePath.Split('\\');
@@ -57,6 +70,17 @@ namespace BackyLogic
             return ret;
         }
 
+        public void DeleteFile(string fileRelativePath)
+        {
+            var keys = fileRelativePath.Split('\\');
+            _tree.Remove(keys);
+        }
+
+        public BackyFile FindFile(string fileRelativePath)
+        {
+            var keys = fileRelativePath.Split('\\');
+            return _tree.GetFileOrNull(keys) as BackyFile;
+        }
     }
 
     public class FilesAndDirectoriesTree
@@ -69,7 +93,7 @@ namespace BackyLogic
         {
             var keyPath = file.GetPath();
             var currentDirectory = this.GetByPath(keyPath, true);
-            currentDirectory._files.Add(keyPath[keyPath.Length - 1], file);
+            currentDirectory._files.Add(keyPath.Last(), file);
         }
 
         public bool Contains(params string[] keyPath)
@@ -84,6 +108,7 @@ namespace BackyLogic
         public IEnumerable<IVirtualFile> GetFirstLevelFiles(params string[] keyPath)
         {
             var ret = new List<IVirtualFile>();
+            if (keyPath.Last() != "") keyPath = keyPath.Concat(new[] { "" }).ToArray();
             var directory = this.GetByPath(keyPath, false);
             if (directory != null)
                 ret.AddRange(directory._files.Values);
@@ -93,6 +118,7 @@ namespace BackyLogic
         public IEnumerable<string> GetFirstLevelDirectories(params string[] keyPath)
         {
             var ret = new List<string>();
+            if (keyPath.Last() != "") keyPath = keyPath.Concat(new[] { "" }).ToArray();
             var directory = this.GetByPath(keyPath, false);
             if (directory != null)
                 ret.AddRange(directory._directories.Keys);
@@ -102,7 +128,6 @@ namespace BackyLogic
 
         private FilesAndDirectoriesTree GetByPath(string[] keyPath, bool createIfMissing)
         {
-            if (keyPath.Last() != "") keyPath = keyPath.Concat(new[] { "" }).ToArray();
             var ret = this;
             for (int i = 0; i < keyPath.Length - 1; i++)
             {
@@ -120,6 +145,40 @@ namespace BackyLogic
                 ret = nextDirectory;
             }
 
+            return ret;
+        }
+
+        public void Remove(string[] keys)
+        {
+            var directory = this.GetByPath(keys, false);
+            if (directory == null)
+                throw new ApplicationException("Item not found, cannot be removed");
+            directory._files.Remove(keys.Last());
+        }
+
+        public IVirtualFile GetFileOrNull(string[] keys)
+        {
+            var directory = this.GetByPath(keys, false);
+            if (directory == null)
+                return null;
+
+            IVirtualFile ret;
+            directory._files.TryGetValue(keys.Last(), out ret);               
+            return ret;
+        }
+
+        public IEnumerable<IVirtualFile> GetAllFiles()
+        {
+            var ret = new List<IVirtualFile>();
+            var q = new Queue<FilesAndDirectoriesTree>();
+            q.Enqueue(this);
+            while (q.Count > 0)
+            {
+                var curentItem = q.Dequeue();
+                ret.AddRange(curentItem._files.Values);
+                foreach (var innerItem in curentItem._directories.Values)
+                    q.Enqueue(innerItem);
+            }
             return ret;
         }
     }
@@ -172,29 +231,27 @@ namespace BackyLogic
             foreach (BackyFolder backyFolder in _backyFolders.OrderBy(x => x.SerialNumber).Take(version))
            {
                 // Add new files
-                ret.Files.AddRange(backyFolder.New);
+                backyFolder.New.ForEach(x => ret.AddFile(x));
 
                 // Remove deleted files
-                foreach (var deleted in backyFolder.Deleted)
-                    ret.Files.RemoveAll(x => x.RelativeName == deleted);
+                backyFolder.Deleted.ForEach(x => ret.DeleteFile(x));
 
                 // Handle renamed files
                 foreach (var rename in backyFolder.Renamed)
                 {
                     // In order to not touching the refernce, we will clone the file and modify it.
-                    var file = ret.Files.First(x => x.RelativeName == rename.OldName);
-                    ret.Files.Remove(file);
+                    var file = ret.FindFile(rename.OldName) as BackyFile;
+                    ret.DeleteFile(rename.OldName);
                     var renamedFile = file.Clone();
                     renamedFile.RelativeName = rename.NewName;
-                    ret.Files.Add(renamedFile);
+                    ret.AddFile(renamedFile);
                 }
 
                 // Handle modified files
                 foreach (var modified in backyFolder.Modified)
-                {
-                    var file = ret.Files.First(x => x.RelativeName == modified.RelativeName);
-                    ret.Files.Remove(file);
-                    ret.Files.Add(modified);
+                {                    
+                    ret.DeleteFile(modified.RelativeName);
+                    ret.AddFile(modified);
                 }
             }
 
