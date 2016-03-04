@@ -35,45 +35,8 @@ namespace BackyLogic
 
         public static State GetLastBackedUpState(IFileSystem fileSystem, string target)
         {
-            var ret = new State();
-
-            // Get all backup files
-            var allBackupFiles = fileSystem.GetAllFiles(target);
-            var allBackupDirectories = State.GetFirstLevelDirectories(fileSystem, target).Select(x => System.IO.Path.Combine(target, x));
-
-            var backyFolders = new List<BackyFolder>();
-            foreach (string dir in allBackupDirectories)
-            {
-                var allFilesForThisDirectory = allBackupFiles.Where(x => x.StartsWith(dir));
-                var newFolder = BackyFolder.FromFileNames(fileSystem, allFilesForThisDirectory, dir);
-                backyFolders.Add(newFolder);
-            }
-
-            foreach (BackyFolder backyFolder in backyFolders.OrderBy(x => x.SerialNumber))
-            {
-                // Add new files
-                ret.Files.AddRange(backyFolder.New);
-
-                // Remove deleted files
-                foreach (var deleted in backyFolder.Deleted)
-                    ret.Files.RemoveAll(x => x.RelativeName == deleted);
-
-                // Handle renamed files
-                foreach (var rename in backyFolder.Renamed)
-                {
-                    var file = ret.Files.First(x => x.RelativeName == rename.OldName);
-                    file.RelativeName = rename.NewName;
-                }
-
-                // Handle modified files
-                foreach (var modified in backyFolder.Modified)
-                {
-                    var file = ret.Files.First(x => x.RelativeName == modified.RelativeName);
-                    ret.Files.Remove(file);
-                    ret.Files.Add(modified);
-                }
-            }
-
+            var stateCalculator = new TransientState(fileSystem, target);
+            var ret = stateCalculator.GetLastState();
             return ret;
         }
 
