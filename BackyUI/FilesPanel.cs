@@ -5,12 +5,13 @@ using System.Windows.Forms;
 using Microsoft.WindowsAPICodePack.Shell;
 using System.IO;
 using System.Diagnostics;
+using BackyLogic;
 
 namespace Backy
 {
     public partial class FilesPanel : UserControl
     {
-        private List<FileView> _files = new List<FileView>();
+        BackyLogic.FilesAndDirectoriesTree _tree = new BackyLogic.FilesAndDirectoriesTree();
         private string _rootDirectory;
         private int _currentPage;
         private string _currentDirectory = "";
@@ -42,7 +43,8 @@ namespace Backy
 
         public void PopulateFiles(IEnumerable<FileView> files, string rootDirectory)
         {
-            _files = files.ToList();
+            foreach (var file in files)
+                _tree.Add(file);
             _rootDirectory = rootDirectory;
             _currentPage = 1;
             this.FillPanel();
@@ -77,9 +79,8 @@ namespace Backy
         {
             this.flowLayoutPanel1.Controls.Clear();
 
-            var includedFiles = GetFilesToInclude();
-            var firstLevelDirectories = GetFirstLevelDirectories(includedFiles).ToArray();
-            var firstLevelFiles = GetFirstLevelFiles(includedFiles, firstLevelDirectories).ToArray();
+            var firstLevelDirectories = GetFirstLevelDirectories().ToArray();
+            var firstLevelFiles = GetFirstLevelFiles().ToArray();
 
             var directoeiresControls = GetDirectoriesControls(firstLevelDirectories); // This is heavy job so 
             var filesControls = GetFilesControls(firstLevelFiles);                    // we do differ execution
@@ -132,40 +133,14 @@ namespace Backy
             return ret;
         }
 
-        private IEnumerable<FileView> GetFirstLevelFiles(IEnumerable<FileView> includedFiles, IEnumerable<string> firstLevelDirectories)
+        private IEnumerable<FileView> GetFirstLevelFiles()
         {
-            var ret = includedFiles
-                .Where(x => firstLevelDirectories.All(y => !x.LogicalPath.StartsWith(Path.Combine(_currentDirectory, y) + "\\")));
-            return ret;
+            return _tree.GetFirstLevelFiles(_currentDirectory.Split('\\')).Cast<FileView>();
         }
 
-        private IEnumerable<FileView> GetFilesToInclude()
+        public IEnumerable<string> GetFirstLevelDirectories()
         {
-            // Only return files that start with the current directory;
-            if (string.IsNullOrEmpty(_currentDirectory))
-                return this._files;
-
-            var ret = _files.Where(x => x.LogicalPath.StartsWith(_currentDirectory + "\\"));
-            return ret;
-        }
-
-        public IEnumerable<string> GetFirstLevelDirectories(IEnumerable<FileView> files)
-        {
-            IEnumerable<string> ret;
-            if (_currentDirectory == "")
-            {
-                ret = files
-                    .Select(x => x.LogicalPath.Split('\\'))
-                    .Where(x => x.Length > 1).Select(x => x[0]).Distinct();
-            }
-            else
-            {
-                ret = files
-                    .Select(x => x.LogicalPath.Replace(_currentDirectory + "\\", "").Split('\\'))
-                    .Where(x => x.Length > 1).Select(x => x[0]).Distinct();
-            }
-
-            return ret;
+            return _tree.GetFirstLevelDirectories(_currentDirectory.Split('\\'));
         }
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
@@ -175,10 +150,31 @@ namespace Backy
     }
 
 
-    public class FileView
+    public class FileView : BackyLogic.IVirtualFile
     {
         public string LogicalPath;
         public string PhysicalPath;
+
+        public string LogicalName
+        {
+            get
+            {
+                return LogicalPath;
+            }
+        }
+
+        string IVirtualFile.PhysicalPath
+        {
+            get
+            {
+                return PhysicalPath;
+            }
+        }
+
+        public string[] GetPath()
+        {
+            return LogicalPath.Split('\\');
+        }
 
         public override string ToString()
         {
