@@ -83,6 +83,14 @@ namespace TestBacky
             }
         }
 
+        public string PhysicalPath
+        {
+            get
+            {
+                return Name;
+            }
+        }
+
         public string[] GetPath()
         {
             var ret = Name.Split('\\');

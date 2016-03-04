@@ -9,6 +9,7 @@ namespace BackyLogic
     public class State
     {
         public List<BackyFile> Files = new List<BackyFile>();
+        private FilesAndDirectoriesTree _tree;
         public int Version;
 
         internal string GetNextDirectory(IFileSystem fileSystem, string targetDir)
@@ -84,6 +85,15 @@ namespace BackyLogic
             ret.Files = files.Select(x => BackyFile.FromSourceFileName(fileSystem, x, source)).ToList();
             return ret;
         }
+
+        
+        public bool ContainsFile(string fileRelativePath)
+        {
+            var keys = fileRelativePath.Split('\\');
+            var ret = _tree.Contains(keys);
+            return ret;
+        }
+
     }
 
     public class FilesAndDirectoriesTree
@@ -99,11 +109,18 @@ namespace BackyLogic
             currentDirectory._files.Add(keyPath[keyPath.Length - 1], file);
         }
 
+        public bool Contains(params string[] keyPath)
+        {
+            var directory = this.GetByPath(keyPath, false);
+            if (directory == null)
+                return false;
+            var ret = directory._files.ContainsKey(keyPath.Last());
+            return ret;
+        }
 
         public IEnumerable<IVirtualFile> GetFirstLevelFiles(params string[] keyPath)
         {
             var ret = new List<IVirtualFile>();
-            if (keyPath.Last() != "") keyPath = keyPath.Concat(new[] { "" }).ToArray();
             var directory = this.GetByPath(keyPath, false);
             if (directory != null)
                 ret.AddRange(directory._files.Values);
@@ -113,7 +130,6 @@ namespace BackyLogic
         public IEnumerable<string> GetFirstLevelDirectories(params string[] keyPath)
         {
             var ret = new List<string>();
-            if (keyPath.Last() != "") keyPath = keyPath.Union(new[] { "" }).ToArray();
             var directory = this.GetByPath(keyPath, false);
             if (directory != null)
                 ret.AddRange(directory._directories.Keys);
@@ -123,6 +139,7 @@ namespace BackyLogic
 
         private FilesAndDirectoriesTree GetByPath(string[] keyPath, bool createIfMissing)
         {
+            if (keyPath.Last() != "") keyPath = keyPath.Concat(new[] { "" }).ToArray();
             var ret = this;
             for (int i = 0; i < keyPath.Length - 1; i++)
             {
@@ -146,6 +163,8 @@ namespace BackyLogic
 
     public interface IVirtualFile {
         string LogicalName { get; }
+        string PhysicalPath { get; }
+
         string[] GetPath();
     }
 

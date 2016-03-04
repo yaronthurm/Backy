@@ -109,7 +109,8 @@ namespace BackyLogic
             var ret = new List<BackyFile>();
             foreach (var file in _currentState.Files)
             {
-                if (_lastBackedupState.Files.Any(x => x.RelativeName == file.RelativeName))
+                //if (_lastBackedupState.Files.Any(x => x.RelativeName == file.RelativeName))
+                if (_lastBackedupState.ContainsFile(file.RelativeName))
                     // not new
                     continue;
 
