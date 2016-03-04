@@ -86,6 +86,30 @@ namespace BackyLogic
         }
     }
 
+    public class FilesAndDirectoriesTree
+    {
+        private List<IVirtualFile> _files = new List<IVirtualFile>();
+        private Dictionary<string, FilesAndDirectoriesTree> _directories = new Dictionary<string, FilesAndDirectoriesTree>();
+        
+
+        public void Add(string[] keyPath, IVirtualFile file)
+        {
+            var currentDirectory = this;
+            for (int i = 0; i < keyPath.Length - 1; i++)
+            {
+                FilesAndDirectoriesTree nextDirectory;
+                if (!currentDirectory._directories.TryGetValue(keyPath[i], out nextDirectory))
+                {
+                    nextDirectory = new FilesAndDirectoriesTree();
+                    currentDirectory._directories.Add(keyPath[i], nextDirectory);
+                }
+                currentDirectory = nextDirectory;
+            }
+        }
+    }
+
+    public interface IVirtualFile { }
+
 
     public class TransientState
     {
