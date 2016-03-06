@@ -44,6 +44,7 @@ namespace Backy
 
         public void PopulateFiles(IEnumerable<FileView> files, string rootDirectory)
         {
+            _tree = new FilesAndDirectoriesTree();
             foreach (var file in files)
                 _tree.Add(file);
             _rootDirectory = rootDirectory;
