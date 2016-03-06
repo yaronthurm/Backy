@@ -32,9 +32,10 @@ namespace BackyLogic
             return ret;
         }
 
-        public static State GetLastBackedUpState(IFileSystem fileSystem, string target)
+        public static State GetLastBackedUpState(IFileSystem fileSystem, string target, Action fileEnumaretedCallback)
         {
             var stateCalculator = new TransientState(fileSystem, target);
+            stateCalculator.OnProgress += fileEnumaretedCallback;
             var ret = stateCalculator.GetLastState();
             return ret;
         }
@@ -93,28 +94,22 @@ namespace BackyLogic
 
     public class TransientState
     {
-        List<BackyFolder> _backyFolders;
+        public event Action OnProgress;
+
+        private IFileSystem _fileSystem;
+        private string _target;
+        private Lazy<List<BackyFolder>> _backyFolders;
 
         public TransientState(IFileSystem fileSystem, string target)
         {
-            // Get all backup files
-            var allBackupFiles = fileSystem.EnumerateFiles(target).ToArray();
-            var allBackupDirectories = State.GetFirstLevelDirectories(fileSystem, target).Select(x => System.IO.Path.Combine(target, x));
-
-            var backyFolders = new List<BackyFolder>();
-            foreach (string dir in allBackupDirectories)
-            {
-                var allFilesForThisDirectory = allBackupFiles.Where(x => x.StartsWith(dir));
-                var newFolder = BackyFolder.FromFileNames(fileSystem, allFilesForThisDirectory, dir);
-                backyFolders.Add(newFolder);
-            }
-
-            _backyFolders = backyFolders;
+            _fileSystem = fileSystem;
+            _target = target;
+            _backyFolders = new Lazy<List<BackyFolder>>(this.GetFolders);
         }
 
         public int MaxVersion
         {
-            get { return _backyFolders.Count; }
+            get { return _backyFolders.Value.Count; }
         }
 
         public State GetLastState()
@@ -128,8 +123,8 @@ namespace BackyLogic
                 throw new ApplicationException("max version exeeded");
 
             var ret = new State();
-            foreach (BackyFolder backyFolder in _backyFolders.OrderBy(x => x.SerialNumber).Take(version))
-           {
+            foreach (BackyFolder backyFolder in _backyFolders.Value.OrderBy(x => x.SerialNumber).Take(version))
+            {
                 // Add new files
                 backyFolder.New.ForEach(x => ret.AddFile(x));
 
@@ -155,6 +150,30 @@ namespace BackyLogic
                 }
             }
 
+            return ret;
+        }
+
+
+        private List<BackyFolder> GetFolders()
+        {
+            // Get all backup files
+            var allBackupFiles = new List<string>();
+            foreach (var file in _fileSystem.EnumerateFiles(_target))
+            {
+                allBackupFiles.Add(file);
+                if (this.OnProgress != null)
+                    this.OnProgress();
+            }
+            var allBackupDirectories = State.GetFirstLevelDirectories(_fileSystem, _target).Select(x => System.IO.Path.Combine(_target, x));
+
+            var ret = new List<BackyFolder>();
+            foreach (string dir in allBackupDirectories)
+            {
+                var allFilesForThisDirectory = allBackupFiles.Where(x => x.StartsWith(dir));
+                var newFolder = BackyFolder.FromFileNames(_fileSystem, allFilesForThisDirectory, dir);
+                ret.Add(newFolder);
+
+            }
             return ret;
         }
     }

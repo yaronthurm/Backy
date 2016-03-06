@@ -31,15 +31,24 @@ namespace BackyLogic
         public void Execute()
         {
             State currentState = State.GetCurrentState(_fileSystem, _source, () => {
-                _progress.SourceFileScaned++;
-                if (_progress.SourceFileScaned % 100 == 0)
+                _progress.SourceFileScanned++;
+                if (_progress.SourceFileScanned % 100 == 0)
                     RaiseOnProgress();
             });
             RaiseOnProgress();
+            if (IsAborted()) return;
 
-            State lastBackedupState = State.GetLastBackedUpState(_fileSystem, _target);
+            State lastBackedupState = State.GetLastBackedUpState(_fileSystem, _target, () => {
+                _progress.TargetFileScanned++;
+                if (_progress.TargetFileScanned % 100 == 0)
+                    RaiseOnProgress();
+            });
+            RaiseOnProgress();
+            if (IsAborted()) return;
+
             _diff = GetDiff(currentState, lastBackedupState);
             _diff.CalculateDiff();
+            if (IsAborted()) return;
             _progress.NewFilesTotal = _diff.NewFiles.Count;
             _progress.ModifiedFilesTotal = _diff.ModifiedFiles.Count;
             _progress.DeletedFilesTotal = _diff.DeletedFiles.Count;
@@ -56,9 +65,17 @@ namespace BackyLogic
 
             var targetDir = GetTargetDirectory(lastBackedupState);
             CopyAllNewFiles(targetDir, _diff);
+            if (IsAborted()) return;
             CopyAllModifiedFiles(targetDir, _diff);
+            if (IsAborted()) return;
             MarkAllDeletedFiles(targetDir, _diff);
+            if (IsAborted()) return;
             MarkAllRenamedFiles(targetDir, _diff);
+        }
+
+        private bool IsAborted()
+        {
+            return _abort;
         }
 
         private FoldersDiff GetDiff(State currentState, State lastBackedupState)

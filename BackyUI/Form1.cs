@@ -51,7 +51,9 @@ namespace Backy
             this.progressRenameDetection.Value = obj.RenameDetectionFinish;
             this.lblProgressRenameDetection.Text = $"{ obj.RenameDetectionFinish }/{ obj.RenameDetectionTotal   }";
 
-            this.lblSourceFilesScaned.Text = obj.SourceFileScaned.ToString();
+            this.lblSourceFilesScanned.Text = obj.SourceFileScanned.ToString();
+            this.lblTargetFilesScanned.Text = obj.TargetFileScanned.ToString();
+
             if (obj.Done())
             {
                 this.btnRun.Enabled = true;

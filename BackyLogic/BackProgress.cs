@@ -24,7 +24,8 @@ namespace BackyLogic
         public int RenameDetectionTotal { get; internal set; }
         public int RenameDetectionFinish { get; internal set; }
 
-        public int SourceFileScaned { get; internal set; }
+        public int SourceFileScanned { get; internal set; }
+        public int TargetFileScanned { get; internal set; }
 
         public bool Done()
         {

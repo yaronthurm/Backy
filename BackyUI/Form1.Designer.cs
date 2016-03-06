@@ -45,7 +45,9 @@
             this.progressRenameDetection = new System.Windows.Forms.ProgressBar();
             this.btnView = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
-            this.lblSourceFilesScaned = new System.Windows.Forms.Label();
+            this.lblSourceFilesScanned = new System.Windows.Forms.Label();
+            this.lblTargetFilesScanned = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
@@ -197,21 +199,41 @@
             this.label5.TabIndex = 19;
             this.label5.Text = "source files";
             // 
-            // lblSourceFilesScaned
+            // lblSourceFilesScanned
             // 
-            this.lblSourceFilesScaned.AutoSize = true;
-            this.lblSourceFilesScaned.Location = new System.Drawing.Point(101, 151);
-            this.lblSourceFilesScaned.Name = "lblSourceFilesScaned";
-            this.lblSourceFilesScaned.Size = new System.Drawing.Size(13, 13);
-            this.lblSourceFilesScaned.TabIndex = 20;
-            this.lblSourceFilesScaned.Text = "0";
+            this.lblSourceFilesScanned.AutoSize = true;
+            this.lblSourceFilesScanned.Location = new System.Drawing.Point(101, 151);
+            this.lblSourceFilesScanned.Name = "lblSourceFilesScanned";
+            this.lblSourceFilesScanned.Size = new System.Drawing.Size(13, 13);
+            this.lblSourceFilesScanned.TabIndex = 20;
+            this.lblSourceFilesScanned.Text = "0";
+            // 
+            // lblTargetFilesScanned
+            // 
+            this.lblTargetFilesScanned.AutoSize = true;
+            this.lblTargetFilesScanned.Location = new System.Drawing.Point(275, 151);
+            this.lblTargetFilesScanned.Name = "lblTargetFilesScanned";
+            this.lblTargetFilesScanned.Size = new System.Drawing.Size(13, 13);
+            this.lblTargetFilesScanned.TabIndex = 22;
+            this.lblTargetFilesScanned.Text = "0";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(209, 151);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(55, 13);
+            this.label8.TabIndex = 21;
+            this.label8.Text = "target files";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(474, 306);
-            this.Controls.Add(this.lblSourceFilesScaned);
+            this.Controls.Add(this.lblTargetFilesScanned);
+            this.Controls.Add(this.label8);
+            this.Controls.Add(this.lblSourceFilesScanned);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.btnView);
             this.Controls.Add(this.label6);
@@ -255,7 +277,9 @@
         private System.Windows.Forms.ProgressBar progressRenameDetection;
         private System.Windows.Forms.Button btnView;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.Label lblSourceFilesScaned;
+        private System.Windows.Forms.Label lblSourceFilesScanned;
+        private System.Windows.Forms.Label lblTargetFilesScanned;
+        private System.Windows.Forms.Label label8;
     }
 }
 
