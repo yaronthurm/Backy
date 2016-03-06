@@ -52,8 +52,7 @@
   <ItemGroup>
     <Compile Include="FileSystemEmulator.cs" />
     <Compile Include="TestHierarchicalDictionary.cs" />
-    <Compile Include="TestStateClass.cs" />
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="TestRunBackupCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

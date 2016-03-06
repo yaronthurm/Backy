@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace TestBacky
 {
     [TestClass]
-    public class UnitTest1
+    public class TestRunBackupCommand
     {
         [TestMethod, Ignore]
         public void Test00_Playing_around()
