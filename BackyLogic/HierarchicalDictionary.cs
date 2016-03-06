@@ -13,57 +13,60 @@ namespace BackyLogic
 
         public void Add(TValue item, params TKey[] itemPath)
         {
-            var container = this.GetContainerByPath(itemPath, true);
-            container._items.Add(itemPath.Last(), item);
+            var path = Path.FromItemPath(itemPath);
+            var container = this.GetContainerByPath(path, true);
+            container._items.Add(path.ItemKey, item);
         }
 
         public bool Contains(params TKey[] itemPath)
         {
-            var directory = this.GetContainerByPath(itemPath, false);
-            if (directory == null)
+            var path = Path.FromItemPath(itemPath);
+            var container = this.GetContainerByPath(path, false);
+            if (container == null)
                 return false;
-            var ret = directory._items.ContainsKey(itemPath.Last());
+            var ret = container._items.ContainsKey(path.ItemKey);
             return ret;
         }
 
         public IEnumerable<TValue> GetFirstLevelFiles(params TKey[] containerPath)
         {
             var ret = new List<TValue>();
-            //if (keyPath.Last() != "") keyPath = keyPath.Concat(new[] { "" }).ToArray();
-            var directory = this.GetContainerByPath(containerPath, false);
-            if (directory != null)
-                ret.AddRange(directory._items.Values);
+            var container = this.GetContainerByPath(Path.FromContainerPath(containerPath), false);
+            if (container != null)
+                ret.AddRange(container._items.Values);
             return ret;
         }
 
         public IEnumerable<TKey> GetFirstLevelDirectories(params TKey[] containerPath)
         {
             var ret = new List<TKey>();
-            //if (keyPath.Last() != "") keyPath = keyPath.Concat(new[] { "" }).ToArray();
-            var directory = this.GetContainerByPath(containerPath, false);
-            if (directory != null)
-                ret.AddRange(directory._containers.Keys);
+            var container = this.GetContainerByPath(Path.FromContainerPath(containerPath), false);
+            if (container != null)
+                ret.AddRange(container._containers.Keys);
             return ret;
         }
 
 
-        private HierarchicalDictionary<TKey, TValue> GetContainerByPath(TKey[] containerPath, bool createIfMissing)
+        private HierarchicalDictionary<TKey, TValue> GetContainerByPath(Path path, bool createIfMissing)
         {
             var ret = this;
-            for (int i = 0; i < containerPath.Length - 1; i++)
+            foreach (TKey key in path.ContainerPath)
             {
-                var key = containerPath[i];
-                HierarchicalDictionary<TKey, TValue> nextDirectory;
-                if (!ret._containers.TryGetValue(key, out nextDirectory))
+                HierarchicalDictionary<TKey, TValue> nextContainer;
+                if (ret._containers.TryGetValue(key, out nextContainer))
+                {
+                    ret = nextContainer;
+                }
+                else
                 {
                     if (!createIfMissing)
                         return null;
                     else {
-                        nextDirectory = new HierarchicalDictionary<TKey, TValue>();
-                        ret._containers.Add(key, nextDirectory);
+                        nextContainer = new HierarchicalDictionary<TKey, TValue>();
+                        ret._containers.Add(key, nextContainer);
+                        ret = nextContainer;
                     }
                 }
-                ret = nextDirectory;
             }
 
             return ret;
@@ -71,20 +74,22 @@ namespace BackyLogic
 
         public void Remove(TKey[] itemPath)
         {
-            var directory = this.GetContainerByPath(itemPath, false);
-            if (directory == null)
+            var path = Path.FromItemPath(itemPath);
+            var container = this.GetContainerByPath(path, false);
+            if (container == null)
                 throw new ApplicationException("Item not found, cannot be removed");
-            directory._items.Remove(itemPath.Last());
+            container._items.Remove(path.ItemKey);
         }
 
-        public TValue GetFileOrNull(TKey[] itemPath)
+        public TValue GetFileOrDefault(TKey[] itemPath)
         {
-            var directory = this.GetContainerByPath(itemPath, false);
-            if (directory == null)
+            var path = Path.FromItemPath(itemPath);
+            var container = this.GetContainerByPath(path, false);
+            if (container == null)
                 return default(TValue);
 
             TValue ret;
-            directory._items.TryGetValue(itemPath.Last(), out ret);
+            container._items.TryGetValue(path.ItemKey, out ret);
             return ret;
         }
 
@@ -101,6 +106,31 @@ namespace BackyLogic
                     q.Enqueue(innerItem);
             }
             return ret;
+        }
+
+
+
+
+        private class Path
+        {
+            public IEnumerable<TKey> ContainerPath { get; private set; }
+            public TKey ItemKey { get; private set; }
+
+            public static Path FromItemPath(params TKey[] itemPath)
+            {
+                var ret = new Path();
+                ret.ContainerPath = itemPath.Take(itemPath.Length - 1);
+                ret.ItemKey = itemPath[itemPath.Length - 1];
+                return ret;
+            }
+
+            public static Path FromContainerPath(params TKey[] containerPath)
+            {
+                var ret = new Path();
+                ret.ContainerPath = containerPath;
+                ret.ItemKey = default(TKey);
+                return ret;
+            }
         }
     }
 }
