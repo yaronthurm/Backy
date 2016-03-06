@@ -28,7 +28,7 @@ namespace BackyLogic
             return ret;
         }
 
-        public IEnumerable<TValue> GetFirstLevelFiles(params TKey[] containerPath)
+        public IEnumerable<TValue> GetFirstLevelItems(params TKey[] containerPath)
         {
             var ret = new List<TValue>();
             var container = this.GetContainerByPath(Path.FromContainerPath(containerPath), false);
@@ -37,7 +37,7 @@ namespace BackyLogic
             return ret;
         }
 
-        public IEnumerable<TKey> GetFirstLevelDirectories(params TKey[] containerPath)
+        public IEnumerable<TKey> GetFirstLevelContainers(params TKey[] containerPath)
         {
             var ret = new List<TKey>();
             var container = this.GetContainerByPath(Path.FromContainerPath(containerPath), false);
