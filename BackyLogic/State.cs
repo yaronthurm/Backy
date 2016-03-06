@@ -156,21 +156,22 @@ namespace BackyLogic
 
         private List<BackyFolder> GetFolders()
         {
+            var tree = new HierarchicalDictionary<string, string>();
+            
             // Get all backup files
-            var allBackupFiles = new List<string>();
             foreach (var file in _fileSystem.EnumerateFiles(_target))
             {
-                allBackupFiles.Add(file);
+                tree.Add(file, file.Split('\\'));
                 if (this.OnProgress != null)
                     this.OnProgress();
             }
-            var allBackupDirectories = State.GetFirstLevelDirectories(_fileSystem, _target).Select(x => System.IO.Path.Combine(_target, x));
 
             var ret = new List<BackyFolder>();
-            foreach (string dir in allBackupDirectories)
+            foreach (string dir in tree.GetFirstLevelContainers(_target.Split('\\')))
             {
-                var allFilesForThisDirectory = allBackupFiles.Where(x => x.StartsWith(dir));
-                var newFolder = BackyFolder.FromFileNames(_fileSystem, allFilesForThisDirectory, dir);
+                var fullDirectoryPath = System.IO.Path.Combine(_target, dir);
+                var allFilesForThisDirectory = tree.GetAllDescendantsItems(fullDirectoryPath.Split('\\'));
+                var newFolder = BackyFolder.FromFileNames(_fileSystem, allFilesForThisDirectory, fullDirectoryPath);
                 ret.Add(newFolder);
 
             }

@@ -37,6 +37,15 @@ namespace BackyLogic
             return ret;
         }
 
+        public IEnumerable<TValue> GetAllDescendantsItems(TKey[] containerPath)
+        {
+            var ret = new List<TValue>();
+            var container = this.GetContainerByPath(Path.FromContainerPath(containerPath), false);
+            if (container != null)
+                ret.AddRange(container.GetAllItems());
+            return ret;
+        }
+
         public IEnumerable<TKey> GetFirstLevelContainers(TKey[] containerPath)
         {
             var ret = new List<TKey>();

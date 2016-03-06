@@ -40,6 +40,26 @@ namespace TestBacky
             AssertLists(new[] { 3, 2 }, containersFrom2);
         }
 
+        [TestMethod]
+        public void Test02_Testing_Descendants()
+        {
+            var tree = new HierarchicalDictionary<int, string>();
+            tree.Add("item1", new[] { 1, 2, 3 });
+            tree.Add("item2", new[] { 1, 2, 4 });
+            tree.Add("item3", new[] { 2, 3, 4 });
+            tree.Add("item4", new[] { 2, 2, 4 });
+            tree.Add("item5", new[] { 1, 2, 3, 4 });
+
+            var descendants1 = tree.GetAllDescendantsItems(new[] { 1 });
+            AssertLists(new[] { "item1", "item2", "item5" }, descendants1);
+
+            var descendants2 = tree.GetAllDescendantsItems(new[] { 2 });
+            AssertLists(new[] { "item3", "item4" }, descendants2);
+
+            var descendants2_3 = tree.GetAllDescendantsItems(new[] { 2, 3 });
+            AssertLists(new[] { "item3" }, descendants2_3);
+        }
+
 
 
 
