@@ -30,7 +30,13 @@ namespace BackyLogic
 
         public void Execute()
         {
-            State currentState = State.GetCurrentState(_fileSystem, _source);
+            State currentState = State.GetCurrentState(_fileSystem, _source, () => {
+                _progress.SourceFileScaned++;
+                if (_progress.SourceFileScaned % 100 == 0)
+                    RaiseOnProgress();
+            });
+            RaiseOnProgress();
+
             State lastBackedupState = State.GetLastBackedUpState(_fileSystem, _target);
             _diff = GetDiff(currentState, lastBackedupState);
             _diff.CalculateDiff();

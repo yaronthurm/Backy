@@ -13,7 +13,7 @@ namespace BackyLogic
 
         void Copy(string sourceFileName, string destFileName);
 
-        IEnumerable<string> GetAllFiles(string dirName);
+        IEnumerable<string> EnumerateFiles(string dirName);
 
         IEnumerable<string> GetDirectories(string dirName);
 
@@ -50,9 +50,9 @@ namespace BackyLogic
             File.WriteAllText(filename, "");
         }
 
-        public IEnumerable<string> GetAllFiles(string source)
+        public IEnumerable<string> EnumerateFiles(string source)
         {
-            return Directory.GetFiles(source, "*", SearchOption.AllDirectories);
+            return Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories);
         }
 
         public byte[] GetContent(string physicalPath)

@@ -34,7 +34,7 @@ namespace TestBacky
             _files.Add(new EmulatorFile(filename));
         }
 
-        public IEnumerable<string> GetAllFiles(string directory)
+        public IEnumerable<string> EnumerateFiles(string directory)
         {
             return _files.Where(x => x.Name.StartsWith(directory)).Select(x => x.Name);
         }
@@ -48,7 +48,7 @@ namespace TestBacky
 
         public IEnumerable<string> GetDirectories(string directory)
         {
-            var ret = this.GetAllFiles(directory).Select(Path.GetDirectoryName).Distinct().ToList();
+            var ret = this.EnumerateFiles(directory).Select(Path.GetDirectoryName).Distinct().ToList();
             return ret;
         }
 

@@ -39,15 +39,16 @@ namespace BackyLogic
             return ret;
         }
 
-        public static State GetCurrentState(IFileSystem fileSystem, string source)
+        public static State GetCurrentState(IFileSystem fileSystem, string source, Action fileEnumaretedCallback)
         {
-            var files = fileSystem.GetAllFiles(source);
+            var files = fileSystem.EnumerateFiles(source);
 
             var ret = new State();
             foreach (var file in files)
             {
                 var backy = BackyFile.FromSourceFileName(fileSystem, file, source);
                 ret.AddFile(backy);
+                fileEnumaretedCallback();
             }
             return ret;
         }
@@ -97,7 +98,7 @@ namespace BackyLogic
         public TransientState(IFileSystem fileSystem, string target)
         {
             // Get all backup files
-            var allBackupFiles = fileSystem.GetAllFiles(target);
+            var allBackupFiles = fileSystem.EnumerateFiles(target).ToArray();
             var allBackupDirectories = State.GetFirstLevelDirectories(fileSystem, target).Select(x => System.IO.Path.Combine(target, x));
 
             var backyFolders = new List<BackyFolder>();

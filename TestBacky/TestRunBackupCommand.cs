@@ -108,7 +108,7 @@ namespace TestBacky
 
             // Expected that all files from %source% will be under %target%\1\new
             var expected = files.Select(x => Path.Combine(target, "1\\new", x));
-            var actual = fileSystem.GetAllFiles(target);
+            var actual = fileSystem.EnumerateFiles(target);
             AssertLists<string>(expected, actual);
         }
 
@@ -134,7 +134,7 @@ namespace TestBacky
 
             // Expected that all old files from %source% will be under %target%\1\new
             var expected = new string[] { @"1\new\file1.txt", @"1\new\file2.txt", @"1\new\subdir\file11.txt" }.Select(x => Path.Combine(target, x));
-            var actual = fileSystem.GetAllFiles(target);
+            var actual = fileSystem.EnumerateFiles(target);
             AssertLists<string>(expected, actual);
         }
 
@@ -158,7 +158,7 @@ namespace TestBacky
 
             // Expected that all old files from %source% will be under %target%\1\new
             var expected = new string[] { @"1\new\file1.txt", @"1\new\file2.txt", @"1\new\subdir\file11.txt" }.Select(x => Path.Combine(target, x));
-            var actual = fileSystem.GetAllFiles(target);
+            var actual = fileSystem.EnumerateFiles(target);
             AssertLists<string>(expected, actual);
         }
 
@@ -188,7 +188,7 @@ namespace TestBacky
                 @"1\new\file1.txt", @"1\new\file2.txt", @"1\new\subdir\file11.txt", // old files under 1/new
                 @"2\new\file3.txt", @"2\new\subdir\file22.txt" } // new files under 2/new
             .Select(x => Path.Combine(target, x));
-            var actual = fileSystem.GetAllFiles(target);
+            var actual = fileSystem.EnumerateFiles(target);
             AssertLists<string>(expected, actual);
         }
 
@@ -219,7 +219,7 @@ namespace TestBacky
                 @"1\new\file1.txt", @"1\new\file2.txt", @"1\new\subdir\file11.txt", // old files
                 @"2\deleted.txt" // for holding the names of deletd files
                 }.Select(x => Path.Combine(target, x));
-            var actual = fileSystem.GetAllFiles(target);
+            var actual = fileSystem.EnumerateFiles(target);
             AssertLists<string>(expected, actual);
 
             // Expected to see "file1.txt" and "subdir\file11.txt" in the deleted file
@@ -257,7 +257,7 @@ namespace TestBacky
                 @"2\deleted.txt", // for holding the names of deletd files
                 @"2\new\file3.txt", @"2\new\file4.txt", @"2\new\subdir2\file111.txt"
                 }.Select(x => Path.Combine(target, x));
-            var actual = fileSystem.GetAllFiles(target);
+            var actual = fileSystem.EnumerateFiles(target);
             AssertLists<string>(expected, actual);
 
             // Expected to see "file1.txt" and "subdir\file11.txt" in the deleted file
@@ -299,7 +299,7 @@ namespace TestBacky
                 @"d:\target\2\modified\file1.txt",
                 @"d:\target\2\modified\file2.txt"
             };
-            var actual = fileSystem.GetAllFiles(@"d:\target");
+            var actual = fileSystem.EnumerateFiles(@"d:\target");
             AssertLists<string>(expected, actual);
         }
 
@@ -344,7 +344,7 @@ namespace TestBacky
                 @"d:\target\2\new\file3.txt",
                 @"d:\target\2\new\subdir2\file44.txt"
             };
-            var actual = fileSystem.GetAllFiles(@"d:\target");
+            var actual = fileSystem.EnumerateFiles(@"d:\target");
             AssertLists<string>(expected, actual);
         }
 
@@ -395,7 +395,7 @@ namespace TestBacky
                 @"d:\target\2\deleted.txt",
 
             };
-            var actual = fileSystem.GetAllFiles(@"d:\target");
+            var actual = fileSystem.EnumerateFiles(@"d:\target");
             AssertLists<string>(expected, actual);
 
             // Expected to see deleted file
@@ -438,7 +438,7 @@ namespace TestBacky
                 @"d:\target\2\modified\file1.txt",
                 @"d:\target\2\modified\file2.txt"
             };
-            var actual = fileSystem.GetAllFiles(@"d:\target");
+            var actual = fileSystem.EnumerateFiles(@"d:\target");
             AssertLists<string>(expected, actual);
         }
 
