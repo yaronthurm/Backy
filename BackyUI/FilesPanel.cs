@@ -11,7 +11,7 @@ namespace Backy
 {
     public partial class FilesPanel : UserControl
     {
-        BackyLogic.FilesAndDirectoriesTree _tree = new BackyLogic.FilesAndDirectoriesTree();
+        private HierarchicalDictionary<string, FileView> _tree = new HierarchicalDictionary<string, FileView>();
         private string _rootDirectory;
         private int _currentPage;
         private string _currentDirectory = "";
@@ -44,9 +44,9 @@ namespace Backy
 
         public void PopulateFiles(IEnumerable<FileView> files, string rootDirectory)
         {
-            _tree = new FilesAndDirectoriesTree();
+            _tree = new HierarchicalDictionary<string, FileView>();
             foreach (var file in files)
-                _tree.Add(file);
+                 _tree.Add(file, file.LogicalPath.Split('\\'));
             _rootDirectory = rootDirectory;
             _currentPage = 1;
             this.CaptureCurrentPage();
@@ -154,12 +154,12 @@ namespace Backy
 
         private IEnumerable<FileView> GetFirstLevelFiles()
         {
-            return _tree.GetFirstLevelFiles(_currentDirectory.Split('\\')).Cast<FileView>();
+            return _tree.GetFirstLevelItems(_currentDirectory.Split(new[] { '\\' }, StringSplitOptions.RemoveEmptyEntries));
         }
 
         public IEnumerable<string> GetFirstLevelDirectories()
         {
-            return _tree.GetFirstLevelDirectories(_currentDirectory.Split('\\'));
+            return _tree.GetFirstLevelContainers(_currentDirectory.Split(new[] { '\\' }, StringSplitOptions.RemoveEmptyEntries));
         }
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
@@ -169,31 +169,10 @@ namespace Backy
     }
 
 
-    public class FileView : BackyLogic.IVirtualFile
+    public class FileView
     {
         public string LogicalPath;
         public string PhysicalPath;
-
-        public string LogicalName
-        {
-            get
-            {
-                return LogicalPath;
-            }
-        }
-
-        string IVirtualFile.PhysicalPath
-        {
-            get
-            {
-                return PhysicalPath;
-            }
-        }
-
-        public string[] GetPath()
-        {
-            return LogicalPath.Split('\\');
-        }
 
         public override string ToString()
         {

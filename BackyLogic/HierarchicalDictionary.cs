@@ -11,14 +11,14 @@ namespace BackyLogic
         private Dictionary<TKey, HierarchicalDictionary<TKey, TValue>> _containers = new Dictionary<TKey, HierarchicalDictionary<TKey, TValue>>();
 
 
-        public void Add(TValue item, params TKey[] itemPath)
+        public void Add(TValue item, TKey[] itemPath)
         {
             var path = Path.FromItemPath(itemPath);
             var container = this.GetContainerByPath(path, true);
             container._items.Add(path.ItemKey, item);
         }
 
-        public bool Contains(params TKey[] itemPath)
+        public bool Contains(TKey[] itemPath)
         {
             var path = Path.FromItemPath(itemPath);
             var container = this.GetContainerByPath(path, false);
@@ -28,7 +28,7 @@ namespace BackyLogic
             return ret;
         }
 
-        public IEnumerable<TValue> GetFirstLevelItems(params TKey[] containerPath)
+        public IEnumerable<TValue> GetFirstLevelItems(TKey[] containerPath)
         {
             var ret = new List<TValue>();
             var container = this.GetContainerByPath(Path.FromContainerPath(containerPath), false);
@@ -37,7 +37,7 @@ namespace BackyLogic
             return ret;
         }
 
-        public IEnumerable<TKey> GetFirstLevelContainers(params TKey[] containerPath)
+        public IEnumerable<TKey> GetFirstLevelContainers(TKey[] containerPath)
         {
             var ret = new List<TKey>();
             var container = this.GetContainerByPath(Path.FromContainerPath(containerPath), false);

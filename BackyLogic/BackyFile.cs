@@ -6,28 +6,14 @@ using System.Threading.Tasks;
 
 namespace BackyLogic
 {
-    public class BackyFile: IVirtualFile
+    public class BackyFile
     {
         public string Root;
         public string RelativeName;
         public string PhysicalPath;
         public DateTime LastWriteTime;
-
-        public string LogicalName
-        {
-            get
-            {
-                return RelativeName;
-            }
-        }
-
-        string IVirtualFile.PhysicalPath
-        {
-            get
-            {
-                return PhysicalPath;
-            }
-        }
+        
+        
 
         private BackyFile() { }
 
@@ -69,11 +55,6 @@ namespace BackyLogic
             ret.PhysicalPath = fullname;
             ret.LastWriteTime = fileSystem.GetLastWriteTime(fullname);
             return ret;
-        }
-
-        public string[] GetPath()
-        {
-            return RelativeName.Split('\\');
         }
     }
 }

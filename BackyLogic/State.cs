@@ -8,7 +8,7 @@ namespace BackyLogic
 {
     public class State
     {
-        private FilesAndDirectoriesTree _tree = new FilesAndDirectoriesTree();
+        private HierarchicalDictionary<string, BackyFile> _tree = new HierarchicalDictionary<string, BackyFile>();
         public int Version;
 
         internal string GetNextDirectory(IFileSystem fileSystem, string targetDir)
@@ -52,15 +52,17 @@ namespace BackyLogic
             return ret;
         }
 
+
+
         public IEnumerable<BackyFile> GetFiles()
         {
-            var ret = _tree.GetAllFiles().Cast<BackyFile>();
+            var ret = _tree.GetAllItems();
             return ret;
         }
 
-        public void AddFile(IVirtualFile file)
+        public void AddFile(BackyFile file)
         {
-            _tree.Add(file);
+            _tree.Add(file, file.RelativeName.Split('\\'));
         }
 
         public bool ContainsFile(string fileRelativePath)
@@ -70,125 +72,22 @@ namespace BackyLogic
             return ret;
         }
 
-        public void DeleteFile(string fileRelativePath)
+        public void DeleteFileByPath(string relativePath)
         {
-            var keys = fileRelativePath.Split('\\');
-            _tree.Remove(keys);
+            _tree.Remove(relativePath.Split('\\'));
+        }
+
+        public void DeleteFile(BackyFile file)
+        {
+            _tree.Remove(file.RelativeName.Split('\\'));
         }
 
         public BackyFile FindFile(string fileRelativePath)
         {
-            var keys = fileRelativePath.Split('\\');
-            return _tree.GetFileOrNull(keys) as BackyFile;
+            return _tree.GetFileOrDefault(fileRelativePath.Split('\\'));
         }
     }
 
-    public class FilesAndDirectoriesTree
-    {
-        private Dictionary<string, IVirtualFile> _files = new Dictionary<string, IVirtualFile>();
-        private Dictionary<string, FilesAndDirectoriesTree> _directories = new Dictionary<string, FilesAndDirectoriesTree>();
-        
-
-        public void Add(IVirtualFile file)
-        {
-            var keyPath = file.GetPath();
-            var currentDirectory = this.GetByPath(keyPath, true);
-            currentDirectory._files.Add(keyPath.Last(), file);
-        }
-
-        public bool Contains(params string[] keyPath)
-        {
-            var directory = this.GetByPath(keyPath, false);
-            if (directory == null)
-                return false;
-            var ret = directory._files.ContainsKey(keyPath.Last());
-            return ret;
-        }
-
-        public IEnumerable<IVirtualFile> GetFirstLevelFiles(params string[] keyPath)
-        {
-            var ret = new List<IVirtualFile>();
-            if (keyPath.Last() != "") keyPath = keyPath.Concat(new[] { "" }).ToArray();
-            var directory = this.GetByPath(keyPath, false);
-            if (directory != null)
-                ret.AddRange(directory._files.Values);
-            return ret;
-        }
-
-        public IEnumerable<string> GetFirstLevelDirectories(params string[] keyPath)
-        {
-            var ret = new List<string>();
-            if (keyPath.Last() != "") keyPath = keyPath.Concat(new[] { "" }).ToArray();
-            var directory = this.GetByPath(keyPath, false);
-            if (directory != null)
-                ret.AddRange(directory._directories.Keys);
-            return ret;
-        }
-
-
-        private FilesAndDirectoriesTree GetByPath(string[] keyPath, bool createIfMissing)
-        {
-            var ret = this;
-            for (int i = 0; i < keyPath.Length - 1; i++)
-            {
-                var key = keyPath[i];
-                FilesAndDirectoriesTree nextDirectory;
-                if (!ret._directories.TryGetValue(key, out nextDirectory))
-                {
-                    if (!createIfMissing)
-                        return null;
-                    else {
-                        nextDirectory = new FilesAndDirectoriesTree();
-                        ret._directories.Add(key, nextDirectory);
-                    }
-                }
-                ret = nextDirectory;
-            }
-
-            return ret;
-        }
-
-        public void Remove(string[] keys)
-        {
-            var directory = this.GetByPath(keys, false);
-            if (directory == null)
-                throw new ApplicationException("Item not found, cannot be removed");
-            directory._files.Remove(keys.Last());
-        }
-
-        public IVirtualFile GetFileOrNull(string[] keys)
-        {
-            var directory = this.GetByPath(keys, false);
-            if (directory == null)
-                return null;
-
-            IVirtualFile ret;
-            directory._files.TryGetValue(keys.Last(), out ret);               
-            return ret;
-        }
-
-        public IEnumerable<IVirtualFile> GetAllFiles()
-        {
-            var ret = new List<IVirtualFile>();
-            var q = new Queue<FilesAndDirectoriesTree>();
-            q.Enqueue(this);
-            while (q.Count > 0)
-            {
-                var curentItem = q.Dequeue();
-                ret.AddRange(curentItem._files.Values);
-                foreach (var innerItem in curentItem._directories.Values)
-                    q.Enqueue(innerItem);
-            }
-            return ret;
-        }
-    }
-
-    public interface IVirtualFile {
-        string LogicalName { get; }
-        string PhysicalPath { get; }
-
-        string[] GetPath();
-    }
 
 
     public class TransientState
@@ -234,14 +133,14 @@ namespace BackyLogic
                 backyFolder.New.ForEach(x => ret.AddFile(x));
 
                 // Remove deleted files
-                backyFolder.Deleted.ForEach(x => ret.DeleteFile(x));
+                backyFolder.Deleted.ForEach(x => ret.DeleteFileByPath(x));
 
                 // Handle renamed files
                 foreach (var rename in backyFolder.Renamed)
                 {
                     // In order to not touching the refernce, we will clone the file and modify it.
-                    var file = ret.FindFile(rename.OldName) as BackyFile;
-                    ret.DeleteFile(rename.OldName);
+                    var file = ret.FindFile(rename.OldName);
+                    ret.DeleteFile(file);
                     var renamedFile = file.Clone();
                     renamedFile.RelativeName = rename.NewName;
                     ret.AddFile(renamedFile);
@@ -249,8 +148,8 @@ namespace BackyLogic
 
                 // Handle modified files
                 foreach (var modified in backyFolder.Modified)
-                {                    
-                    ret.DeleteFile(modified.RelativeName);
+                {
+                    ret.DeleteFileByPath(modified.RelativeName);
                     ret.AddFile(modified);
                 }
             }
