@@ -28,7 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.btnNext = new System.Windows.Forms.Button();
             this.btnPrev = new System.Windows.Forms.Button();
@@ -36,7 +35,6 @@
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
             this.btnUp = new System.Windows.Forms.Button();
             this.lblCurrentDirectory = new System.Windows.Forms.Label();
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -126,11 +124,6 @@
             this.lblCurrentDirectory.TabIndex = 0;
             this.lblCurrentDirectory.Text = "directory";
             // 
-            // contextMenuStrip1
-            // 
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
-            // 
             // FilesPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -160,6 +153,5 @@
         private System.Windows.Forms.NumericUpDown numericUpDown1;
         private System.Windows.Forms.Button btnUp;
         private System.Windows.Forms.Label lblCurrentDirectory;
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
     }
 }

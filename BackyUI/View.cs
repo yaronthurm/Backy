@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -61,6 +62,10 @@ namespace Backy
 
         private void View_Load(object sender, EventArgs e)
         {
+            this.filesPanel1.AddContextMenuItem("Open", x => Process.Start(x.PhysicalPath));
+            this.filesPanel1.AddContextMenuItem("Copy", x => Clipboard.SetFileDropList(new System.Collections.Specialized.StringCollection { x.PhysicalPath }));
+            this.filesPanel1.AddContextMenuItem("Restore", x => MessageBox.Show("not supported yet"));
+
             var backupState = _state.GetLastState();
             this.lblCurrentVersion.Text = _state.MaxVersion.ToString();
             this.SetFiles(backupState.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));

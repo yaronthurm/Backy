@@ -53,6 +53,18 @@ namespace Backy
             this.FillPanel();
         }
 
+
+        public class ContextMenuItem {
+            public string Text;
+            public Action<FileView> OnClick;
+        }
+        private List<ContextMenuItem> _contextMenuItems = new List<ContextMenuItem>();
+
+        public void AddContextMenuItem(string text, Action<FileView> onClick)
+        {
+            _contextMenuItems.Add(new ContextMenuItem { Text = text, OnClick = onClick });
+        }
+
         private void EnableDisabledNavigationButtons()
         {
             this.btnNext.Enabled = _currentPage < TotalPages;
@@ -86,6 +98,7 @@ namespace Backy
             _pageNumberPerDirectory[_currentDirectory] = _currentPage;
 
         }
+
         private void FillPanel()
         {
             if (_pageNumberPerDirectory.ContainsKey(_currentDirectory))
@@ -125,13 +138,24 @@ namespace Backy
                     var shellFile = ShellFolder.FromParsingName(x.PhysicalPath);
                     shellFile.Thumbnail.FormatOption = ShellThumbnailFormatOption.Default;
                     item.SetData(shellFile.Thumbnail.MediumBitmap, x);
-                    item.ContextMenuStrip = this.contextMenuStrip1;
+                    item.ContextMenuStrip = this.GetContextMenuForFileView(x);
                     item.DoubleClick += fileView => Process.Start(fileView.PhysicalPath);
                     return item;
                 });
             return ret;
         }
 
+        private ContextMenuStrip GetContextMenuForFileView(FileView file)
+        {
+            var ret = new ContextMenuStrip();
+            foreach (var item in _contextMenuItems)
+            {
+                var stripItem = new ToolStripMenuItem(item.Text);
+                stripItem.Click += (s, e) => item.OnClick(file);
+                ret.Items.Add(stripItem);
+            }
+            return ret;
+        }
 
         private IEnumerable<LargeFileView> GetDirectoriesControls(IEnumerable<string> firstLevelDirectories)
         {
