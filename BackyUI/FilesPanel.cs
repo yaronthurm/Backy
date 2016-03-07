@@ -125,6 +125,7 @@ namespace Backy
                     var shellFile = ShellFolder.FromParsingName(x.PhysicalPath);
                     shellFile.Thumbnail.FormatOption = ShellThumbnailFormatOption.Default;
                     item.SetData(shellFile.Thumbnail.MediumBitmap, x);
+                    item.ContextMenuStrip = this.contextMenuStrip1;
                     item.DoubleClick += fileView => Process.Start(fileView.PhysicalPath);
                     return item;
                 });
