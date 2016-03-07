@@ -23,8 +23,8 @@ namespace TestBacky
         [TestMethod, Ignore]
         public void Test00_1_Running_on_real_file_system()
         {
-            var source = @"D:\FolderForBackyTesting\Source";
-            var target = @"D:\FolderForBackyTesting\Target";
+            var source = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
+            var target = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
 
             // Clear target
             if (Directory.Exists(target)) // This method sometimes return true when the directory doesn't realy exists
