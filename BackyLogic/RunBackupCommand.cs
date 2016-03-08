@@ -195,7 +195,8 @@ namespace BackyLogic
                 try {
                     _fileSystem.Copy(file.PhysicalPath, System.IO.Path.Combine(targetDir, file.RelativeName));
                     _progress.NewFilesFinished++;
-                    RaiseOnProgress($"Copy new files. {_progress.NewFilesFinished}/{_progress.NewFilesTotal}");
+                    this.Progress.UpdateStepProgress(_progress.NewFilesFinished, _progress.NewFilesTotal);
+                    //RaiseOnProgress($"Copy new files. {_progress.NewFilesFinished}/{_progress.NewFilesTotal}");
                 }
                 catch
                 {

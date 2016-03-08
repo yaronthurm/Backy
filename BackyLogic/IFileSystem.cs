@@ -83,5 +83,6 @@ namespace BackyLogic
     {
         void ReportNewStep(string text);
         void UpdateStep(string text);
+        void UpdateStepProgress(int finished, int total);
     }
 }

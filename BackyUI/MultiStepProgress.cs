@@ -47,5 +47,36 @@ namespace Backy
             var lbl = this.flowLayoutPanel1.Controls[this.flowLayoutPanel1.Controls.Count - 1];
             lbl.Text = text;
         }
+
+        public void UpdateStepProgress(int finished, int total)
+        {
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke((Action<int, int>)this.UpdateStepProgress, finished, total);
+                return;
+            }
+
+            var lastControl = GetLastControl();
+            if (lastControl is Label)
+            {
+                this.flowLayoutPanel1.Controls.Add(new ProgressBar
+                {
+                    Width = (int)(this.flowLayoutPanel1.Width * 0.9),
+                    Height = 15,
+                    Maximum = total,
+                    Anchor = AnchorStyles.Left | AnchorStyles.Right
+                });
+            }
+
+            ProgressBar bar = GetLastControl() as ProgressBar;
+            bar.Value = finished;
+        }
+
+
+        private Control GetLastControl()
+        {
+            var ret = this.flowLayoutPanel1.Controls[this.flowLayoutPanel1.Controls.Count - 1];
+            return ret;
+        }
     }
 }

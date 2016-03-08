@@ -97,7 +97,8 @@ namespace BackyLogic
                 if (Enumerable.SequenceEqual(deletedContent, newContent))
                     ret.Add(new RenameInfo { OldName = suspect.OldFile.RelativeName, NewName = suspect.NewFile.RelativeName });
                 _progress.RenameDetectionFinished++;
-                this.Progress.UpdateStep($"Detecting renamed files phase2 :{ _progress.RenameDetectionFinished}/{_progress.RenameDetectionTotal}");
+                //this.Progress.UpdateStep($"Detecting renamed files phase2 :{ _progress.RenameDetectionFinished}/{_progress.RenameDetectionTotal}");
+                this.Progress.UpdateStepProgress(_progress.RenameDetectionFinished, _progress.RenameDetectionTotal);
             }
 
             return ret;
