@@ -74,7 +74,7 @@
             this.txtSource.Name = "txtSource";
             this.txtSource.Size = new System.Drawing.Size(272, 20);
             this.txtSource.TabIndex = 2;
-            this.txtSource.Text = "D:\\DataFromExternalDrive";
+            this.txtSource.Text = "D:\\FolderForBackyTesting\\Source";
             // 
             // txtTarget
             // 

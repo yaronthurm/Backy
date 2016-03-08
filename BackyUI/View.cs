@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,19 +16,21 @@ namespace Backy
     public partial class View : Form
     {
         TransientState _state;
-        string _rootDirectory;
+        string _targetRootDirectory;
+        string _sourceRootDirectory;
 
-        public View(IFileSystem fileSystem, string rootDirectory)
+        public View(IFileSystem fileSystem, string targetRootDirectory, string sourceRootDirectory)
         {
             InitializeComponent();
 
-            _rootDirectory = rootDirectory;
-           _state = new TransientState(fileSystem, rootDirectory);
+            _targetRootDirectory = targetRootDirectory;
+            _sourceRootDirectory = sourceRootDirectory;
+           _state = new TransientState(fileSystem, _targetRootDirectory);
         }
 
-        private void SetFiles(IEnumerable<Backy.FileView> files)
+        private void SetFiles(IEnumerable<FileView> files)
         {
-            this.filesPanel1.PopulateFiles(files, _rootDirectory);
+            this.filesPanel1.PopulateFiles(files, _targetRootDirectory);
         }
 
         private void btnPrev_Click(object sender, EventArgs e)
@@ -64,7 +67,7 @@ namespace Backy
         {
             this.filesPanel1.AddContextMenuItem("Open", x => Process.Start(x.PhysicalPath));
             this.filesPanel1.AddContextMenuItem("Copy", x => Clipboard.SetFileDropList(new System.Collections.Specialized.StringCollection { x.PhysicalPath }));
-            this.filesPanel1.AddContextMenuItem("Restore", x => MessageBox.Show("not supported yet"));
+            this.filesPanel1.AddContextMenuItem("Restore", x => RestoreFile(x, _sourceRootDirectory));
 
             var backupState = _state.GetLastState();
             this.lblCurrentVersion.Text = _state.MaxVersion.ToString();
@@ -74,6 +77,13 @@ namespace Backy
             this.btnNext.Enabled = false;
         }
 
-        
+        private static void RestoreFile(FileView x, string sourceRootDirectory)
+        {
+            var restorePath = Path.Combine(sourceRootDirectory, x.LogicalPath);
+            var restoreDir = Path.GetDirectoryName(restorePath);
+            if (!Directory.Exists(restoreDir))
+                Directory.CreateDirectory(restoreDir);
+            File.Copy(x.PhysicalPath, restorePath, true);
+        }
     }
 }

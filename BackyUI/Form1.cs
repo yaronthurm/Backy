@@ -70,7 +70,7 @@ namespace Backy
 
         private void btnView_Click(object sender, EventArgs e)
         {
-            var viewForm = new Backy.View(new FileSystem(), this.txtTarget.Text);
+            var viewForm = new View(new FileSystem(), this.txtTarget.Text, this.txtSource.Text);
             viewForm.Show();
         }
     }
