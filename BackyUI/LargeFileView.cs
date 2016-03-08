@@ -53,16 +53,24 @@ namespace Backy
                 if (this.DoubleClick != null)
                     this.DoubleClick(_file);
             };
-            //Process.Start(_file.PhysicalPath);
         }
 
         public void SetData(Bitmap thumbnail, FileView file)
         {
             _file = file;
 
-            thumbnail.MakeTransparent();
+            if (ThumbnailShouldBeMadeTransparent(file.PhysicalPath))
+                thumbnail.MakeTransparent();
             this.pictureBox1.Image = thumbnail;
             this.lblFileName.Text = Path.GetFileName(file.PhysicalPath);
+        }
+
+        private bool ThumbnailShouldBeMadeTransparent(string physicalPath)
+        {
+            var dontMakeTransparentExtentions = new[] { ".jpg", ".mpeg", ".avi" };
+            var ext = Path.GetExtension(physicalPath).ToLower();
+            var ret = !dontMakeTransparentExtentions.Contains(ext);
+            return ret;
         }
     }
 }
