@@ -31,25 +31,25 @@ namespace BackyLogic
 
         public void Execute()
         {
-            RaiseOnProgressNewState("Scanning source files. Files scanned: 0");
+            this.Progress.StartUnboundedStep("Scanning source files. Files scanned:");
             State currentState = State.GetCurrentState(_fileSystem, _source, () => {
                 _progress.SourceFileScanned++;
                 if (_progress.SourceFileScanned % 100 == 0)
-                    RaiseOnProgress("Scanning source files. Files scanned: " + _progress.SourceFileScanned);
+                    this.Progress.UpdateProgress(_progress.SourceFileScanned);
             });
-            RaiseOnProgress("Scanning source files. Files scanned: " + _progress.SourceFileScanned);
+            this.Progress.UpdateProgress(_progress.SourceFileScanned);
             if (IsAborted()) return;
 
-            RaiseOnProgressNewState("Scanning backup files. Files scanned: 0");
+            this.Progress.StartUnboundedStep("Scanning backup files. Files scanned:");
             State lastBackedupState = State.GetLastBackedUpState(_fileSystem, _target, () => {
                 _progress.TargetFileScanned++;
                 if (_progress.TargetFileScanned % 100 == 0)
-                    RaiseOnProgress("Scanning backup files. Files scanned: " + _progress.TargetFileScanned);
+                    this.Progress.UpdateProgress(_progress.TargetFileScanned);
             });
-            RaiseOnProgress("Scanning backup files. Files scanned: " + _progress.TargetFileScanned);
+            this.Progress.UpdateProgress(_progress.TargetFileScanned);
             if (IsAborted()) return;
 
-            RaiseOnProgressNewState("Calculating diff");
+            this.Progress.StartStepWithoutProgress("Calculating diff");
             _diff = GetDiff(currentState, lastBackedupState);
             _diff.CalculateDiff();
             if (IsAborted()) return;
@@ -58,7 +58,7 @@ namespace BackyLogic
             _progress.DeletedFilesTotal = _diff.DeletedFiles.Count;
             _progress.RenamedFilesTotal = _diff.RenamedFiles.Count;
             _progress.CalculateDiffFinished = true;
-            RaiseOnProgressNewState(
+            this.Progress.StartUnboundedStep(
                 "Finished calculating diff: " +
                 $"New files: {_progress.NewFilesTotal}," +
                 $"Modified files: {_progress.ModifiedFilesTotal}," +
@@ -68,7 +68,7 @@ namespace BackyLogic
             if (NoChangesFromLastBackup(_diff))
             {
                 _progress.NoChangeDetected = true;
-                RaiseOnProgress("No change was detected");
+                //RaiseOnProgress("No change was detected");
                 return;
             }
 
@@ -101,31 +101,6 @@ namespace BackyLogic
                 _diff.Abort();
         }
 
-        private void RaiseOnProgressNewState(string progressText)
-        {
-            if (this.Progress != null)
-            {
-                this.Progress.ReportNewStep(progressText);
-                return;
-            }
-            _progressLines.Add(progressText);
-            if (OnProgress != null)
-                OnProgress(string.Join(Environment.NewLine, _progressLines), _progress);
-        }
-
-        private void RaiseOnProgress(string progressText = null)
-        {
-            if (this.Progress != null)
-            {
-                if (progressText != null)
-                    this.Progress.UpdateStep(progressText);
-                return;
-            }
-            _progressLines[_progressLines.Count - 1] = progressText;
-            if (OnProgress != null)
-                OnProgress(string.Join(Environment.NewLine, _progressLines), _progress);
-        }
-
         private void MarkAllRenamedFiles(string targetDir, FoldersDiff diff)
         {
             var renamedFiles = diff.RenamedFiles;
@@ -139,7 +114,7 @@ namespace BackyLogic
                     string renameLine = new JObject(new JProperty("oldName", file.OldName), new JProperty("newName", file.NewName)).ToString(Newtonsoft.Json.Formatting.None);
                     _fileSystem.AppendLine(renamedFilename, renameLine);
                     _progress.RenamedFilesFinished++;
-                    RaiseOnProgress();
+                    //RaiseOnProgress();
                 }
             }
         }
@@ -156,7 +131,7 @@ namespace BackyLogic
                     if (_abort) break;
                     _fileSystem.AppendLine(deletedFilename, file.RelativeName);
                     _progress.DeletedFilesFinished++;
-                    RaiseOnProgress();
+                    //RaiseOnProgress();
                 }
             }
         }
@@ -166,19 +141,19 @@ namespace BackyLogic
             var modifiedFiles = diff.ModifiedFiles;
             targetDir = Path.Combine(targetDir, "modified");
             if (modifiedFiles.Count > 0)
-                RaiseOnProgressNewState($"Copy modified files. 0/{modifiedFiles.Count}");
+                this.Progress.StartBoundedStep("Copy modified files", modifiedFiles.Count);
             foreach (BackyFile file in modifiedFiles)
             {
                 if (_abort) break;
                 try {
                     _fileSystem.Copy(file.PhysicalPath, System.IO.Path.Combine(targetDir, file.RelativeName));
                     _progress.ModifiedFilesFinished++;
-                    RaiseOnProgress($"Copy modified files. {_progress.ModifiedFilesFinished}/{_progress.ModifiedFilesFinished}");
+                    this.Progress.UpdateProgress(_progress.ModifiedFilesFinished);
                 }
                 catch
                 {
                     _progress.Failed.Add(file.RelativeName);
-                    RaiseOnProgress();
+                    //RaiseOnProgress();
                 }
             }
         }
@@ -188,20 +163,19 @@ namespace BackyLogic
             var newFiles = diff.NewFiles;
             targetDir = Path.Combine(targetDir, "new");
             if (newFiles.Count > 0)
-                RaiseOnProgressNewState($"Copy new files. 0/{newFiles.Count}");
+                this.Progress.StartBoundedStep("Copy new files", newFiles.Count);
             foreach (BackyFile file in newFiles)
             {
                 if (_abort) break;
                 try {
                     _fileSystem.Copy(file.PhysicalPath, System.IO.Path.Combine(targetDir, file.RelativeName));
                     _progress.NewFilesFinished++;
-                    this.Progress.UpdateStepProgress(_progress.NewFilesFinished, _progress.NewFilesTotal);
-                    //RaiseOnProgress($"Copy new files. {_progress.NewFilesFinished}/{_progress.NewFilesTotal}");
+                    this.Progress.UpdateProgress(_progress.NewFilesFinished);
                 }
                 catch
                 {
                     _progress.Failed.Add(file.RelativeName);
-                    RaiseOnProgress();
+                    //RaiseOnProgress();
                 }
             }
         }

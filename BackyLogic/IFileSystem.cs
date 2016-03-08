@@ -81,8 +81,9 @@ namespace BackyLogic
 
     public interface IMultiStepProgress
     {
-        void ReportNewStep(string text);
-        void UpdateStep(string text);
-        void UpdateStepProgress(int finished, int total);
+        void StartStepWithoutProgress(string text);
+        void StartUnboundedStep(string text);
+        void StartBoundedStep(string text, int maxValue);
+        void UpdateProgress(int currentValue);
     }
 }

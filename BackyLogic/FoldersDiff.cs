@@ -67,7 +67,7 @@ namespace BackyLogic
             // First, for each deleted file, look for a new file with the same modified date
             var renameSuspects = new[] { new { OldFile = (BackyFile)null, NewFile = (BackyFile)null } }.Skip(1).ToList();
             _progress.RenameDetectionPhase1Total = deletedFiles.Count;
-            this.Progress.ReportNewStep($"Detecting renamed files phase1 :{ _progress.RenameDetectionPhase1Finished}/{_progress.RenameDetectionPhase1Total}");
+            this.Progress.StartBoundedStep("Detecting renamed files phase1", _progress.RenameDetectionPhase1Total);
             foreach (var deleted in deletedFiles)
             {
                 if (_abort) break;
@@ -80,14 +80,14 @@ namespace BackyLogic
                     newFiles = newFiles.Where(x => x != matchingFile).ToList();
                 }
                 _progress.RenameDetectionPhase1Finished++;
-                this.Progress.UpdateStep($"Detecting renamed files phase1 :{ _progress.RenameDetectionPhase1Finished}/{_progress.RenameDetectionPhase1Total}");
+                this.Progress.UpdateProgress(_progress.RenameDetectionPhase1Finished);
             }
 
             _progress.RenameDetectionTotal = renameSuspects.Count;
 
             var ret = new List<RenameInfo>();
             // For each suspect, check the content of both files
-            this.Progress.ReportNewStep($"Detecting renamed files phase2 :{ _progress.RenameDetectionFinished}/{_progress.RenameDetectionTotal}");
+            this.Progress.StartBoundedStep("Detecting renamed files phase2", _progress.RenameDetectionTotal);
             foreach (var suspect in renameSuspects)
             {
                 if (_abort)
@@ -97,8 +97,7 @@ namespace BackyLogic
                 if (Enumerable.SequenceEqual(deletedContent, newContent))
                     ret.Add(new RenameInfo { OldName = suspect.OldFile.RelativeName, NewName = suspect.NewFile.RelativeName });
                 _progress.RenameDetectionFinished++;
-                //this.Progress.UpdateStep($"Detecting renamed files phase2 :{ _progress.RenameDetectionFinished}/{_progress.RenameDetectionTotal}");
-                this.Progress.UpdateStepProgress(_progress.RenameDetectionFinished, _progress.RenameDetectionTotal);
+                this.Progress.UpdateProgress(_progress.RenameDetectionFinished);
             }
 
             return ret;

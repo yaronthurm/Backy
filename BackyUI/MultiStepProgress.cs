@@ -10,45 +10,98 @@ namespace Backy
 {
     public partial class MultiStepProgress : UserControl, BackyLogic.IMultiStepProgress
     {
+        private enum Bounding {  None, Bounded, Unbounded};
+        private Bounding _bounding;
+        private string _text;
+        private int _maxValue;
+
         public MultiStepProgress()
         {
             InitializeComponent();
         }
+    
 
-
-        private List<string> _stepsText = new List<string>();
-
-        public void ReportNewStep(string text)
+        
+        public void StartUnboundedStep(string text)
         {
             if (this.InvokeRequired)
             {
-                this.BeginInvoke((Action<string>)this.ReportNewStep, text);
+                this.Invoke((Action<string>)this.StartUnboundedStep, text);
                 return;
             }
 
-            this.flowLayoutPanel1.Controls.Add(new Label {
-                Text = text,
+            _bounding = Bounding.Unbounded;
+            _text = text;
+            AddProgressLabel();
+        }
+
+        public void StartBoundedStep(string text, int maxValue)
+        {
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke((Action<string, int>)this.StartBoundedStep, text, maxValue);
+                return;
+            }
+
+            _bounding = Bounding.Bounded;
+            _maxValue = maxValue;
+            _text = text;
+            AddProgressLabel();
+        }
+
+        public void StartStepWithoutProgress(string text)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke((Action<string>)this.StartStepWithoutProgress, text);
+                return;
+            }
+
+            _bounding = Bounding.None;
+            _text = text;
+            AddProgressLabel();
+        }
+
+        public void UpdateProgress(int currentValue)
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke((Action<int>)this.UpdateProgress, currentValue);
+                return;
+            }
+
+            this.SetText(currentValue);
+        }
+
+
+
+        private void AddProgressLabel()
+        {
+            var lbl = new Label
+            {
                 AutoSize = false,
-                //AutoEllipsis = false,
-                Width = this.flowLayoutPanel1.Width,
                 Height = 15,
+                Width = this.flowLayoutPanel1.Width,
                 Anchor = AnchorStyles.Left | AnchorStyles.Right
-            });
+            };
+            this.flowLayoutPanel1.Controls.Add(lbl);
+
+            this.SetText(0);
         }
 
-        public void UpdateStep(string text)
+        private void SetText(int currentValue)
         {
-            if (this.InvokeRequired)
-            {
-                this.BeginInvoke((Action<string>)this.UpdateStep, text);
-                return;
-            }
-
-            var lbl = this.flowLayoutPanel1.Controls[this.flowLayoutPanel1.Controls.Count - 1];
-            lbl.Text = text;
+            var lbl = this.GetLastControl();
+            if (_bounding == Bounding.Bounded)
+                lbl.Text = $"{ _text} {currentValue}/{ _maxValue}";
+            else if (_bounding == Bounding.Unbounded)
+                lbl.Text = $"{ _text} {currentValue}";
+            else
+                lbl.Text = _text;
         }
 
-        public void UpdateStepProgress(int finished, int total)
+
+        private void UpdateStepProgress(int finished, int total)
         {
             if (this.InvokeRequired)
             {
@@ -78,5 +131,17 @@ namespace Backy
             var ret = this.flowLayoutPanel1.Controls[this.flowLayoutPanel1.Controls.Count - 1];
             return ret;
         }
+
+        
+
+        
+
+        private Label GetProgressLabel()
+        {
+            var ret = this.flowLayoutPanel1.Controls[this.flowLayoutPanel1.Controls.Count - 1];
+            return ret as Label;
+        }
+
+        
     }
 }
