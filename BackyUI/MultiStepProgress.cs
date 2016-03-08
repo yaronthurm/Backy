@@ -26,11 +26,13 @@ namespace Backy
                 return;
             }
 
-            this.tableLayoutPanel1.Controls.Add(new Label {
+            this.flowLayoutPanel1.Controls.Add(new Label {
                 Text = text,
-                AutoSize = true,
-                AutoEllipsis = false,
-
+                AutoSize = false,
+                //AutoEllipsis = false,
+                Width = this.flowLayoutPanel1.Width,
+                Height = 15,
+                Anchor = AnchorStyles.Left | AnchorStyles.Right
             });
         }
 
@@ -42,7 +44,7 @@ namespace Backy
                 return;
             }
 
-            var lbl = this.tableLayoutPanel1.Controls[this.tableLayoutPanel1.Controls.Count - 1];
+            var lbl = this.flowLayoutPanel1.Controls[this.flowLayoutPanel1.Controls.Count - 1];
             lbl.Text = text;
         }
     }
