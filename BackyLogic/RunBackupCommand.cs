@@ -31,13 +31,13 @@ namespace BackyLogic
 
         public void Execute()
         {
-            this.Progress.StartUnboundedStep("Scanning source files. Files scanned:");
+            this.Progress?.StartUnboundedStep("Scanning source files. Files scanned:");
             State currentState = State.GetCurrentState(_fileSystem, _source, () => {
                 _progress.SourceFileScanned++;
                 if (_progress.SourceFileScanned % 100 == 0)
-                    this.Progress.UpdateProgress(_progress.SourceFileScanned);
+                    this.Progress?.UpdateProgress(_progress.SourceFileScanned);
             });
-            this.Progress.UpdateProgress(_progress.SourceFileScanned);
+            this.Progress?.UpdateProgress(_progress.SourceFileScanned);
             if (IsAborted()) return;
 
             this.Progress.StartUnboundedStep("Scanning backup files. Files scanned:");
@@ -58,12 +58,12 @@ namespace BackyLogic
             _progress.DeletedFilesTotal = _diff.DeletedFiles.Count;
             _progress.RenamedFilesTotal = _diff.RenamedFiles.Count;
             _progress.CalculateDiffFinished = true;
-            this.Progress.StartUnboundedStep(
-                "Finished calculating diff: " +
-                $"New files: {_progress.NewFilesTotal}," +
-                $"Modified files: {_progress.ModifiedFilesTotal}," +
-                $"Deleted files: {_progress.DeletedFilesTotal}," +
-                $"Renamed files: {_progress.RenameDetectionTotal},");
+            this.Progress.StartStepWithoutProgress(
+                "Finished calculating diff:\n" +
+                $"  New files: {_progress.NewFilesTotal}\n" +
+                $"  Modified files: {_progress.ModifiedFilesTotal}\n" +
+                $"  Deleted files: {_progress.DeletedFilesTotal}\n" +
+                $"  Renamed files: {_progress.RenameDetectionTotal}");
 
             if (NoChangesFromLastBackup(_diff))
             {

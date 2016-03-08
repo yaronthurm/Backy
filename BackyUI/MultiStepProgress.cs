@@ -79,14 +79,19 @@ namespace Backy
         {
             var lbl = new Label
             {
-                AutoSize = false,
-                Height = 15,
+                AutoSize = true,
                 Width = this.flowLayoutPanel1.Width,
                 Anchor = AnchorStyles.Left | AnchorStyles.Right
             };
             this.flowLayoutPanel1.Controls.Add(lbl);
 
             this.SetText(0);
+
+            // We want to preserve the label height (to preserve new lines)
+            // but also set the width to the full width of the container (so that new labels will be in a new line)
+            var h = lbl.Height;
+            lbl.AutoSize = false;
+            lbl.Height = h;
         }
 
         private void SetText(int currentValue)
