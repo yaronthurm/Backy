@@ -42,6 +42,8 @@ namespace BackyLogic
     public class DiffProgress
     {
         public int RenameDetectionFinished { get; internal set; }
+        public int RenameDetectionPhase1Finished { get; internal set; }
+        public int RenameDetectionPhase1Total { get; internal set; }
         public int RenameDetectionTotal { get; internal set; }
     }
 }

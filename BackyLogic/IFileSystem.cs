@@ -77,4 +77,11 @@ namespace BackyLogic
             return ret;
         }
     }
+
+
+    public interface IMultiStepProgress
+    {
+        void ReportNewStep(string text);
+        void UpdateStep(string text);
+    }
 }

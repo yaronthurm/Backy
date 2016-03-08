@@ -48,6 +48,8 @@
             this.lblSourceFilesScanned = new System.Windows.Forms.Label();
             this.lblTargetFilesScanned = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
+            this.txtStatus = new System.Windows.Forms.TextBox();
+            this.multiStepProgress1 = new Backy.MultiStepProgress();
             this.SuspendLayout();
             // 
             // label1
@@ -74,7 +76,7 @@
             this.txtSource.Name = "txtSource";
             this.txtSource.Size = new System.Drawing.Size(272, 20);
             this.txtSource.TabIndex = 2;
-            this.txtSource.Text = "D:\\FolderForBackyTesting\\Source";
+            this.txtSource.Text = "D:\\DataFromExternalDrive";
             // 
             // txtTarget
             // 
@@ -96,14 +98,14 @@
             // 
             // progressNewFiles
             // 
-            this.progressNewFiles.Location = new System.Drawing.Point(104, 207);
+            this.progressNewFiles.Location = new System.Drawing.Point(105, 335);
             this.progressNewFiles.Name = "progressNewFiles";
             this.progressNewFiles.Size = new System.Drawing.Size(272, 23);
             this.progressNewFiles.TabIndex = 6;
             // 
             // progressModifiedFiles
             // 
-            this.progressModifiedFiles.Location = new System.Drawing.Point(104, 236);
+            this.progressModifiedFiles.Location = new System.Drawing.Point(105, 364);
             this.progressModifiedFiles.Name = "progressModifiedFiles";
             this.progressModifiedFiles.Size = new System.Drawing.Size(272, 23);
             this.progressModifiedFiles.TabIndex = 7;
@@ -111,7 +113,7 @@
             // lblProgressNewFiles
             // 
             this.lblProgressNewFiles.AutoSize = true;
-            this.lblProgressNewFiles.Location = new System.Drawing.Point(382, 207);
+            this.lblProgressNewFiles.Location = new System.Drawing.Point(383, 335);
             this.lblProgressNewFiles.Name = "lblProgressNewFiles";
             this.lblProgressNewFiles.Size = new System.Drawing.Size(24, 13);
             this.lblProgressNewFiles.TabIndex = 8;
@@ -120,7 +122,7 @@
             // lblProgressModifiedFiles
             // 
             this.lblProgressModifiedFiles.AutoSize = true;
-            this.lblProgressModifiedFiles.Location = new System.Drawing.Point(382, 236);
+            this.lblProgressModifiedFiles.Location = new System.Drawing.Point(383, 364);
             this.lblProgressModifiedFiles.Name = "lblProgressModifiedFiles";
             this.lblProgressModifiedFiles.Size = new System.Drawing.Size(24, 13);
             this.lblProgressModifiedFiles.TabIndex = 9;
@@ -140,7 +142,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(47, 207);
+            this.label3.Location = new System.Drawing.Point(48, 335);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(48, 13);
             this.label3.TabIndex = 11;
@@ -149,7 +151,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(28, 236);
+            this.label4.Location = new System.Drawing.Point(29, 364);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(67, 13);
             this.label4.TabIndex = 12;
@@ -158,7 +160,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(6, 178);
+            this.label6.Location = new System.Drawing.Point(7, 306);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(89, 13);
             this.label6.TabIndex = 17;
@@ -167,7 +169,7 @@
             // lblProgressRenameDetection
             // 
             this.lblProgressRenameDetection.AutoSize = true;
-            this.lblProgressRenameDetection.Location = new System.Drawing.Point(382, 178);
+            this.lblProgressRenameDetection.Location = new System.Drawing.Point(383, 306);
             this.lblProgressRenameDetection.Name = "lblProgressRenameDetection";
             this.lblProgressRenameDetection.Size = new System.Drawing.Size(24, 13);
             this.lblProgressRenameDetection.TabIndex = 15;
@@ -175,7 +177,7 @@
             // 
             // progressRenameDetection
             // 
-            this.progressRenameDetection.Location = new System.Drawing.Point(104, 178);
+            this.progressRenameDetection.Location = new System.Drawing.Point(105, 306);
             this.progressRenameDetection.Name = "progressRenameDetection";
             this.progressRenameDetection.Size = new System.Drawing.Size(272, 23);
             this.progressRenameDetection.TabIndex = 13;
@@ -193,7 +195,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(35, 151);
+            this.label5.Location = new System.Drawing.Point(36, 279);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(60, 13);
             this.label5.TabIndex = 19;
@@ -202,7 +204,7 @@
             // lblSourceFilesScanned
             // 
             this.lblSourceFilesScanned.AutoSize = true;
-            this.lblSourceFilesScanned.Location = new System.Drawing.Point(101, 151);
+            this.lblSourceFilesScanned.Location = new System.Drawing.Point(102, 279);
             this.lblSourceFilesScanned.Name = "lblSourceFilesScanned";
             this.lblSourceFilesScanned.Size = new System.Drawing.Size(13, 13);
             this.lblSourceFilesScanned.TabIndex = 20;
@@ -211,7 +213,7 @@
             // lblTargetFilesScanned
             // 
             this.lblTargetFilesScanned.AutoSize = true;
-            this.lblTargetFilesScanned.Location = new System.Drawing.Point(275, 151);
+            this.lblTargetFilesScanned.Location = new System.Drawing.Point(276, 279);
             this.lblTargetFilesScanned.Name = "lblTargetFilesScanned";
             this.lblTargetFilesScanned.Size = new System.Drawing.Size(13, 13);
             this.lblTargetFilesScanned.TabIndex = 22;
@@ -220,17 +222,35 @@
             // label8
             // 
             this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(209, 151);
+            this.label8.Location = new System.Drawing.Point(210, 279);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(55, 13);
             this.label8.TabIndex = 21;
             this.label8.Text = "target files";
             // 
+            // txtStatus
+            // 
+            this.txtStatus.Location = new System.Drawing.Point(102, 167);
+            this.txtStatus.Multiline = true;
+            this.txtStatus.Name = "txtStatus";
+            this.txtStatus.Size = new System.Drawing.Size(272, 109);
+            this.txtStatus.TabIndex = 23;
+            // 
+            // multiStepProgress1
+            // 
+            this.multiStepProgress1.BackColor = System.Drawing.Color.White;
+            this.multiStepProgress1.Location = new System.Drawing.Point(408, 96);
+            this.multiStepProgress1.Name = "multiStepProgress1";
+            this.multiStepProgress1.Size = new System.Drawing.Size(466, 180);
+            this.multiStepProgress1.TabIndex = 24;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(474, 306);
+            this.ClientSize = new System.Drawing.Size(903, 449);
+            this.Controls.Add(this.multiStepProgress1);
+            this.Controls.Add(this.txtStatus);
             this.Controls.Add(this.lblTargetFilesScanned);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.lblSourceFilesScanned);
@@ -280,6 +300,8 @@
         private System.Windows.Forms.Label lblSourceFilesScanned;
         private System.Windows.Forms.Label lblTargetFilesScanned;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.TextBox txtStatus;
+        private MultiStepProgress multiStepProgress1;
     }
 }
 

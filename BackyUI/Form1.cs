@@ -25,19 +25,23 @@ namespace Backy
         {
             _backupCommand = new RunBackupCommand(new FileSystem(), this.txtSource.Text, this.txtTarget.Text);
             _backupCommand.OnProgress += BackupCommand_OnProgress;
+            _backupCommand.Progress = this.multiStepProgress1;
             Task.Run(() => _backupCommand.Execute());
 
             this.btnAbort.Enabled = true;
             this.btnRun.Enabled = false;
         }
 
-        private void BackupCommand_OnProgress(BackyProgress obj)
+        private void BackupCommand_OnProgress(string text, BackyProgress obj)
         {
             if (this.InvokeRequired)
             {
-                this.BeginInvoke((Action<BackyProgress>)this.BackupCommand_OnProgress, obj);
+                this.BeginInvoke((Action<string, BackyProgress>)this.BackupCommand_OnProgress, text, obj);
                 return;
             }
+
+            if (text != null)
+                this.txtStatus.Text = text;
 
             this.progressNewFiles.Maximum = obj.NewFilesTotal;
             this.progressNewFiles.Value = obj.NewFilesFinished;

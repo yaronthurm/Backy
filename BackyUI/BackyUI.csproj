@@ -78,6 +78,12 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="MultiStepProgress.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="MultiStepProgress.designer.cs">
+      <DependentUpon>MultiStepProgress.cs</DependentUpon>
+    </Compile>
     <Compile Include="LargeFileView.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -97,6 +103,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MultiStepProgress.resx">
+      <DependentUpon>MultiStepProgress.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LargeFileView.resx">
       <DependentUpon>LargeFileView.cs</DependentUpon>
