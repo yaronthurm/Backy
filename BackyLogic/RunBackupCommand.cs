@@ -163,13 +163,13 @@ namespace BackyLogic
             var newFiles = diff.NewFiles;
             targetDir = Path.Combine(targetDir, "new");
             if (newFiles.Count > 0)
-                this.Progress.StartBoundedStep("Copy new files", newFiles.Count);
+                this.Progress?.StartBoundedStep("Copy new files", newFiles.Count);
             foreach (BackyFile file in newFiles)
             {
                 if (_abort) break;
                 try {
                     _fileSystem.Copy(file.PhysicalPath, System.IO.Path.Combine(targetDir, file.RelativeName));
-                    this.Progress.Increment();
+                    this.Progress?.Increment();
                 }
                 catch
                 {

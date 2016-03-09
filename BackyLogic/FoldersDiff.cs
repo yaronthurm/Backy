@@ -78,7 +78,7 @@ namespace BackyLogic
                     // Remove the matched file from the list
                     newFiles = newFiles.Where(x => x != matchingFile).ToList();
                 }
-                this.Progress.Increment();
+                this.Progress?.Increment();
             }
 
             var ret = new List<RenameInfo>();
@@ -95,7 +95,7 @@ namespace BackyLogic
                 byte[] newContent = _fileSystem.GetContent(suspect.NewFile.PhysicalPath);
                 if (Enumerable.SequenceEqual(deletedContent, newContent))
                     ret.Add(new RenameInfo { OldName = suspect.OldFile.RelativeName, NewName = suspect.NewFile.RelativeName });
-                this.Progress.Increment();
+                this.Progress?.Increment();
             }
 
             return ret;
