@@ -52,5 +52,23 @@ namespace Backy
             var viewForm = new View(new FileSystem(), this.txtTarget.Text, this.txtSource.Text);
             viewForm.Show();
         }
+
+        private void btnBrowseFoldersSource_Click(object sender, EventArgs e)
+        {
+            var folderBrowser = new FolderBrowserDialog();
+            folderBrowser.ShowNewFolderButton = false;
+            folderBrowser.SelectedPath = this.txtSource.Text;
+            var result = folderBrowser.ShowDialog();
+            this.txtSource.Text = folderBrowser.SelectedPath;
+        }
+
+        private void btnBrowseFoldersTarget_Click(object sender, EventArgs e)
+        {
+            var folderBrowser = new FolderBrowserDialog();
+            folderBrowser.ShowNewFolderButton = true;
+            folderBrowser.SelectedPath = this.txtTarget.Text;
+            var result = folderBrowser.ShowDialog();
+            this.txtTarget.Text = folderBrowser.SelectedPath;
+        }
     }
 }

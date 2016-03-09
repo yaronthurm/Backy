@@ -35,6 +35,8 @@
             this.btnRun = new System.Windows.Forms.Button();
             this.btnAbort = new System.Windows.Forms.Button();
             this.btnView = new System.Windows.Forms.Button();
+            this.btnBrowseFoldersSource = new System.Windows.Forms.Button();
+            this.btnBrowseFoldersTarget = new System.Windows.Forms.Button();
             this.multiStepProgress1 = new Backy.MultiStepProgress();
             this.SuspendLayout();
             // 
@@ -103,6 +105,26 @@
             this.btnView.UseVisualStyleBackColor = true;
             this.btnView.Click += new System.EventHandler(this.btnView_Click);
             // 
+            // btnBrowseFoldersSource
+            // 
+            this.btnBrowseFoldersSource.Location = new System.Drawing.Point(361, 28);
+            this.btnBrowseFoldersSource.Name = "btnBrowseFoldersSource";
+            this.btnBrowseFoldersSource.Size = new System.Drawing.Size(25, 23);
+            this.btnBrowseFoldersSource.TabIndex = 20;
+            this.btnBrowseFoldersSource.Text = "...";
+            this.btnBrowseFoldersSource.UseVisualStyleBackColor = true;
+            this.btnBrowseFoldersSource.Click += new System.EventHandler(this.btnBrowseFoldersSource_Click);
+            // 
+            // btnBrowseFoldersTarget
+            // 
+            this.btnBrowseFoldersTarget.Location = new System.Drawing.Point(361, 61);
+            this.btnBrowseFoldersTarget.Name = "btnBrowseFoldersTarget";
+            this.btnBrowseFoldersTarget.Size = new System.Drawing.Size(25, 23);
+            this.btnBrowseFoldersTarget.TabIndex = 21;
+            this.btnBrowseFoldersTarget.Text = "...";
+            this.btnBrowseFoldersTarget.UseVisualStyleBackColor = true;
+            this.btnBrowseFoldersTarget.Click += new System.EventHandler(this.btnBrowseFoldersTarget_Click);
+            // 
             // multiStepProgress1
             // 
             this.multiStepProgress1.BackColor = System.Drawing.Color.Transparent;
@@ -117,6 +139,8 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(477, 449);
+            this.Controls.Add(this.btnBrowseFoldersTarget);
+            this.Controls.Add(this.btnBrowseFoldersSource);
             this.Controls.Add(this.multiStepProgress1);
             this.Controls.Add(this.btnView);
             this.Controls.Add(this.btnAbort);
@@ -142,6 +166,8 @@
         private System.Windows.Forms.Button btnAbort;
         private System.Windows.Forms.Button btnView;
         private MultiStepProgress multiStepProgress1;
+        private System.Windows.Forms.Button btnBrowseFoldersSource;
+        private System.Windows.Forms.Button btnBrowseFoldersTarget;
     }
 }
 
