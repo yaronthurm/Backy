@@ -62,7 +62,7 @@ namespace Backy
             if (ThumbnailShouldBeMadeTransparent(file.PhysicalPath))
                 thumbnail.MakeTransparent();
             this.pictureBox1.Image = thumbnail;
-            this.lblFileName.Text = Path.GetFileName(file.PhysicalPath);
+            this.lblFileName.Text = Path.GetFileName(file.LogicalPath);
         }
 
         private bool ThumbnailShouldBeMadeTransparent(string physicalPath)
