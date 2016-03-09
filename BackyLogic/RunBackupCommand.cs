@@ -29,7 +29,9 @@ namespace BackyLogic
         public void Execute()
         {
             var sw = Stopwatch.StartNew();
-            try {                
+            try {
+                this.Progress?.StartStepWithoutProgress("Started: " + DateTime.Now);
+
                 int count = 0;
 
                 this.Progress?.StartUnboundedStep("Scanning source files. Files scanned:");
@@ -79,7 +81,8 @@ namespace BackyLogic
             finally
             {
                 sw.Stop();
-                this.Progress?.StartStepWithoutProgress("Finished. Total time: " + sw.Elapsed);
+                this.Progress?.StartStepWithoutProgress("Finished: " + DateTime.Now);
+                this.Progress?.StartStepWithoutProgress("Total time: " + sw.Elapsed);
             }
 
         }

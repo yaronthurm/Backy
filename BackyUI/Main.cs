@@ -24,7 +24,6 @@ namespace Backy
         private void btnRun_Click(object sender, EventArgs e)
         {
             this.multiStepProgress1.Clear();
-
             _backupCommand = new RunBackupCommand(new FileSystem(), this.txtSource.Text, this.txtTarget.Text);
             _backupCommand.Progress = this.multiStepProgress1;
 
