@@ -1,6 +1,6 @@
 ﻿namespace Backy
 {
-    partial class Form1
+    partial class Main
     {
         /// <summary>
         /// Required designer variable.
@@ -135,14 +135,14 @@
             this.multiStepProgress1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.multiStepProgress1.Location = new System.Drawing.Point(0, 150);
             this.multiStepProgress1.Name = "multiStepProgress1";
-            this.multiStepProgress1.Size = new System.Drawing.Size(477, 299);
+            this.multiStepProgress1.Size = new System.Drawing.Size(440, 299);
             this.multiStepProgress1.TabIndex = 19;
             // 
-            // Form1
+            // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(477, 449);
+            this.ClientSize = new System.Drawing.Size(440, 449);
             this.Controls.Add(this.btnBrowseFoldersTarget);
             this.Controls.Add(this.btnBrowseFoldersSource);
             this.Controls.Add(this.multiStepProgress1);
@@ -153,9 +153,9 @@
             this.Controls.Add(this.txtSource);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
-            this.Name = "Form1";
+            this.Name = "Main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Form1";
+            this.Text = "Backup";
             this.ResumeLayout(false);
             this.PerformLayout();
 

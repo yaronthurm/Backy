@@ -12,11 +12,11 @@ using System.Windows.Forms;
 
 namespace Backy
 {
-    public partial class Form1 : Form
+    public partial class Main : Form
     {
         private RunBackupCommand _backupCommand;
 
-        public Form1()
+        public Main()
         {
             InitializeComponent();
         }
