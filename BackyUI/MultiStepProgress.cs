@@ -14,6 +14,7 @@ namespace Backy
         private Bounding _bounding;
         private string _text;
         private int _maxValue;
+        private int _currentValue;
 
         public MultiStepProgress()
         {
@@ -21,7 +22,11 @@ namespace Backy
         }
     
 
-        
+        public void Clear()
+        {
+            this.flowLayoutPanel1.Controls.Clear();
+        }
+
         public void StartUnboundedStep(string text)
         {
             if (this.InvokeRequired)
@@ -32,6 +37,7 @@ namespace Backy
 
             _bounding = Bounding.Unbounded;
             _text = text;
+            _currentValue = 0;
             AddProgressLabel();
         }
 
@@ -39,14 +45,16 @@ namespace Backy
         {
             if (this.InvokeRequired)
             {
-                this.BeginInvoke((Action<string, int>)this.StartBoundedStep, text, maxValue);
+                this.Invoke((Action<string, int>)this.StartBoundedStep, text, maxValue);
                 return;
             }
 
             _bounding = Bounding.Bounded;
             _maxValue = maxValue;
             _text = text;
+            _currentValue = 0;
             AddProgressLabel();
+            AddProgressBar();
         }
 
         public void StartStepWithoutProgress(string text)
@@ -59,6 +67,7 @@ namespace Backy
 
             _bounding = Bounding.None;
             _text = text;
+            _currentValue = 0;
             AddProgressLabel();
         }
 
@@ -71,16 +80,31 @@ namespace Backy
             }
 
             this.SetText(currentValue);
+            if (_bounding == Bounding.Bounded)
+                this.UpdateProgressBarValue(currentValue);
         }
 
+        public void Increment()
+        {
+            _currentValue++;
+            this.UpdateProgress(_currentValue);
+        }
 
+        private void AddProgressBar()
+        {
+            this.flowLayoutPanel1.Controls.Add(new ProgressBar
+            {
+                Width = (int)(this.flowLayoutPanel1.Width * 0.9),
+                Maximum = _maxValue,
+                Anchor = AnchorStyles.Left | AnchorStyles.Right
+            });
+        }
 
         private void AddProgressLabel()
         {
             var lbl = new Label
             {
                 AutoSize = true,
-                Width = this.flowLayoutPanel1.Width,
                 Anchor = AnchorStyles.Left | AnchorStyles.Right
             };
             this.flowLayoutPanel1.Controls.Add(lbl);
@@ -92,11 +116,12 @@ namespace Backy
             var h = lbl.Height;
             lbl.AutoSize = false;
             lbl.Height = h;
+            lbl.Width = (int)(this.flowLayoutPanel1.Width * 0.9);
         }
 
         private void SetText(int currentValue)
         {
-            var lbl = this.GetLastControl();
+            var lbl = this.GetLastLabel();
             if (_bounding == Bounding.Bounded)
                 lbl.Text = $"{ _text} {currentValue}/{ _maxValue}";
             else if (_bounding == Bounding.Unbounded)
@@ -105,48 +130,21 @@ namespace Backy
                 lbl.Text = _text;
         }
 
-
-        private void UpdateStepProgress(int finished, int total)
+        private Label GetLastLabel()
         {
-            if (this.InvokeRequired)
-            {
-                this.BeginInvoke((Action<int, int>)this.UpdateStepProgress, finished, total);
-                return;
-            }
-
-            var lastControl = GetLastControl();
-            if (lastControl is Label)
-            {
-                this.flowLayoutPanel1.Controls.Add(new ProgressBar
-                {
-                    Width = (int)(this.flowLayoutPanel1.Width * 0.9),
-                    Height = 15,
-                    Maximum = total,
-                    Anchor = AnchorStyles.Left | AnchorStyles.Right
-                });
-            }
-
-            ProgressBar bar = GetLastControl() as ProgressBar;
-            bar.Value = finished;
-        }
-
-
-        private Control GetLastControl()
-        {
-            var ret = this.flowLayoutPanel1.Controls[this.flowLayoutPanel1.Controls.Count - 1];
+            Label ret = this.flowLayoutPanel1.Controls[this.flowLayoutPanel1.Controls.Count - 1] as Label;
+            if (ret == null)
+                ret = this.flowLayoutPanel1.Controls[this.flowLayoutPanel1.Controls.Count - 2] as Label;
             return ret;
         }
 
-        
-
-        
-
-        private Label GetProgressLabel()
+        private void UpdateProgressBarValue(int value)
         {
-            var ret = this.flowLayoutPanel1.Controls[this.flowLayoutPanel1.Controls.Count - 1];
-            return ret as Label;
+            if (_bounding == Bounding.Bounded)
+            {
+                var progressBar = this.flowLayoutPanel1.Controls[this.flowLayoutPanel1.Controls.Count - 1] as ProgressBar;
+                progressBar.Value = value;
+            }
         }
-
-        
     }
 }

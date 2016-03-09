@@ -23,46 +23,21 @@ namespace Backy
 
         private void btnRun_Click(object sender, EventArgs e)
         {
+            this.multiStepProgress1.Clear();
+
             _backupCommand = new RunBackupCommand(new FileSystem(), this.txtSource.Text, this.txtTarget.Text);
-            _backupCommand.OnProgress += BackupCommand_OnProgress;
             _backupCommand.Progress = this.multiStepProgress1;
-            Task.Run(() => _backupCommand.Execute());
+
+            Task.Run(() => _backupCommand.Execute()).ContinueWith(x => this.Invoke((Action)this.FinishBackupCallbak));
 
             this.btnAbort.Enabled = true;
             this.btnRun.Enabled = false;
         }
 
-        private void BackupCommand_OnProgress(string text, BackyProgress obj)
+        private void FinishBackupCallbak()
         {
-            if (this.InvokeRequired)
-            {
-                this.BeginInvoke((Action<string, BackyProgress>)this.BackupCommand_OnProgress, text, obj);
-                return;
-            }
-
-            if (text != null)
-                this.txtStatus.Text = text;
-
-            this.progressNewFiles.Maximum = obj.NewFilesTotal;
-            this.progressNewFiles.Value = obj.NewFilesFinished;
-            this.lblProgressNewFiles.Text = $"{ obj.NewFilesFinished }/{ obj.NewFilesTotal   }";
-
-            this.progressModifiedFiles.Maximum = obj.ModifiedFilesTotal;
-            this.progressModifiedFiles.Value = obj.ModifiedFilesFinished;
-            this.lblProgressModifiedFiles.Text = $"{ obj.ModifiedFilesFinished }/{ obj.ModifiedFilesTotal   }";
-
-            this.progressRenameDetection.Maximum = obj.RenameDetectionTotal;
-            this.progressRenameDetection.Value = obj.RenameDetectionFinish;
-            this.lblProgressRenameDetection.Text = $"{ obj.RenameDetectionFinish }/{ obj.RenameDetectionTotal   }";
-
-            this.lblSourceFilesScanned.Text = obj.SourceFileScanned.ToString();
-            this.lblTargetFilesScanned.Text = obj.TargetFileScanned.ToString();
-
-            if (obj.Done())
-            {
-                this.btnRun.Enabled = true;
-                this.btnAbort.Enabled = false;
-            }
+            this.btnAbort.Enabled = false;
+            this.btnRun.Enabled = true;
         }
 
         private void btnAbort_Click(object sender, EventArgs e)

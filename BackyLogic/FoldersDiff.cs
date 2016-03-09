@@ -19,8 +19,6 @@ namespace BackyLogic
         public List<BackyFile> DeletedFiles;
         public List<RenameInfo> RenamedFiles;
 
-        public event Action<DiffProgress> OnProgress;
-        private DiffProgress _progress = new DiffProgress();
         internal IMultiStepProgress Progress;
 
         public FoldersDiff(IFileSystem fileSystem, State currentState, State lastBackedupState)
@@ -66,8 +64,9 @@ namespace BackyLogic
         {
             // First, for each deleted file, look for a new file with the same modified date
             var renameSuspects = new[] { new { OldFile = (BackyFile)null, NewFile = (BackyFile)null } }.Skip(1).ToList();
-            _progress.RenameDetectionPhase1Total = deletedFiles.Count;
-            this.Progress.StartBoundedStep("Detecting renamed files phase1", _progress.RenameDetectionPhase1Total);
+            
+            if (deletedFiles.Any())
+                this.Progress?.StartBoundedStep("Analyzing possible renamed files phase1:", deletedFiles.Count);
             foreach (var deleted in deletedFiles)
             {
                 if (_abort) break;
@@ -79,15 +78,15 @@ namespace BackyLogic
                     // Remove the matched file from the list
                     newFiles = newFiles.Where(x => x != matchingFile).ToList();
                 }
-                _progress.RenameDetectionPhase1Finished++;
-                this.Progress.UpdateProgress(_progress.RenameDetectionPhase1Finished);
+                this.Progress.Increment();
             }
 
-            _progress.RenameDetectionTotal = renameSuspects.Count;
-
             var ret = new List<RenameInfo>();
+
+            if (renameSuspects.Any())
+                this.Progress?.StartBoundedStep("Analyzing possible renamed files phase2:", renameSuspects.Count);
+
             // For each suspect, check the content of both files
-            this.Progress.StartBoundedStep("Detecting renamed files phase2", _progress.RenameDetectionTotal);
             foreach (var suspect in renameSuspects)
             {
                 if (_abort)
@@ -96,8 +95,7 @@ namespace BackyLogic
                 byte[] newContent = _fileSystem.GetContent(suspect.NewFile.PhysicalPath);
                 if (Enumerable.SequenceEqual(deletedContent, newContent))
                     ret.Add(new RenameInfo { OldName = suspect.OldFile.RelativeName, NewName = suspect.NewFile.RelativeName });
-                _progress.RenameDetectionFinished++;
-                this.Progress.UpdateProgress(_progress.RenameDetectionFinished);
+                this.Progress.Increment();
             }
 
             return ret;

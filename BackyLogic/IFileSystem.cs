@@ -85,5 +85,6 @@ namespace BackyLogic
         void StartUnboundedStep(string text);
         void StartBoundedStep(string text, int maxValue);
         void UpdateProgress(int currentValue);
+        void Increment();
     }
 }
