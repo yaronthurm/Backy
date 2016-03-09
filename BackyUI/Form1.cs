@@ -60,6 +60,7 @@ namespace Backy
             folderBrowser.SelectedPath = this.txtSource.Text;
             var result = folderBrowser.ShowDialog();
             this.txtSource.Text = folderBrowser.SelectedPath;
+            Properties.Settings.Default.Save();
         }
 
         private void btnBrowseFoldersTarget_Click(object sender, EventArgs e)
@@ -69,6 +70,17 @@ namespace Backy
             folderBrowser.SelectedPath = this.txtTarget.Text;
             var result = folderBrowser.ShowDialog();
             this.txtTarget.Text = folderBrowser.SelectedPath;
+            Properties.Settings.Default.Save();
+        }
+
+        private void txtSource_Validated(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Save();
+        }
+
+        private void txtTarget_Validated(object sender, EventArgs e)
+        {
+            Properties.Settings.Default.Save();
         }
     }
 }

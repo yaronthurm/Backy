@@ -30,13 +30,13 @@
         {
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.txtSource = new System.Windows.Forms.TextBox();
-            this.txtTarget = new System.Windows.Forms.TextBox();
             this.btnRun = new System.Windows.Forms.Button();
             this.btnAbort = new System.Windows.Forms.Button();
             this.btnView = new System.Windows.Forms.Button();
             this.btnBrowseFoldersSource = new System.Windows.Forms.Button();
             this.btnBrowseFoldersTarget = new System.Windows.Forms.Button();
+            this.txtTarget = new System.Windows.Forms.TextBox();
+            this.txtSource = new System.Windows.Forms.TextBox();
             this.multiStepProgress1 = new Backy.MultiStepProgress();
             this.SuspendLayout();
             // 
@@ -57,22 +57,6 @@
             this.label2.Size = new System.Drawing.Size(38, 13);
             this.label2.TabIndex = 1;
             this.label2.Text = "Target";
-            // 
-            // txtSource
-            // 
-            this.txtSource.Location = new System.Drawing.Point(83, 30);
-            this.txtSource.Name = "txtSource";
-            this.txtSource.Size = new System.Drawing.Size(272, 20);
-            this.txtSource.TabIndex = 2;
-            this.txtSource.Text = "D:\\FolderForBackyTesting\\Source";
-            // 
-            // txtTarget
-            // 
-            this.txtTarget.Location = new System.Drawing.Point(83, 63);
-            this.txtTarget.Name = "txtTarget";
-            this.txtTarget.Size = new System.Drawing.Size(272, 20);
-            this.txtTarget.TabIndex = 3;
-            this.txtTarget.Text = "D:\\FolderForBackyTesting\\Target";
             // 
             // btnRun
             // 
@@ -125,6 +109,26 @@
             this.btnBrowseFoldersTarget.UseVisualStyleBackColor = true;
             this.btnBrowseFoldersTarget.Click += new System.EventHandler(this.btnBrowseFoldersTarget_Click);
             // 
+            // txtTarget
+            // 
+            this.txtTarget.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::Backy.Properties.Settings.Default, "TargetFolder", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.txtTarget.Location = new System.Drawing.Point(83, 63);
+            this.txtTarget.Name = "txtTarget";
+            this.txtTarget.Size = new System.Drawing.Size(272, 20);
+            this.txtTarget.TabIndex = 3;
+            this.txtTarget.Text = global::Backy.Properties.Settings.Default.TargetFolder;
+            this.txtTarget.Validated += new System.EventHandler(this.txtTarget_Validated);
+            // 
+            // txtSource
+            // 
+            this.txtSource.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::Backy.Properties.Settings.Default, "SourceFolder", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.txtSource.Location = new System.Drawing.Point(83, 30);
+            this.txtSource.Name = "txtSource";
+            this.txtSource.Size = new System.Drawing.Size(272, 20);
+            this.txtSource.TabIndex = 2;
+            this.txtSource.Text = global::Backy.Properties.Settings.Default.SourceFolder;
+            this.txtSource.Validated += new System.EventHandler(this.txtSource_Validated);
+            // 
             // multiStepProgress1
             // 
             this.multiStepProgress1.BackColor = System.Drawing.Color.Transparent;
@@ -150,6 +154,7 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Name = "Form1";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Form1";
             this.ResumeLayout(false);
             this.PerformLayout();
