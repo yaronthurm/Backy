@@ -58,5 +58,17 @@ namespace Backy.Properties {
                 this["autoBackupInterval"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public decimal detectionAggregationTime {
+            get {
+                return ((decimal)(this["detectionAggregationTime"]));
+            }
+            set {
+                this["detectionAggregationTime"] = value;
+            }
+        }
     }
 }

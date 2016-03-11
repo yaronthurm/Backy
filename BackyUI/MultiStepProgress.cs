@@ -15,6 +15,7 @@ namespace Backy
         private string _text;
         private int _maxValue;
         private int _currentValue;
+        private Func<int, string> _projection;
 
         public MultiStepProgress()
         {
@@ -27,17 +28,18 @@ namespace Backy
             this.flowLayoutPanel1.Controls.Clear();
         }
 
-        public void StartUnboundedStep(string text)
+        public void StartUnboundedStep(string text, Func<int, string> projection = null)
         {
             if (this.InvokeRequired)
             {
-                this.Invoke((Action<string>)this.StartUnboundedStep, text);
+                this.Invoke((Action<string, Func<int, string>>)this.StartUnboundedStep, text, projection);
                 return;
             }
 
             _bounding = Bounding.Unbounded;
             _text = text;
             _currentValue = 0;
+            _projection = projection;
             AddProgressLabel();
         }
 
@@ -105,7 +107,8 @@ namespace Backy
             var lbl = new Label
             {
                 AutoSize = true,
-                Anchor = AnchorStyles.Left | AnchorStyles.Right
+                Anchor = AnchorStyles.Left | AnchorStyles.Right,
+                Padding = new Padding(0, 0, 0, 2)
             };
             this.flowLayoutPanel1.Controls.Add(lbl);
 
@@ -121,11 +124,14 @@ namespace Backy
 
         private void SetText(int currentValue)
         {
+            var valueAsString = currentValue.ToString();
+            if (_projection != null)
+                valueAsString = _projection(currentValue);
             var lbl = this.GetLastLabel();
             if (_bounding == Bounding.Bounded)
                 lbl.Text = $"{ _text} {currentValue}/{ _maxValue}";
             else if (_bounding == Bounding.Unbounded)
-                lbl.Text = $"{ _text} {currentValue}";
+                lbl.Text = $"{ _text} {valueAsString}";
             else
                 lbl.Text = _text;
         }

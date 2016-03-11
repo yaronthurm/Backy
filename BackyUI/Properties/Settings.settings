@@ -11,5 +11,8 @@
     <Setting Name="autoBackupInterval" Type="System.Decimal" Scope="User">
       <Value Profile="(Default)">60</Value>
     </Setting>
+    <Setting Name="detectionAggregationTime" Type="System.Decimal" Scope="User">
+      <Value Profile="(Default)">10</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
