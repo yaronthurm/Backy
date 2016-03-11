@@ -5,6 +5,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 
 namespace Backy
 {
@@ -100,6 +101,8 @@ namespace Backy
                 Maximum = _maxValue,
                 Anchor = AnchorStyles.Left | AnchorStyles.Right
             });
+
+            ScrollToBottom();
         }
 
         private void AddProgressLabel()
@@ -120,6 +123,8 @@ namespace Backy
             lbl.AutoSize = false;
             lbl.Height = h;
             lbl.Width = (int)(this.flowLayoutPanel1.Width * 0.9);
+
+            ScrollToBottom();
         }
 
         private void SetText(int currentValue)
@@ -152,5 +157,18 @@ namespace Backy
                 progressBar.Value = value;
             }
         }
+
+
+
+        private void ScrollToBottom()
+        {
+            SendMessage(this.flowLayoutPanel1.Handle, WmVscroll, SbBottom, 0x0);
+        }
+
+        [DllImport("user32.dll")]
+        private static extern IntPtr SendMessage(IntPtr window, int message, int wparam, int lparam);
+
+        private const int SbBottom = 0x7;
+        private const int WmVscroll = 0x115;
     }
 }
