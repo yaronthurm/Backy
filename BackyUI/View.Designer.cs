@@ -84,7 +84,9 @@
             this.Controls.Add(this.btnNext);
             this.Controls.Add(this.btnPrev);
             this.Controls.Add(this.filesPanel1);
+            this.MinimumSize = new System.Drawing.Size(500, 300);
             this.Name = "View";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "View";
             this.Load += new System.EventHandler(this.View_Load);
             this.ResumeLayout(false);
