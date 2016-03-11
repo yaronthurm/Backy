@@ -46,5 +46,17 @@ namespace Backy.Properties {
                 this["TargetFolder"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("60")]
+        public decimal autoBackupInterval {
+            get {
+                return ((decimal)(this["autoBackupInterval"]));
+            }
+            set {
+                this["autoBackupInterval"] = value;
+            }
+        }
     }
 }
