@@ -50,6 +50,8 @@
             this.txtSource = new System.Windows.Forms.TextBox();
             this.changeDetectionTimer = new System.Windows.Forms.Timer(this.components);
             this.multiStepProgress1 = new Backy.MultiStepProgress();
+            this.btnOpenSource = new System.Windows.Forms.Button();
+            this.btnOpenTarget = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numDetectionAggregationTime)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numSeconds)).BeginInit();
             this.SuspendLayout();
@@ -271,11 +273,33 @@
             this.multiStepProgress1.Size = new System.Drawing.Size(440, 300);
             this.multiStepProgress1.TabIndex = 19;
             // 
+            // btnOpenSource
+            // 
+            this.btnOpenSource.Location = new System.Drawing.Point(392, 28);
+            this.btnOpenSource.Name = "btnOpenSource";
+            this.btnOpenSource.Size = new System.Drawing.Size(25, 23);
+            this.btnOpenSource.TabIndex = 31;
+            this.btnOpenSource.Text = "->";
+            this.btnOpenSource.UseVisualStyleBackColor = true;
+            this.btnOpenSource.Click += new System.EventHandler(this.btnOpenSource_Click);
+            // 
+            // btnOpenTarget
+            // 
+            this.btnOpenTarget.Location = new System.Drawing.Point(392, 63);
+            this.btnOpenTarget.Name = "btnOpenTarget";
+            this.btnOpenTarget.Size = new System.Drawing.Size(25, 23);
+            this.btnOpenTarget.TabIndex = 32;
+            this.btnOpenTarget.Text = "->";
+            this.btnOpenTarget.UseVisualStyleBackColor = true;
+            this.btnOpenTarget.Click += new System.EventHandler(this.btnOpenTarget_Click);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(440, 493);
+            this.Controls.Add(this.btnOpenTarget);
+            this.Controls.Add(this.btnOpenSource);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.numDetectionAggregationTime);
             this.Controls.Add(this.btnDetect);
@@ -330,6 +354,8 @@
         private System.Windows.Forms.Button btnDetect;
         private System.Windows.Forms.RadioButton radDetection;
         private System.Windows.Forms.Timer changeDetectionTimer;
+        private System.Windows.Forms.Button btnOpenSource;
+        private System.Windows.Forms.Button btnOpenTarget;
     }
 }
 

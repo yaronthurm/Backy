@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -240,6 +241,16 @@ namespace Backy
 
                 Task.Run(() => _backupCommand.Execute()).ContinueWith(x => this.Invoke((Action)this.FinishDetectionBackupCallback));
             }
+        }
+
+        private void btnOpenSource_Click(object sender, EventArgs e)
+        {
+            Process.Start(this.txtSource.Text);
+        }
+
+        private void btnOpenTarget_Click(object sender, EventArgs e)
+        {
+            Process.Start(this.txtTarget.Text);
         }
     }
 }
