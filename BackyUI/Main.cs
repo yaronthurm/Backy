@@ -179,6 +179,7 @@ namespace Backy
                 this.numDetectionAggregationTime.Minimum = 0;
                 this.numDetectionAggregationTime.Tag = this.numDetectionAggregationTime.Value;
                 this.btnDetect.Text = "Stop";
+                this.multiStepProgress1.Clear();
 
                 _watcher.Path = this.txtSource.Text;
                 _watcher.EnableRaisingEvents = true;
@@ -245,12 +246,19 @@ namespace Backy
 
         private void btnOpenSource_Click(object sender, EventArgs e)
         {
-            Process.Start(this.txtSource.Text);
+            if (Directory.Exists(this.txtSource.Text))
+                Process.Start(this.txtSource.Text);
         }
 
         private void btnOpenTarget_Click(object sender, EventArgs e)
         {
-            Process.Start(this.txtTarget.Text);
+            if (Directory.Exists(this.txtTarget.Text))
+                Process.Start(this.txtTarget.Text);
+        }
+
+        private void Main_Load(object sender, EventArgs e)
+        {
+            this.btnDetect_Click(null, null);
         }
     }
 }

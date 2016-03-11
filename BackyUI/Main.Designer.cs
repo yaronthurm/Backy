@@ -76,6 +76,7 @@
             // 
             // btnRun
             // 
+            this.btnRun.Enabled = false;
             this.btnRun.Location = new System.Drawing.Point(94, 96);
             this.btnRun.Name = "btnRun";
             this.btnRun.Size = new System.Drawing.Size(75, 23);
@@ -128,12 +129,10 @@
             // radManual
             // 
             this.radManual.AutoSize = true;
-            this.radManual.Checked = true;
             this.radManual.Location = new System.Drawing.Point(12, 99);
             this.radManual.Name = "radManual";
             this.radManual.Size = new System.Drawing.Size(60, 17);
             this.radManual.TabIndex = 22;
-            this.radManual.TabStop = true;
             this.radManual.Text = "Manual";
             this.radManual.UseVisualStyleBackColor = true;
             // 
@@ -184,7 +183,6 @@
             // 
             // btnDetect
             // 
-            this.btnDetect.Enabled = false;
             this.btnDetect.Location = new System.Drawing.Point(94, 154);
             this.btnDetect.Name = "btnDetect";
             this.btnDetect.Size = new System.Drawing.Size(75, 23);
@@ -197,10 +195,12 @@
             // radDetection
             // 
             this.radDetection.AutoSize = true;
+            this.radDetection.Checked = true;
             this.radDetection.Location = new System.Drawing.Point(12, 157);
             this.radDetection.Name = "radDetection";
             this.radDetection.Size = new System.Drawing.Size(78, 17);
             this.radDetection.TabIndex = 27;
+            this.radDetection.TabStop = true;
             this.radDetection.Text = "On change";
             this.radDetection.UseVisualStyleBackColor = true;
             // 
@@ -324,6 +324,7 @@
             this.Name = "Main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Backup";
+            this.Load += new System.EventHandler(this.Main_Load);
             ((System.ComponentModel.ISupportInitialize)(this.numDetectionAggregationTime)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numSeconds)).EndInit();
             this.ResumeLayout(false);
