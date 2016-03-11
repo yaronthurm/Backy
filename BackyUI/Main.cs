@@ -56,10 +56,10 @@ namespace Backy
         private void FinishAutoBackupCallback()
         {
             this.btnAbort.Enabled = false;
-            this.radManual.Enabled = true;
             this.numSeconds.Value = (decimal)this.numSeconds.Tag;
             this.autoRunTimer.Enabled = true;
             this.btnView.Enabled = true;
+            this.btnStartStop.Enabled = true;
         }
 
         private void btnAbort_Click(object sender, EventArgs e)
@@ -140,6 +140,7 @@ namespace Backy
 
                 this.btnAbort.Enabled = true;
                 this.btnView.Enabled = false;
+                this.btnStartStop.Enabled = false;
             }
         }
     }
