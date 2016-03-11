@@ -1,6 +1,6 @@
 # Backy
 
-Backy is basically a simple Backup&Restore app which operates on folders (as opposed to your entire computer) and also offers some very simple Version Control capabilities.  
+Backy is basically a simple Backup&Restore app which operates on folders (as opposed to your entire computer) and also offers some very basic Version Control capabilities.  
 I decided to develop it after I couldn't find that one software that had exactly what I needed. It seemed to me that all apps out there had some piece of the puzzle missing. So I went ahead and started coding.
 
 The app's concept is very simple:   
