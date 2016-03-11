@@ -131,8 +131,9 @@
             // 
             // multiStepProgress1
             // 
+            this.multiStepProgress1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.multiStepProgress1.BackColor = System.Drawing.Color.Transparent;
-            this.multiStepProgress1.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.multiStepProgress1.Location = new System.Drawing.Point(0, 150);
             this.multiStepProgress1.Name = "multiStepProgress1";
             this.multiStepProgress1.Size = new System.Drawing.Size(440, 299);
@@ -153,6 +154,8 @@
             this.Controls.Add(this.txtSource);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
+            this.MaximumSize = new System.Drawing.Size(456, 800);
+            this.MinimumSize = new System.Drawing.Size(456, 488);
             this.Name = "Main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Backup";
