@@ -41,7 +41,6 @@
             this.btnStartStop = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.autoRunTimer = new System.Windows.Forms.Timer(this.components);
-            this.label4 = new System.Windows.Forms.Label();
             this.btnDetect = new System.Windows.Forms.Button();
             this.radDetection = new System.Windows.Forms.RadioButton();
             this.numDetectionAggregationTime = new System.Windows.Forms.NumericUpDown();
@@ -49,9 +48,9 @@
             this.txtTarget = new System.Windows.Forms.TextBox();
             this.txtSource = new System.Windows.Forms.TextBox();
             this.changeDetectionTimer = new System.Windows.Forms.Timer(this.components);
-            this.multiStepProgress1 = new Backy.MultiStepProgress();
             this.btnOpenSource = new System.Windows.Forms.Button();
             this.btnOpenTarget = new System.Windows.Forms.Button();
+            this.multiStepProgress1 = new Backy.MultiStepProgress();
             ((System.ComponentModel.ISupportInitialize)(this.numDetectionAggregationTime)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numSeconds)).BeginInit();
             this.SuspendLayout();
@@ -172,15 +171,6 @@
             this.autoRunTimer.Interval = 1000;
             this.autoRunTimer.Tick += new System.EventHandler(this.autoRunTimer_Tick);
             // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(233, 161);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(32, 13);
-            this.label4.TabIndex = 30;
-            this.label4.Text = "[Sec]";
-            // 
             // btnDetect
             // 
             this.btnDetect.Location = new System.Drawing.Point(94, 154);
@@ -206,7 +196,6 @@
             // 
             // numDetectionAggregationTime
             // 
-            this.numDetectionAggregationTime.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Backy.Properties.Settings.Default, "detectionAggregationTime", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.numDetectionAggregationTime.Enabled = false;
             this.numDetectionAggregationTime.Location = new System.Drawing.Point(176, 156);
             this.numDetectionAggregationTime.Maximum = new decimal(new int[] {
@@ -217,7 +206,12 @@
             this.numDetectionAggregationTime.Name = "numDetectionAggregationTime";
             this.numDetectionAggregationTime.Size = new System.Drawing.Size(51, 20);
             this.numDetectionAggregationTime.TabIndex = 29;
-            this.numDetectionAggregationTime.Value = global::Backy.Properties.Settings.Default.detectionAggregationTime;
+            this.numDetectionAggregationTime.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
+            this.numDetectionAggregationTime.Visible = false;
             // 
             // numSeconds
             // 
@@ -264,15 +258,6 @@
             this.changeDetectionTimer.Interval = 1000;
             this.changeDetectionTimer.Tick += new System.EventHandler(this.changeDetectionTimer_Tick);
             // 
-            // multiStepProgress1
-            // 
-            this.multiStepProgress1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
-            this.multiStepProgress1.BackColor = System.Drawing.Color.Transparent;
-            this.multiStepProgress1.Location = new System.Drawing.Point(0, 193);
-            this.multiStepProgress1.Name = "multiStepProgress1";
-            this.multiStepProgress1.Size = new System.Drawing.Size(440, 300);
-            this.multiStepProgress1.TabIndex = 19;
-            // 
             // btnOpenSource
             // 
             this.btnOpenSource.Location = new System.Drawing.Point(392, 28);
@@ -293,6 +278,15 @@
             this.btnOpenTarget.UseVisualStyleBackColor = true;
             this.btnOpenTarget.Click += new System.EventHandler(this.btnOpenTarget_Click);
             // 
+            // multiStepProgress1
+            // 
+            this.multiStepProgress1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
+            this.multiStepProgress1.BackColor = System.Drawing.Color.Transparent;
+            this.multiStepProgress1.Location = new System.Drawing.Point(0, 193);
+            this.multiStepProgress1.Name = "multiStepProgress1";
+            this.multiStepProgress1.Size = new System.Drawing.Size(440, 300);
+            this.multiStepProgress1.TabIndex = 19;
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -300,7 +294,6 @@
             this.ClientSize = new System.Drawing.Size(440, 493);
             this.Controls.Add(this.btnOpenTarget);
             this.Controls.Add(this.btnOpenSource);
-            this.Controls.Add(this.label4);
             this.Controls.Add(this.numDetectionAggregationTime);
             this.Controls.Add(this.btnDetect);
             this.Controls.Add(this.radDetection);
@@ -350,7 +343,6 @@
         private System.Windows.Forms.NumericUpDown numSeconds;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Timer autoRunTimer;
-        private System.Windows.Forms.Label label4;
         private System.Windows.Forms.NumericUpDown numDetectionAggregationTime;
         private System.Windows.Forms.Button btnDetect;
         private System.Windows.Forms.RadioButton radDetection;

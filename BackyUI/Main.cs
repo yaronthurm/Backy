@@ -183,12 +183,13 @@ namespace Backy
 
                 _watcher.Path = this.txtSource.Text;
                 _watcher.EnableRaisingEvents = true;
-                Task.Run(() => this.WaitForFileChanges());
+                this.multiStepProgress1.StartUnboundedStep("Running in:", count => (10 - count).ToString());
+                this.changeDetectionTimer.Start();
             }
             else
             {
                 _watcher.EnableRaisingEvents = false;
-                this.changeDetectionTimer.Enabled = false;
+                this.changeDetectionTimer.Stop();
                 this.btnDetect.Text = "Detect";
                 this.radScheduled.Enabled = true;
                 this.radManual.Enabled = true;
@@ -228,9 +229,10 @@ namespace Backy
         private void changeDetectionTimer_Tick(object sender, EventArgs e)
         {
             this.numDetectionAggregationTime.Value--;
+            this.multiStepProgress1.Increment();
             if (this.numDetectionAggregationTime.Value == 0)
             {
-                this.changeDetectionTimer.Enabled = false;
+                this.changeDetectionTimer.Stop();
                 _backupCommand = new RunBackupCommand(new FileSystem(), this.txtSource.Text, this.txtTarget.Text);
                 _backupCommand.Progress = this.multiStepProgress1;
                 _detectChanges.Reset();
