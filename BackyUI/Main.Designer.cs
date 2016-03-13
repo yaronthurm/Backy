@@ -270,7 +270,7 @@
             // 
             // btnOpenTarget
             // 
-            this.btnOpenTarget.Location = new System.Drawing.Point(392, 63);
+            this.btnOpenTarget.Location = new System.Drawing.Point(392, 61);
             this.btnOpenTarget.Name = "btnOpenTarget";
             this.btnOpenTarget.Size = new System.Drawing.Size(25, 23);
             this.btnOpenTarget.TabIndex = 32;
