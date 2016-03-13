@@ -190,6 +190,7 @@ namespace Backy
             {
                 _watcher.EnableRaisingEvents = false;
                 this.changeDetectionTimer.Stop();
+                this.multiStepProgress1.Clear();
                 this.btnDetect.Text = "Detect";
                 this.radScheduled.Enabled = true;
                 this.radManual.Enabled = true;
