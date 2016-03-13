@@ -82,7 +82,7 @@ namespace Backy
             this.numDetectionAggregationTime.Value = (decimal)this.numDetectionAggregationTime.Tag;
             this.btnView.Enabled = true;
             this.btnDetect.Enabled = true;
-            Task.Run(() => this.WaitForFileChenges());
+            Task.Run(() => this.WaitForFileChanges());
         }
 
         private void btnAbort_Click(object sender, EventArgs e)
@@ -183,7 +183,7 @@ namespace Backy
 
                 _watcher.Path = this.txtSource.Text;
                 _watcher.EnableRaisingEvents = true;
-                Task.Run(() => this.WaitForFileChenges());
+                Task.Run(() => this.WaitForFileChanges());
             }
             else
             {
@@ -198,7 +198,7 @@ namespace Backy
             }
         }
 
-        private void WaitForFileChenges()
+        private void WaitForFileChanges()
         {
             this.Invoke((Action)(() =>
                 this.multiStepProgress1.StartUnboundedStep("Listening to changes:", count => TimeSpan.FromSeconds(count).ToString())
