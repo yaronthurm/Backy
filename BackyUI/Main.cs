@@ -94,7 +94,7 @@ namespace Backy
         private void btnView_Click(object sender, EventArgs e)
         {
             var viewForm = new View(new FileSystem(), this.txtTarget.Text, this.txtSource.Text);
-            viewForm.Show();
+            viewForm.ShowDialog();
         }
 
         private void btnBrowseFoldersSource_Click(object sender, EventArgs e)
