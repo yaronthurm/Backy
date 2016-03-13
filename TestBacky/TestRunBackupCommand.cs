@@ -5,6 +5,7 @@ using BackyLogic;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
 namespace TestBacky
 {
@@ -400,6 +401,64 @@ namespace TestBacky
 
             // Expected to see deleted file
             AssertLists<string>(new[] { "subdir\\file11.txt" }, fileSystem.ReadLines(Path.Combine(@"d:\target", "2", "deleted.txt")));
+        }
+
+        [TestMethod]
+        public void Test03_7_Running_for_the_second_time_Only_renamed_files()
+        {
+            // This test simulates running the tool for the second time after some files were renamed
+            // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir/file11.txt
+            // In the second run, file1.txt and subdir are renamed
+            // We expect that all original files will be found under %target%\1\new
+            // all renames should show up in the 'renamed.txt' file under %target%\2\
+
+            var file1 = new EmulatorFile(@"d:\target\1\new\file1.txt", new DateTime(2015, 1, 1)) { Lines = new List<string> { "file1" } };
+            var file1Renamed = new EmulatorFile(@"c:\source\file1_renamed.txt", new DateTime(2015, 1, 1)) { Lines = new List<string> { "file1" } };
+            
+            var file2 = new EmulatorFile(@"d:\target\1\new\file2.txt", new DateTime(2015, 1, 1)) { Lines = new List<string> { "file2" } };
+            var file2NotRenamed = new EmulatorFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1)) { Lines = new List<string> { "file2" } };
+
+            var file11 = new EmulatorFile(@"d:\target\1\new\subdir\file11.txt", new DateTime(2015, 1, 1)) { Lines = new List<string> { "file11" } };
+            var file11Renamed = new EmulatorFile(@"c:\source\subdir_renamed\file11.txt", new DateTime(2015, 1, 1)) { Lines = new List<string> { "file11" } };
+
+            var files = new EmulatorFile[] {
+                // Source
+                file1Renamed, file2NotRenamed, file11Renamed,
+
+                // Target
+                file1, file2, file11
+            };
+
+            var fileSystem = new FileSystemEmulator(files);
+            var cmd = new RunBackupCommand(fileSystem, @"c:\source", @"d:\target");
+            cmd.Execute();
+
+            // Expected that all old files from %source% will remain under %target%\1\new
+            // And renamed files will be marked under %target%\2\renamed.txt
+            var expected = new string[] {
+                @"d:\target\1\new\file1.txt",
+                @"d:\target\1\new\file2.txt",
+                @"d:\target\1\new\subdir\file11.txt",
+
+                @"d:\target\2\renamed.txt",
+            };
+            var actual = fileSystem.EnumerateFiles(@"d:\target");
+            AssertLists<string>(expected, actual);
+
+            // Expected to see renamed file
+            var renamedFiles = fileSystem.ReadLines(Path.Combine(@"d:\target", "2", "renamed.txt"))
+                .Select(JObject.Parse)
+                .Select(x => new
+                {
+                    oldName = x.Value<string>("oldName"),
+                    newName = x.Value<string>("newName")
+                }).ToArray();
+
+            Assert.AreEqual(2, renamedFiles.Length);
+            Assert.AreEqual("file1.txt", renamedFiles[0].oldName);
+            Assert.AreEqual("file1_renamed.txt", renamedFiles[0].newName);
+            Assert.AreEqual("subdir\\file11.txt", renamedFiles[1].oldName);
+            Assert.AreEqual("subdir_renamed\\file11.txt", renamedFiles[1].newName);
         }
 
         [TestMethod]
