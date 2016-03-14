@@ -43,7 +43,6 @@
             this.autoRunTimer = new System.Windows.Forms.Timer(this.components);
             this.btnDetect = new System.Windows.Forms.Button();
             this.radDetection = new System.Windows.Forms.RadioButton();
-            this.numDetectionAggregationTime = new System.Windows.Forms.NumericUpDown();
             this.numSeconds = new System.Windows.Forms.NumericUpDown();
             this.txtTarget = new System.Windows.Forms.TextBox();
             this.txtSource = new System.Windows.Forms.TextBox();
@@ -51,7 +50,6 @@
             this.btnOpenSource = new System.Windows.Forms.Button();
             this.btnOpenTarget = new System.Windows.Forms.Button();
             this.multiStepProgress1 = new Backy.MultiStepProgress();
-            ((System.ComponentModel.ISupportInitialize)(this.numDetectionAggregationTime)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numSeconds)).BeginInit();
             this.SuspendLayout();
             // 
@@ -194,25 +192,6 @@
             this.radDetection.Text = "On change";
             this.radDetection.UseVisualStyleBackColor = true;
             // 
-            // numDetectionAggregationTime
-            // 
-            this.numDetectionAggregationTime.Enabled = false;
-            this.numDetectionAggregationTime.Location = new System.Drawing.Point(176, 156);
-            this.numDetectionAggregationTime.Maximum = new decimal(new int[] {
-            600,
-            0,
-            0,
-            0});
-            this.numDetectionAggregationTime.Name = "numDetectionAggregationTime";
-            this.numDetectionAggregationTime.Size = new System.Drawing.Size(51, 20);
-            this.numDetectionAggregationTime.TabIndex = 29;
-            this.numDetectionAggregationTime.Value = new decimal(new int[] {
-            10,
-            0,
-            0,
-            0});
-            this.numDetectionAggregationTime.Visible = false;
-            // 
             // numSeconds
             // 
             this.numSeconds.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Backy.Properties.Settings.Default, "autoBackupInterval", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
@@ -294,7 +273,6 @@
             this.ClientSize = new System.Drawing.Size(440, 493);
             this.Controls.Add(this.btnOpenTarget);
             this.Controls.Add(this.btnOpenSource);
-            this.Controls.Add(this.numDetectionAggregationTime);
             this.Controls.Add(this.btnDetect);
             this.Controls.Add(this.radDetection);
             this.Controls.Add(this.label3);
@@ -318,7 +296,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Backup";
             this.Load += new System.EventHandler(this.Main_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.numDetectionAggregationTime)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numSeconds)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -343,7 +320,6 @@
         private System.Windows.Forms.NumericUpDown numSeconds;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Timer autoRunTimer;
-        private System.Windows.Forms.NumericUpDown numDetectionAggregationTime;
         private System.Windows.Forms.Button btnDetect;
         private System.Windows.Forms.RadioButton radDetection;
         private System.Windows.Forms.Timer changeDetectionTimer;
