@@ -39,7 +39,7 @@ namespace TestBacky
             return _files.Where(x => x.Name.StartsWith(directory)).Select(x => x.Name);
         }
 
-        public byte[] GetContent(string physicalPath)
+        public IEnumerable<byte> EnumerateContent(string physicalPath)
         {
             var file = _files.First(x => x.Name == physicalPath);
             var ret = string.Join(Environment.NewLine, file.Lines) ?? "";

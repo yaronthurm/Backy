@@ -91,8 +91,8 @@ namespace BackyLogic
             {
                 if (_abort)
                     break;
-                byte[] deletedContent = _fileSystem.GetContent(suspect.OldFile.PhysicalPath);
-                byte[] newContent = _fileSystem.GetContent(suspect.NewFile.PhysicalPath);
+                IEnumerable<byte> deletedContent = _fileSystem.EnumerateContent(suspect.OldFile.PhysicalPath);
+                IEnumerable<byte> newContent = _fileSystem.EnumerateContent(suspect.NewFile.PhysicalPath);
                 if (Enumerable.SequenceEqual(deletedContent, newContent))
                     ret.Add(new RenameInfo { OldName = suspect.OldFile.RelativeName, NewName = suspect.NewFile.RelativeName });
                 this.Progress?.Increment();

@@ -24,7 +24,7 @@ namespace BackyLogic
 
         void AppendLine(string filename, string line);
 
-        byte[] GetContent(string physicalPath);
+        IEnumerable<byte> EnumerateContent(string physicalPath);
 
         void MakeDirectoryReadOnly(string dirName);
     }
@@ -58,10 +58,14 @@ namespace BackyLogic
             return Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories);
         }
 
-        public byte[] GetContent(string physicalPath)
+        public IEnumerable<byte> EnumerateContent(string physicalPath)
         {
-            var ret = File.ReadAllBytes(physicalPath);
-            return ret;
+            using (var file = File.OpenRead(physicalPath))
+            using (var reader = new BinaryReader(file))
+            {
+                var ret = reader.ReadByte();
+                yield return ret;
+            }
         }
 
         public IEnumerable<string> GetDirectories(string target)
