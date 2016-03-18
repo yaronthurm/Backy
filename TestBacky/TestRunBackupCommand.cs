@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using System.Security.AccessControl;
 
 namespace TestBacky
 {
@@ -21,8 +22,8 @@ namespace TestBacky
             var files4 = Directory.GetFiles(@"D:\DataFromExternalDrive", "*.*", SearchOption.AllDirectories);
         }
 
-        [TestMethod, Ignore]
-        public void Test00_1_Running_on_real_file_system()
+        [TestMethod]
+        public void Test01_Running_on_a_real_file_system()
         {
             var source = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
             var target = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
@@ -71,22 +72,63 @@ namespace TestBacky
             // 4
             cmd.Execute();
 
-            // Assertion
+            // Rename some files
+            File.Move(Path.Combine(source, "file5.txt"), Path.Combine(source, "file5_renamed.txt"));
+            Directory.CreateDirectory(Path.Combine(source, "subdir"));
+            File.Move(Path.Combine(source, "file6.txt"), Path.Combine(source, "subdir", "file6_renamed.txt"));
+
+            // 5
+            cmd.Execute();
+
+            // Assert existence of files according to structure
             var actualTargetFiles = Directory.GetFiles(target, "*", SearchOption.AllDirectories);
             var expectedTargetFiles = new[]
                 { "1\\new\\file1.txt", "1\\new\\file2.txt", "1\\new\\file3.txt", "1\\new\\file4.doc",
                   "2\\new\\file5.txt", "2\\new\\file6.txt",
                   "3\\deleted.txt",
-                  "4\\modified\\file5.txt", "4\\modified\\file6.txt", "4\\new\\file7.txt"
+                  "4\\modified\\file5.txt", "4\\modified\\file6.txt", "4\\new\\file7.txt",
+                  "5\\renamed.txt"
             }.Select(x => Path.Combine(target, x));
             AssertLists(expectedTargetFiles, actualTargetFiles);
 
+            // Assert deleted file are marked correctly
             var expectedDeleted = new[] { "file1.txt", "file2.txt" };
             var actualDeleted = File.ReadAllLines(Path.Combine(target, "3", "deleted.txt"));
             AssertLists(expectedDeleted, actualDeleted);
 
+            // Assert renamed files are marked correctly
+            var renamedFiles = File.ReadAllLines(Path.Combine(target, "5", "renamed.txt"))
+                .Select(JObject.Parse)
+                .Select(x => new
+                {
+                    oldName = x.Value<string>("oldName"),
+                    newName = x.Value<string>("newName")
+                }).ToArray();
+
+            Assert.AreEqual(2, renamedFiles.Length);
+            Assert.AreEqual("file5.txt", renamedFiles[0].oldName);
+            Assert.AreEqual("file5_renamed.txt", renamedFiles[0].newName);
+            Assert.AreEqual("file6.txt", renamedFiles[1].oldName);
+            Assert.AreEqual("subdir\\file6_renamed.txt", renamedFiles[1].newName);
+
+            foreach (var dir in Directory.GetDirectories(target))
+                UnmarkDirectoryAsReadOnly(dir);
             Directory.Delete(target, true);
             Directory.Delete(source, true);
+        }
+
+        private void UnmarkDirectoryAsReadOnly(string dirName)
+        {
+            DirectoryInfo dInfo = new DirectoryInfo(dirName);
+            DirectorySecurity dSecurity = dInfo.GetAccessControl();
+            dSecurity.SetAccessRuleProtection(true, false); // Disable inheritance
+            dSecurity.AddAccessRule(
+                new FileSystemAccessRule(
+                    "Everyone",
+                    FileSystemRights.FullControl,
+                    InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit,
+                    PropagationFlags.None, AccessControlType.Allow));
+            dInfo.SetAccessControl(dSecurity);
         }
 
         [TestMethod]
