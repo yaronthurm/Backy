@@ -58,6 +58,11 @@ namespace TestBacky
             return file.LastModified;
         }
 
+        public void MakeDirectoryReadOnly(string dirName)
+        {
+            // TODO:
+        }
+
         public IEnumerable<string> ReadLines(string filename)
         {
             var file = _files.First(x => x.Name == filename);

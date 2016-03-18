@@ -77,6 +77,8 @@ namespace BackyLogic
                 MarkAllDeletedFiles(targetDir, _diff);
                 if (IsAborted()) return;
                 MarkAllRenamedFiles(targetDir, _diff);
+
+                _fileSystem.MakeDirectoryReadOnly(targetDir);
             }
             finally
             {

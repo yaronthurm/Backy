@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,6 +25,8 @@ namespace BackyLogic
         void AppendLine(string filename, string line);
 
         byte[] GetContent(string physicalPath);
+
+        void MakeDirectoryReadOnly(string dirName);
     }
 
 
@@ -69,6 +72,24 @@ namespace BackyLogic
         public DateTime GetLastWriteTime(string fullname)
         {
             return File.GetLastWriteTime(fullname);
+        }
+
+        public void MakeDirectoryReadOnly(string dirName)
+        {
+            var directories = Directory.GetDirectories(dirName, "*", SearchOption.AllDirectories).Concat(new[] { dirName });
+            foreach (var dir in directories)
+            {
+                DirectoryInfo dInfo = new DirectoryInfo(dir);
+                DirectorySecurity dSecurity = dInfo.GetAccessControl();
+                dSecurity.SetAccessRuleProtection(true, false); // Disable inheritance
+                dSecurity.AddAccessRule(
+                    new FileSystemAccessRule(
+                        "Everyone",
+                        FileSystemRights.ReadAndExecute | FileSystemRights.Traverse,
+                        InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit,
+                        PropagationFlags.NoPropagateInherit, AccessControlType.Allow));
+                dInfo.SetAccessControl(dSecurity);
+            }
         }
 
         public IEnumerable<string> ReadLines(string filename)
