@@ -78,7 +78,7 @@ namespace BackyLogic
                 if (IsAborted()) return;
                 MarkAllRenamedFiles(targetDir, _diff);
 
-                _fileSystem.MakeDirectoryReadOnly(targetDir);
+                MakeReadOnly(targetDir);
             }
             finally
             {
@@ -86,7 +86,11 @@ namespace BackyLogic
                 this.Progress?.StartStepWithoutProgress("Finished: " + DateTime.Now);
                 this.Progress?.StartStepWithoutProgress("Total time: " + sw.Elapsed);
             }
+        }
 
+        private void MakeReadOnly(string targetDir)
+        {
+            _fileSystem.MakeDirectoryReadOnly(targetDir);
         }
 
         private bool IsAborted()
