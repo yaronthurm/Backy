@@ -76,20 +76,16 @@ namespace BackyLogic
 
         public void MakeDirectoryReadOnly(string dirName)
         {
-            var directories = Directory.GetDirectories(dirName, "*", SearchOption.AllDirectories).Concat(new[] { dirName });
-            foreach (var dir in directories)
-            {
-                DirectoryInfo dInfo = new DirectoryInfo(dir);
-                DirectorySecurity dSecurity = dInfo.GetAccessControl();
-                dSecurity.SetAccessRuleProtection(true, false); // Disable inheritance
-                dSecurity.AddAccessRule(
-                    new FileSystemAccessRule(
-                        "Everyone",
-                        FileSystemRights.ReadAndExecute | FileSystemRights.Traverse,
-                        InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit,
-                        PropagationFlags.NoPropagateInherit, AccessControlType.Allow));
-                dInfo.SetAccessControl(dSecurity);
-            }
+            DirectoryInfo dInfo = new DirectoryInfo(dirName);
+            DirectorySecurity dSecurity = dInfo.GetAccessControl();
+            dSecurity.SetAccessRuleProtection(true, false); // Disable inheritance
+            dSecurity.AddAccessRule(
+                new FileSystemAccessRule(
+                    "Everyone",
+                    FileSystemRights.ReadAndExecute | FileSystemRights.Traverse,
+                    InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit,
+                    PropagationFlags.None, AccessControlType.Allow));
+            dInfo.SetAccessControl(dSecurity);
         }
 
         public IEnumerable<string> ReadLines(string filename)
