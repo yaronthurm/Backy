@@ -24,7 +24,7 @@ namespace BackyLogic
 
         void AppendLine(string filename, string line);
 
-        IEnumerable<byte> EnumerateContent(string physicalPath);
+        bool AreEqualFiles(string pathToFile1, string pathToFile2);
 
         void MakeDirectoryReadOnly(string dirName);
     }
@@ -58,16 +58,6 @@ namespace BackyLogic
             return Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories);
         }
 
-        public IEnumerable<byte> EnumerateContent(string physicalPath)
-        {
-            using (var file = File.OpenRead(physicalPath))
-            using (var reader = new BinaryReader(file))
-            {
-                var ret = reader.ReadByte();
-                yield return ret;
-            }
-        }
-
         public IEnumerable<string> GetDirectories(string target)
         {
             return Directory.GetDirectories(target);
@@ -96,6 +86,36 @@ namespace BackyLogic
         {
             var ret = File.ReadAllLines(filename);
             return ret;
+        }
+
+        public bool AreEqualFiles(string pathToFile1, string pathToFile2)
+        {
+            var file1 = new FileInfo(pathToFile1);
+            var file2 = new FileInfo(pathToFile2);
+
+            // Check size
+            if (file1.Length != file2.Length)
+                return false;
+
+            // Check last write
+            if (file1.LastWriteTime != file2.LastWriteTime)
+                return false;
+
+            // Check content
+            using (var fs1 = file1.OpenRead())
+            using (var fs2 = file2.OpenRead())
+            {
+                while (true)
+                {
+                    int data1 = fs1.ReadByte();
+                    int data2 = fs2.ReadByte();
+                    if (data1 != data2)
+                        return false;
+                    if (data1 == -1) // End of stream reached
+                        return true;
+                    // else - continue
+                }
+            }
         }
     }
 

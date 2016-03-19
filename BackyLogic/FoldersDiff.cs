@@ -62,39 +62,21 @@ namespace BackyLogic
 
         private List<RenameInfo> DetectRenamedFiles(List<BackyFile> newFiles, List<BackyFile> deletedFiles)
         {
-            // First, for each deleted file, look for a new file with the same modified date
-            var renameSuspects = new[] { new { OldFile = (BackyFile)null, NewFile = (BackyFile)null } }.Skip(1).ToList();
-            
-            if (deletedFiles.Any())
-                this.Progress?.StartBoundedStep("Analyzing possible renamed files phase1:", deletedFiles.Count);
+            // For each deleted file, look for an equal new file
+            var ret = new List<RenameInfo>();
+            if (deletedFiles.Any()) this.Progress?.StartBoundedStep("Analyzing possible renamed files:", deletedFiles.Count);
+
             foreach (var deleted in deletedFiles)
             {
                 if (_abort) break;
-                var matchingFile = newFiles.FirstOrDefault(x => x.LastWriteTime == deleted.LastWriteTime);
+                var matchingFile = newFiles.FirstOrDefault(x => _fileSystem.AreEqualFiles(deleted.PhysicalPath, x.PhysicalPath));
                 if (matchingFile != null)
                 {
-                    renameSuspects.Add(new { OldFile = deleted, NewFile = matchingFile });
+                    ret.Add(new RenameInfo { OldName = deleted.RelativeName, NewName = matchingFile.RelativeName });
 
-                    // Remove the matched file from the list
+                    // Remove the matched file from the new files list
                     newFiles = newFiles.Where(x => x != matchingFile).ToList();
                 }
-                this.Progress?.Increment();
-            }
-
-            var ret = new List<RenameInfo>();
-
-            if (renameSuspects.Any())
-                this.Progress?.StartBoundedStep("Analyzing possible renamed files phase2:", renameSuspects.Count);
-
-            // For each suspect, check the content of both files
-            foreach (var suspect in renameSuspects)
-            {
-                if (_abort)
-                    break;
-                IEnumerable<byte> deletedContent = _fileSystem.EnumerateContent(suspect.OldFile.PhysicalPath);
-                IEnumerable<byte> newContent = _fileSystem.EnumerateContent(suspect.NewFile.PhysicalPath);
-                if (Enumerable.SequenceEqual(deletedContent, newContent))
-                    ret.Add(new RenameInfo { OldName = suspect.OldFile.RelativeName, NewName = suspect.NewFile.RelativeName });
                 this.Progress?.Increment();
             }
 

@@ -80,6 +80,19 @@ namespace TestBacky
             // 5
             cmd.Execute();
 
+            // Pretend to rename - use 2 files with same length and last modify by with slight different content
+            DateTime now = DateTime.Now;
+            File.WriteAllText(Path.Combine(source, "file8.txt"), "hello8");
+            File.SetLastWriteTime(Path.Combine(source, "file8.txt"), now);
+            // 6
+            cmd.Execute();
+            File.Delete(Path.Combine(source, "file8.txt"));
+            File.WriteAllText(Path.Combine(source, "file8_pretend_rename.txt"), "hello9");
+            File.SetLastWriteTime(Path.Combine(source, "file8_pretend_rename.txt"), now);
+
+            // 7
+            cmd.Execute();
+
             // Assert existence of files according to structure
             var actualTargetFiles = Directory.GetFiles(target, "*", SearchOption.AllDirectories);
             var expectedTargetFiles = new[]
@@ -87,7 +100,9 @@ namespace TestBacky
                   "2\\new\\file5.txt", "2\\new\\file6.txt",
                   "3\\deleted.txt",
                   "4\\modified\\file5.txt", "4\\modified\\file6.txt", "4\\new\\file7.txt",
-                  "5\\renamed.txt"
+                  "5\\renamed.txt",
+                  "6\\new\\file8.txt",
+                  "7\\deleted.txt", "7\\new\\file8_pretend_rename.txt"
             }.Select(x => Path.Combine(target, x));
             AssertLists(expectedTargetFiles, actualTargetFiles);
 

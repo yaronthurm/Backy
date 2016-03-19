@@ -39,11 +39,14 @@ namespace TestBacky
             return _files.Where(x => x.Name.StartsWith(directory)).Select(x => x.Name);
         }
 
-        public IEnumerable<byte> EnumerateContent(string physicalPath)
+        public bool AreEqualFiles(string pathToFile1, string pathToFile2)
         {
-            var file = _files.First(x => x.Name == physicalPath);
-            var ret = string.Join(Environment.NewLine, file.Lines) ?? "";
-            return Encoding.UTF8.GetBytes(ret);
+            var file1 = _files.First(x => x.Name == pathToFile1);
+            var file2 = _files.First(x => x.Name == pathToFile2);
+            var ret =
+                file1.LastModified == file2.LastModified &&
+                string.Join("\n", file1.Lines) == string.Join("\n", file2.Lines);
+            return ret;
         }
 
         public IEnumerable<string> GetDirectories(string directory)
