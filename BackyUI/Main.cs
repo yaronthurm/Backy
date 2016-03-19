@@ -65,6 +65,7 @@ namespace Backy
             this.btnAbort.Enabled = false;
             this.btnRun.Enabled = true;
             this.radScheduled.Enabled = true;
+            this.radDetection.Enabled = true;
             this.btnView.Enabled = true;
         }
 
@@ -133,6 +134,7 @@ namespace Backy
             if (this.btnStartStop.Text == "Start")
             {
                 this.radManual.Enabled = false;
+                this.radDetection.Enabled = false;
                 this.numSeconds.Enabled = false;
                 this.numSeconds.Minimum = 0;
                 this.numSeconds.Tag = this.numSeconds.Value;
@@ -143,6 +145,7 @@ namespace Backy
             else
             {
                 this.radManual.Enabled = true;
+                this.radDetection.Enabled = true;
                 this.numSeconds.Enabled = true;
                 this.numSeconds.Minimum = 10;
                 this.numSeconds.Value = (decimal)this.numSeconds.Tag;
