@@ -31,6 +31,7 @@
             this.btnPrev = new System.Windows.Forms.Button();
             this.btnNext = new System.Windows.Forms.Button();
             this.lblCurrentVersion = new System.Windows.Forms.Label();
+            this.lblScanned = new System.Windows.Forms.Label();
             this.filesPanel1 = new Backy.FilesPanel();
             this.SuspendLayout();
             // 
@@ -63,6 +64,17 @@
             this.lblCurrentVersion.Text = "label1";
             this.lblCurrentVersion.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // lblScanned
+            // 
+            this.lblScanned.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
+            this.lblScanned.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.lblScanned.Location = new System.Drawing.Point(0, 66);
+            this.lblScanned.Name = "lblScanned";
+            this.lblScanned.Size = new System.Drawing.Size(724, 371);
+            this.lblScanned.TabIndex = 4;
+            this.lblScanned.Text = "Scanned: 0";
+            this.lblScanned.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // filesPanel1
             // 
             this.filesPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -80,6 +92,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(724, 507);
+            this.Controls.Add(this.lblScanned);
             this.Controls.Add(this.lblCurrentVersion);
             this.Controls.Add(this.btnNext);
             this.Controls.Add(this.btnPrev);
@@ -99,5 +112,6 @@
         private System.Windows.Forms.Button btnPrev;
         private System.Windows.Forms.Button btnNext;
         private System.Windows.Forms.Label lblCurrentVersion;
+        private System.Windows.Forms.Label lblScanned;
     }
 }

@@ -48,13 +48,18 @@ namespace Backy
             foreach (var file in files)
                  _tree.Add(file, file.LogicalPath.Split('\\'));
             _rootDirectory = rootDirectory;
-            _currentPage = 1;
-            _currentDirectory = "";
-            _pageNumberPerDirectory.Clear();
+            this.Clear();
             this.CaptureCurrentPage();
             this.FillPanel();
         }
 
+        public void Clear()
+        {
+            _currentPage = 1;
+            _currentDirectory = "";
+            _pageNumberPerDirectory.Clear();
+            this.flowLayoutPanel1.Controls.Clear();
+        }
 
         public class ContextMenuItem {
             public string Text;

@@ -31,13 +31,19 @@ namespace Backy
         }
 
 
-        public void SetDirectoriesAndShow(string targetRootDirectory, string sourceRootDirectory)
+        public async Task SetDirectoriesAndShow(string targetRootDirectory, string sourceRootDirectory)
         {
             if (targetRootDirectory != _targetRootDirectory)
             {                
                 _targetRootDirectory = targetRootDirectory;
+                this.filesPanel1.Clear();
+                this.ResetScanCount();
+
+                this.Show();
                 _state = new TransientState(_fileSystem, _targetRootDirectory);
-                var backupState = _state.GetLastState();
+                _state.OnProgress += OnScanProgressHandler;
+                var backupState =  await Task.Run(() => _state.GetLastState());
+                this.lblScanned.Visible = false;
                 this.lblCurrentVersion.Text = _state.MaxVersion.ToString();
                 this.SetFiles(backupState.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
 
@@ -48,6 +54,27 @@ namespace Backy
             _sourceRootDirectory = sourceRootDirectory;
 
             this.Show();
+        }
+
+        private void ResetScanCount()
+        {
+            this.lblScanned.Tag = 0;
+            this.lblScanned.Visible = true;
+        }
+
+        private void OnScanProgressHandler()
+        {
+            if (this.InvokeRequired)
+            {
+                this.Invoke((Action)OnScanProgressHandler);
+                return;
+            }
+
+            int current = (int)this.lblScanned.Tag;
+            current++;
+            this.lblScanned.Tag = current;
+            if (current % 100 == 0)
+                this.lblScanned.Text = $"Files scanned: {current}";
         }
 
         private void SetFiles(IEnumerable<FileView> files)
