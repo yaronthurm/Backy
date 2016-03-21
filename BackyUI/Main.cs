@@ -20,7 +20,9 @@ namespace Backy
         private FileSystemWatcher _watcher = new FileSystemWatcher();
         private ManualResetEvent _detectChanges = new ManualResetEvent(false);
         private CountdownCounter _onChangeDetectionCounter = new CountdownCounter(10);
-
+        private IFileSystem _fileSystem;
+        private View _viewForm;
+        
 
         public Main()
         {
@@ -35,6 +37,9 @@ namespace Backy
             _watcher.Deleted += (s1, e1) => _detectChanges.Set();
             _watcher.Renamed += (s1, e1) => _detectChanges.Set();
             _watcher.IncludeSubdirectories = true;
+
+            _fileSystem = new FileSystem();
+            _viewForm = new View(_fileSystem);
         }
 
         private void Radio_CheckedChanged(object sender, EventArgs e)
@@ -48,7 +53,7 @@ namespace Backy
         private void btnRun_Click(object sender, EventArgs e)
         {
             this.multiStepProgress1.Clear();
-            _backupCommand = new RunBackupCommand(new FileSystem(), this.txtSource.Text, this.txtTarget.Text);
+            _backupCommand = new RunBackupCommand(_fileSystem, this.txtSource.Text, this.txtTarget.Text);
             _backupCommand.Progress = this.multiStepProgress1;
 
             Task.Run(() => _backupCommand.Execute()).ContinueWith(x => this.Invoke((Action)this.FinishManualBackupCallback));
@@ -95,8 +100,7 @@ namespace Backy
 
         private void btnView_Click(object sender, EventArgs e)
         {
-            var viewForm = new View(new FileSystem(), this.txtTarget.Text, this.txtSource.Text);
-            viewForm.ShowDialog();
+            _viewForm.SetDirectoriesAndShow(this.txtTarget.Text, this.txtSource.Text);
         }
 
         private void btnBrowseFoldersSource_Click(object sender, EventArgs e)

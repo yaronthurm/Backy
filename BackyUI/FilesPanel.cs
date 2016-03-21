@@ -49,6 +49,8 @@ namespace Backy
                  _tree.Add(file, file.LogicalPath.Split('\\'));
             _rootDirectory = rootDirectory;
             _currentPage = 1;
+            _currentDirectory = "";
+            _pageNumberPerDirectory.Clear();
             this.CaptureCurrentPage();
             this.FillPanel();
         }

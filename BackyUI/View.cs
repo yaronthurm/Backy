@@ -15,17 +15,39 @@ namespace Backy
 {
     public partial class View : Form
     {
-        TransientState _state;
-        string _targetRootDirectory;
-        string _sourceRootDirectory;
+        private TransientState _state;
+        private string _targetRootDirectory;
+        private string _sourceRootDirectory;
+        private IFileSystem _fileSystem;
 
-        public View(IFileSystem fileSystem, string targetRootDirectory, string sourceRootDirectory)
+        public View(IFileSystem fileSystem)
         {
             InitializeComponent();
 
-            _targetRootDirectory = targetRootDirectory;
+            _fileSystem = fileSystem;
+            this.filesPanel1.AddContextMenuItem("Open", x => Process.Start(x.PhysicalPath));
+            this.filesPanel1.AddContextMenuItem("Copy", x => Clipboard.SetFileDropList(new System.Collections.Specialized.StringCollection { x.PhysicalPath }));
+            this.filesPanel1.AddContextMenuItem("Restore", x => RestoreFile(x, _sourceRootDirectory));
+        }
+
+
+        public void SetDirectoriesAndShow(string targetRootDirectory, string sourceRootDirectory)
+        {
+            if (targetRootDirectory != _targetRootDirectory)
+            {                
+                _targetRootDirectory = targetRootDirectory;
+                _state = new TransientState(_fileSystem, _targetRootDirectory);
+                var backupState = _state.GetLastState();
+                this.lblCurrentVersion.Text = _state.MaxVersion.ToString();
+                this.SetFiles(backupState.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
+
+                this.btnPrev.Enabled = _state.MaxVersion > 1;
+                this.btnNext.Enabled = false;
+            }
+
             _sourceRootDirectory = sourceRootDirectory;
-           _state = new TransientState(fileSystem, _targetRootDirectory);
+
+            this.Show();
         }
 
         private void SetFiles(IEnumerable<FileView> files)
@@ -63,20 +85,6 @@ namespace Backy
                 this.btnNext.Enabled = false;
         }
 
-        private void View_Load(object sender, EventArgs e)
-        {
-            this.filesPanel1.AddContextMenuItem("Open", x => Process.Start(x.PhysicalPath));
-            this.filesPanel1.AddContextMenuItem("Copy", x => Clipboard.SetFileDropList(new System.Collections.Specialized.StringCollection { x.PhysicalPath }));
-            this.filesPanel1.AddContextMenuItem("Restore", x => RestoreFile(x, _sourceRootDirectory));
-
-            var backupState = _state.GetLastState();
-            this.lblCurrentVersion.Text = _state.MaxVersion.ToString();
-            this.SetFiles(backupState.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
-
-            this.btnPrev.Enabled = _state.MaxVersion > 1;
-            this.btnNext.Enabled = false;
-        }
-
         private static void RestoreFile(FileView x, string sourceRootDirectory)
         {
             var restorePath = Path.Combine(sourceRootDirectory, x.LogicalPath);
@@ -84,6 +92,15 @@ namespace Backy
             if (!Directory.Exists(restoreDir))
                 Directory.CreateDirectory(restoreDir);
             File.Copy(x.PhysicalPath, restorePath, true);
+        }
+
+        private void View_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (e.CloseReason == CloseReason.UserClosing)
+            {
+                this.Hide();
+                e.Cancel = true;
+            }
         }
     }
 }
