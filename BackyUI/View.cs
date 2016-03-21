@@ -37,6 +37,7 @@ namespace Backy
             {                
                 _targetRootDirectory = targetRootDirectory;
                 this.filesPanel1.Clear();
+                this.lblCurrentVersion.Visible = false;
                 this.ResetScanCount();
 
                 this.Show();
@@ -49,6 +50,7 @@ namespace Backy
 
                 this.btnPrev.Enabled = _state.MaxVersion > 1;
                 this.btnNext.Enabled = false;
+                this.lblCurrentVersion.Visible = true;
             }
 
             _sourceRootDirectory = sourceRootDirectory;
