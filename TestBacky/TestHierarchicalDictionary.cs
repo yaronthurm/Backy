@@ -22,22 +22,22 @@ namespace TestBacky
             tree.Add("item5", new[] { 1, 2, 3, 4 });
 
             var allItems = tree.GetAllItems();
-            AssertLists(new[] { "item1", "item2", "item3", "item4", "item5" }, allItems);
+            TestsUtils.AssertLists(new[] { "item1", "item2", "item3", "item4", "item5" }, allItems);
 
             var itemsFrom1 = tree.GetFirstLevelItems(new[] { 1 });
-            AssertLists(new string[0], itemsFrom1);
+            TestsUtils.AssertLists(new string[0], itemsFrom1);
 
             var itemsFrom1_2 = tree.GetFirstLevelItems(new[] { 1, 2 });
-            AssertLists(new []{ "item1", "item2" }, itemsFrom1_2);
+            TestsUtils.AssertLists(new []{ "item1", "item2" }, itemsFrom1_2);
 
             var containersFrom1 = tree.GetFirstLevelContainers(new[] { 1 });
-            AssertLists(new[] { 2 }, containersFrom1);
+            TestsUtils.AssertLists(new[] { 2 }, containersFrom1);
 
             var containersFrom1_2 = tree.GetFirstLevelContainers(new[] { 1, 2 });
-            AssertLists(new[] { 3 }, containersFrom1_2);
+            TestsUtils.AssertLists(new[] { 3 }, containersFrom1_2);
 
             var containersFrom2 = tree.GetFirstLevelContainers(new[] { 2 });
-            AssertLists(new[] { 3, 2 }, containersFrom2);
+            TestsUtils.AssertLists(new[] { 3, 2 }, containersFrom2);
         }
 
         [TestMethod]
@@ -51,27 +51,15 @@ namespace TestBacky
             tree.Add("item5", new[] { 1, 2, 3, 4 });
 
             var descendants1 = tree.GetAllDescendantsItems(new[] { 1 });
-            AssertLists(new[] { "item1", "item2", "item5" }, descendants1);
+            TestsUtils.AssertLists(new[] { "item1", "item2", "item5" }, descendants1);
 
             var descendants2 = tree.GetAllDescendantsItems(new[] { 2 });
-            AssertLists(new[] { "item3", "item4" }, descendants2);
+            TestsUtils.AssertLists(new[] { "item3", "item4" }, descendants2);
 
             var descendants2_3 = tree.GetAllDescendantsItems(new[] { 2, 3 });
-            AssertLists(new[] { "item3" }, descendants2_3);
+            TestsUtils.AssertLists(new[] { "item3" }, descendants2_3);
         }
 
-
-
-
-
-        private static void AssertLists<T>(IEnumerable<T> expected, IEnumerable<T> actual)
-        {
-            var diff = expected.Except(actual);
-            Assert.IsFalse(diff.Any(), "missing items: " + string.Join(",", diff));
-
-            diff = actual.Except(expected);
-            Assert.IsFalse(diff.Any(), "extra items: " + string.Join(",", diff));
-        }
     }
 }
 

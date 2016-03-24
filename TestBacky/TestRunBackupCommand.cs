@@ -104,12 +104,12 @@ namespace TestBacky
                   "6\\new\\file8.txt",
                   "7\\deleted.txt", "7\\new\\file8_pretend_rename.txt"
             }.Select(x => Path.Combine(target, x));
-            AssertLists(expectedTargetFiles, actualTargetFiles);
+            TestsUtils.AssertLists(expectedTargetFiles, actualTargetFiles);
 
             // Assert deleted file are marked correctly
             var expectedDeleted = new[] { "file1.txt", "file2.txt" };
             var actualDeleted = File.ReadAllLines(Path.Combine(target, "3", "deleted.txt"));
-            AssertLists(expectedDeleted, actualDeleted);
+            TestsUtils.AssertLists(expectedDeleted, actualDeleted);
 
             // Assert renamed files are marked correctly
             var renamedFiles = File.ReadAllLines(Path.Combine(target, "5", "renamed.txt"))
@@ -167,7 +167,7 @@ namespace TestBacky
             // Expected that all files from %source% will be under %target%\1\new
             var expected = files.Select(x => Path.Combine(target, "1\\new", x));
             var actual = fileSystem.EnumerateFiles(target);
-            AssertLists<string>(expected, actual);
+            TestsUtils.AssertLists<string>(expected, actual);
         }
 
         [TestMethod]
@@ -193,7 +193,7 @@ namespace TestBacky
             // Expected that all old files from %source% will be under %target%\1\new
             var expected = new string[] { @"1\new\file1.txt", @"1\new\file2.txt", @"1\new\subdir\file11.txt" }.Select(x => Path.Combine(target, x));
             var actual = fileSystem.EnumerateFiles(target);
-            AssertLists<string>(expected, actual);
+            TestsUtils.AssertLists<string>(expected, actual);
         }
 
         [TestMethod]
@@ -217,7 +217,7 @@ namespace TestBacky
             // Expected that all old files from %source% will be under %target%\1\new
             var expected = new string[] { @"1\new\file1.txt", @"1\new\file2.txt", @"1\new\subdir\file11.txt" }.Select(x => Path.Combine(target, x));
             var actual = fileSystem.EnumerateFiles(target);
-            AssertLists<string>(expected, actual);
+            TestsUtils.AssertLists<string>(expected, actual);
         }
 
         [TestMethod]
@@ -247,7 +247,7 @@ namespace TestBacky
                 @"2\new\file3.txt", @"2\new\subdir\file22.txt" } // new files under 2/new
             .Select(x => Path.Combine(target, x));
             var actual = fileSystem.EnumerateFiles(target);
-            AssertLists<string>(expected, actual);
+            TestsUtils.AssertLists<string>(expected, actual);
         }
 
         [TestMethod]
@@ -278,10 +278,10 @@ namespace TestBacky
                 @"2\deleted.txt" // for holding the names of deletd files
                 }.Select(x => Path.Combine(target, x));
             var actual = fileSystem.EnumerateFiles(target);
-            AssertLists<string>(expected, actual);
+            TestsUtils.AssertLists<string>(expected, actual);
 
             // Expected to see "file1.txt" and "subdir\file11.txt" in the deleted file
-            AssertLists<string>(new[] { "file1.txt", "subdir\\file11.txt" }, fileSystem.ReadLines(Path.Combine(target, "2", "deleted.txt")));
+            TestsUtils.AssertLists<string>(new[] { "file1.txt", "subdir\\file11.txt" }, fileSystem.ReadLines(Path.Combine(target, "2", "deleted.txt")));
         }
 
         [TestMethod]
@@ -316,10 +316,10 @@ namespace TestBacky
                 @"2\new\file3.txt", @"2\new\file4.txt", @"2\new\subdir2\file111.txt"
                 }.Select(x => Path.Combine(target, x));
             var actual = fileSystem.EnumerateFiles(target);
-            AssertLists<string>(expected, actual);
+            TestsUtils.AssertLists<string>(expected, actual);
 
             // Expected to see "file1.txt" and "subdir\file11.txt" in the deleted file
-            AssertLists<string>(new[] { "file1.txt", "subdir\\file11.txt" }, fileSystem.ReadLines(Path.Combine(target, "2", "deleted.txt")));
+            TestsUtils.AssertLists<string>(new[] { "file1.txt", "subdir\\file11.txt" }, fileSystem.ReadLines(Path.Combine(target, "2", "deleted.txt")));
         }
 
         [TestMethod]
@@ -358,7 +358,7 @@ namespace TestBacky
                 @"d:\target\2\modified\file2.txt"
             };
             var actual = fileSystem.EnumerateFiles(@"d:\target");
-            AssertLists<string>(expected, actual);
+            TestsUtils.AssertLists<string>(expected, actual);
         }
 
         [TestMethod]
@@ -403,7 +403,7 @@ namespace TestBacky
                 @"d:\target\2\new\subdir2\file44.txt"
             };
             var actual = fileSystem.EnumerateFiles(@"d:\target");
-            AssertLists<string>(expected, actual);
+            TestsUtils.AssertLists<string>(expected, actual);
         }
 
         [TestMethod]
@@ -454,10 +454,10 @@ namespace TestBacky
 
             };
             var actual = fileSystem.EnumerateFiles(@"d:\target");
-            AssertLists<string>(expected, actual);
+            TestsUtils.AssertLists<string>(expected, actual);
 
             // Expected to see deleted file
-            AssertLists<string>(new[] { "subdir\\file11.txt" }, fileSystem.ReadLines(Path.Combine(@"d:\target", "2", "deleted.txt")));
+            TestsUtils.AssertLists<string>(new[] { "subdir\\file11.txt" }, fileSystem.ReadLines(Path.Combine(@"d:\target", "2", "deleted.txt")));
         }
 
         [TestMethod]
@@ -500,7 +500,7 @@ namespace TestBacky
                 @"d:\target\2\renamed.txt",
             };
             var actual = fileSystem.EnumerateFiles(@"d:\target");
-            AssertLists<string>(expected, actual);
+            TestsUtils.AssertLists<string>(expected, actual);
 
             // Expected to see renamed file
             var renamedFiles = fileSystem.ReadLines(Path.Combine(@"d:\target", "2", "renamed.txt"))
@@ -555,17 +555,7 @@ namespace TestBacky
                 @"d:\target\2\modified\file2.txt"
             };
             var actual = fileSystem.EnumerateFiles(@"d:\target");
-            AssertLists<string>(expected, actual);
-        }
-
-
-        private static void AssertLists<T>(IEnumerable<T> expected, IEnumerable<T> actual)
-        {
-            var diff = expected.Except(actual);
-            Assert.IsFalse(diff.Any(), "missing items");
-
-            diff = actual.Except(expected);
-            Assert.IsFalse(diff.Any(), "extra items");
+            TestsUtils.AssertLists<string>(expected, actual);
         }
     }
 }

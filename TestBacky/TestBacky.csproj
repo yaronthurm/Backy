@@ -59,6 +59,7 @@
     <Compile Include="TestCloneBackupCommand.cs" />
     <Compile Include="TestRunBackupCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BackyLogic\BackyLogic.csproj">
