@@ -14,7 +14,7 @@ namespace TestBacky
     public class TestCloneBackupCommand
     {
         [TestMethod]
-        public void Test01_Clone_backup_that_only_has_new_files()
+        public void Test01_Clone_last_backup_that_only_has_new_files()
         {
             // This test simulates cloning a backup that only has new files.
             // After running the tool, we expect to see all files from the backup copied into
@@ -60,6 +60,55 @@ namespace TestBacky
                 @"c:\cloneTarget\dir3\file1",
                 @"c:\cloneTarget\dir3\file2",
                 @"c:\cloneTarget\dir3\file3"
+            };
+            var actual = fileSystem.EnumerateFiles(cloneTarget);
+            TestsUtils.AssertLists<string>(expected, actual);
+        }
+
+        [TestMethod]
+        public void Test02_Clone_previous_backup_that_only_has_new_files_()
+        {
+            // This test simulates cloning a backup that only has new files.
+            // After running the tool, we expect to see all files from the backup copied into
+            // the target location with the correct rlative names
+
+            var cloneSource = @"d:\cloneSource";
+            var cloneTarget = @"c:\cloneTarget";
+
+            var fileSystem = new FileSystemEmulator(new[] {
+                new EmulatorFile(@"d:\cloneSource\1\new\file1"),
+                new EmulatorFile(@"d:\cloneSource\1\new\file2"),
+                new EmulatorFile(@"d:\cloneSource\1\new\file3"),
+                new EmulatorFile(@"d:\cloneSource\1\new\dir1\file1"),
+                new EmulatorFile(@"d:\cloneSource\1\new\dir1\file2"),
+                new EmulatorFile(@"d:\cloneSource\1\new\dir1\file3"),
+                new EmulatorFile(@"d:\cloneSource\1\new\dir1\dir1\file1"),
+                new EmulatorFile(@"d:\cloneSource\1\new\dir1\dir1\file2"),
+                new EmulatorFile(@"d:\cloneSource\1\new\dir1\dir2\file1"),
+                new EmulatorFile(@"d:\cloneSource\1\new\dir2\file1"),
+                new EmulatorFile(@"d:\cloneSource\1\new\dir2\file2"),
+                new EmulatorFile(@"d:\cloneSource\2\new\dir3\file1"),
+                new EmulatorFile(@"d:\cloneSource\2\new\dir3\file2"),
+                new EmulatorFile(@"d:\cloneSource\2\new\dir3\file3"),
+            });
+
+            var cmd = new CloneBackupCommand(fileSystem, cloneSource, cloneTarget, 1);
+            cmd.Execute();
+
+            // Expected that all files from %cloneSource%\1\new will be under %cloneTarget%
+            var expected = new[]
+            {
+                @"c:\cloneTarget\file1",
+                @"c:\cloneTarget\file2",
+                @"c:\cloneTarget\file3",
+                @"c:\cloneTarget\dir1\file1",
+                @"c:\cloneTarget\dir1\file2",
+                @"c:\cloneTarget\dir1\file3",
+                @"c:\cloneTarget\dir1\dir1\file1",
+                @"c:\cloneTarget\dir1\dir1\file2",
+                @"c:\cloneTarget\dir1\dir2\file1",
+                @"c:\cloneTarget\dir2\file1",
+                @"c:\cloneTarget\dir2\file2"
             };
             var actual = fileSystem.EnumerateFiles(cloneTarget);
             TestsUtils.AssertLists<string>(expected, actual);
