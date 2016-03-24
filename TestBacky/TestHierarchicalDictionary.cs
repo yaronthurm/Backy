@@ -12,7 +12,7 @@ namespace TestBacky
     public class TestHierarchicalDictionaryClass
     {
         [TestMethod]
-        public void Test01_Testing_inner_tree_to_extract_items()
+        public void HierarchicalDictionary_01_Testing_inner_tree_to_extract_items()
         {
             var tree = new HierarchicalDictionary<int, string>();
             tree.Add("item1", new[] { 1, 2, 3 });
@@ -41,7 +41,7 @@ namespace TestBacky
         }
 
         [TestMethod]
-        public void Test02_Testing_Descendants()
+        public void HierarchicalDictionary_02_Testing_Descendants()
         {
             var tree = new HierarchicalDictionary<int, string>();
             tree.Add("item1", new[] { 1, 2, 3 });

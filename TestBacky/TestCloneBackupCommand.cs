@@ -14,7 +14,7 @@ namespace TestBacky
     public class TestCloneBackupCommand
     {
         [TestMethod]
-        public void Test01_Clone_last_backup_that_only_has_new_files()
+        public void Clone_01_Clone_last_backup_that_only_has_new_files()
         {
             // This test simulates cloning a backup that only has new files.
             // After running the tool, we expect to see all files from the backup copied into
@@ -66,7 +66,7 @@ namespace TestBacky
         }
 
         [TestMethod]
-        public void Test02_Clone_previous_backup_that_only_has_new_files_()
+        public void Clone_02_Clone_previous_backup_that_only_has_new_files_()
         {
             // This test simulates cloning a backup that only has new files.
             // After running the tool, we expect to see all files from the backup copied into

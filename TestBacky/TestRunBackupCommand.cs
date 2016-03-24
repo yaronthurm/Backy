@@ -14,7 +14,7 @@ namespace TestBacky
     public class TestRunBackupCommand
     {
         [TestMethod, Ignore]
-        public void Test00_Playing_around()
+        public void Backup_00_Playing_around()
         {
             var files1 = Directory.GetFiles(@"D:\DataFromExternalDrive", "*.*", SearchOption.AllDirectories);
             var files2 = Directory.GetFiles(@"D:\DataFromExternalDrive", "*.*", SearchOption.AllDirectories);
@@ -23,7 +23,7 @@ namespace TestBacky
         }
 
         [TestMethod]
-        public void Test01_Running_on_a_real_file_system()
+        public void Backup_01_Running_on_a_real_file_system()
         {
             var source = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
             var target = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
@@ -147,7 +147,7 @@ namespace TestBacky
         }
 
         [TestMethod]
-        public void Test01_Running_for_the_first_time()
+        public void Backup_01_Running_for_the_first_time()
         {
             // This test simulate running the tool for the first time.
             // We only have files under the source directory
@@ -171,7 +171,7 @@ namespace TestBacky
         }
 
         [TestMethod]
-        public void Test02_1_Running_for_the_second_time_No_change_in_source()
+        public void Backup_02_1_Running_for_the_second_time_No_change_in_source()
         {
             // This test simulate running the tool for the second time without any change in the source.
             // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir/file11.txt
@@ -197,7 +197,7 @@ namespace TestBacky
         }
 
         [TestMethod]
-        public void Test02_2_Running_twice_by_executing_command_twice()
+        public void Backup_02_2_Running_twice_by_executing_command_twice()
         {
             // This test simulate running the tool for the first time and right after running it again
             // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir/file11.txt
@@ -221,7 +221,7 @@ namespace TestBacky
         }
 
         [TestMethod]
-        public void Test03_1_Running_for_the_second_time_Only_new_files()
+        public void Backup_03_1_Running_for_the_second_time_Only_new_files()
         {
             // This test simulate running the tool for the second time with new files added to the source.
             // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir/file11.txt
@@ -251,7 +251,7 @@ namespace TestBacky
         }
 
         [TestMethod]
-        public void Test03_2_Running_for_the_second_time_Only_deleted_files()
+        public void Backup_03_2_Running_for_the_second_time_Only_deleted_files()
         {
             // This test simulates running the tool for the second time after some files were deleted from source.
             // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir/file11.txt
@@ -285,7 +285,7 @@ namespace TestBacky
         }
 
         [TestMethod]
-        public void Test03_3_Running_for_the_second_time_Both_new_and_deleted_files()
+        public void Backup_03_3_Running_for_the_second_time_Both_new_and_deleted_files()
         {
             // This test simulates running the tool for the second time after some files were deleted from source and some were added.
             // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir/file11.txt
@@ -323,7 +323,7 @@ namespace TestBacky
         }
 
         [TestMethod]
-        public void Test03_4_Running_for_the_second_time_Only_modified_files()
+        public void Backup_03_4_Running_for_the_second_time_Only_modified_files()
         {
             // This test simulates running the tool for the second time after some files were modified.
             // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir/file11.txt
@@ -362,7 +362,7 @@ namespace TestBacky
         }
 
         [TestMethod]
-        public void Test03_5_Running_for_the_second_time_Modified_and_new_files()
+        public void Backup_03_5_Running_for_the_second_time_Modified_and_new_files()
         {
             // This test simulates running the tool for the second time after some files were modified and some were added.
             // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir/file11.txt
@@ -407,7 +407,7 @@ namespace TestBacky
         }
 
         [TestMethod]
-        public void Test03_6_Running_for_the_second_time_Modified_new_and_deleted_files()
+        public void Backup_03_6_Running_for_the_second_time_Modified_new_and_deleted_files()
         {
             // This test simulates running the tool for the second time after some files were modified, some were added
             // and some were deleted.
@@ -461,7 +461,7 @@ namespace TestBacky
         }
 
         [TestMethod]
-        public void Test03_7_Running_for_the_second_time_Only_renamed_files()
+        public void Backup_03_7_Running_for_the_second_time_Only_renamed_files()
         {
             // This test simulates running the tool for the second time after some files were renamed
             // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir/file11.txt
@@ -519,7 +519,7 @@ namespace TestBacky
         }
 
         [TestMethod]
-        public void Test03_7_Running_twice_after_modifiying_files()
+        public void Backup_03_7_Running_twice_after_modifiying_files()
         {
             // This test simulates running the tool for the second time after some files were modified.
             // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir/file11.txt

@@ -10,6 +10,7 @@ namespace BackyLogic
     {
         private string _cloneSource;
         private string _cloneTarget;
+        private int _version;
         private IFileSystem _fileSystem;
         private bool _abort;
         public IMultiStepProgress Progress;
@@ -19,6 +20,7 @@ namespace BackyLogic
             _fileSystem = fileSystem;
             _cloneSource = cloneSource;
             _cloneTarget = cloneTarget;
+            _version = version;
         }
 
 
@@ -28,6 +30,16 @@ namespace BackyLogic
             try
             {
                 this.Progress?.StartStepWithoutProgress("Started: " + DateTime.Now);
+                var stateCalculator = new TransientState(_fileSystem, _cloneSource);
+                if (stateCalculator.MaxVersion < _version)
+                    throw new ApplicationException("Invalid veriosn. max is " + stateCalculator.MaxVersion);
+
+                State cloneState = stateCalculator.GetState(_version);
+                foreach (var file in cloneState.GetFiles())
+                {
+                    var destName = Path.Combine(_cloneTarget, file.RelativeName);
+                    _fileSystem.Copy(file.PhysicalPath, destName);
+                }
             }
             finally
             {
