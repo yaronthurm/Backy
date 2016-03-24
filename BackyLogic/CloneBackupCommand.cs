@@ -8,17 +8,17 @@ namespace BackyLogic
 {
     public class CloneBackupCommand
     {
-        private string _source;
-        private string _target;
+        private string _cloneSource;
+        private string _cloneTarget;
         private IFileSystem _fileSystem;
         private bool _abort;
         public IMultiStepProgress Progress;
 
-        public CloneBackupCommand(IFileSystem fileSystem, string source, string target)
+        public CloneBackupCommand(IFileSystem fileSystem, string cloneSource, string cloneTarget, int version)
         {
             _fileSystem = fileSystem;
-            _source = source;
-            _target = target;
+            _cloneSource = cloneSource;
+            _cloneTarget = cloneTarget;
         }
 
 
