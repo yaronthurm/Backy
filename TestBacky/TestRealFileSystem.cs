@@ -216,6 +216,53 @@ namespace TestBacky
             Directory.Delete(source, true);
         }
 
+        [TestMethod]
+        public void RealFileSystem_03_Run_clone_on_different_stages()
+        {
+            var cloneSource = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
+            var cloneTarget = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
+
+            // Clear target
+            if (Directory.Exists(cloneTarget)) // This method sometimes return true when the directory doesn't realy exists
+                Directory.Delete(cloneTarget, true);
+            Directory.CreateDirectory(cloneTarget);
+
+            // Clear source
+            if (Directory.Exists(cloneSource))
+                Directory.Delete(cloneSource, true);
+            Directory.CreateDirectory(cloneSource);
+
+
+            // 1 - new files
+            File.WriteAllText(Path.Combine(cloneSource, "1\\new\\file1.txt"), "hello1");
+            File.WriteAllText(Path.Combine(cloneSource, "1\\new\\file2.txt"), "hello2");
+            File.WriteAllText(Path.Combine(cloneSource, "1\\new\\file3.txt"), "hello3");
+            File.WriteAllText(Path.Combine(cloneSource, "1\\new\\file4.doc"), "");
+
+            // 2 - more new files
+            File.WriteAllText(Path.Combine(cloneSource, "2\\new\\file5.txt"), "hello5");
+            File.WriteAllText(Path.Combine(cloneSource, "2\\new\\file6.txt"), "hello6");
+
+            // 3 - deleted files
+            File.WriteAllText(Path.Combine(cloneSource, "3\\deleted.txt"), "file1.txt\nfile2.txt");
+
+            // 4 - Modify and add some files
+            File.WriteAllText(Path.Combine(cloneSource, "4\\modified\\file5.txt"), "hello5 - modified");
+            File.WriteAllText(Path.Combine(cloneSource, "4\\modified\\file6.txt"), "hello6 - modified");
+            File.WriteAllText(Path.Combine(cloneSource, "4\\new\\file7.txt"), "hello7");
+
+            // 5 - Rename some files
+            File.WriteAllText(Path.Combine(cloneSource, "5\\renamed.txt"), 
+                "{\"oldName\":\"file5.txt\",\"newName\": \"file5_renamed.txt\"}" + "\n" +
+                "{\"oldName\":\"file6.txt\",\"newName\": \"subdir\\file6_renamed.txt\"}");
+
+
+            foreach (var dir in Directory.GetDirectories(cloneTarget))
+                UnmarkDirectoryAsReadOnly(dir);
+            Directory.Delete(cloneTarget, true);
+            Directory.Delete(cloneSource, true);
+        }
+
 
 
 
