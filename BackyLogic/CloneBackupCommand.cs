@@ -35,10 +35,13 @@ namespace BackyLogic
                     throw new ApplicationException("Invalid veriosn. max is " + stateCalculator.MaxVersion);
 
                 State cloneState = stateCalculator.GetState(_version);
+                this.Progress?.StartBoundedStep("Copy files: ", cloneState.GetFiles().Count());
                 foreach (var file in cloneState.GetFiles())
                 {
+                    if (_abort) return;
                     var destName = Path.Combine(_cloneTarget, file.RelativeName);
                     _fileSystem.Copy(file.PhysicalPath, destName);
+                    this.Progress?.Increment();
                 }
             }
             finally
@@ -47,6 +50,11 @@ namespace BackyLogic
                 this.Progress?.StartStepWithoutProgress("Finished: " + DateTime.Now);
                 this.Progress?.StartStepWithoutProgress("Total time: " + sw.Elapsed);
             }
+        }
+
+        public void Abort()
+        {
+            this._abort = true;
         }
     }
 }

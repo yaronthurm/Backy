@@ -32,12 +32,13 @@
             this.btnNext = new System.Windows.Forms.Button();
             this.lblCurrentVersion = new System.Windows.Forms.Label();
             this.lblScanned = new System.Windows.Forms.Label();
-            this.filesPanel1 = new Backy.FilesPanel();
             this.btnRestoreTo = new System.Windows.Forms.Button();
+            this.filesPanel1 = new Backy.FilesPanel();
             this.SuspendLayout();
             // 
             // btnPrev
             // 
+            this.btnPrev.Enabled = false;
             this.btnPrev.Location = new System.Drawing.Point(148, 8);
             this.btnPrev.Name = "btnPrev";
             this.btnPrev.Size = new System.Drawing.Size(75, 23);
@@ -48,6 +49,7 @@
             // 
             // btnNext
             // 
+            this.btnNext.Enabled = false;
             this.btnNext.Location = new System.Drawing.Point(270, 8);
             this.btnNext.Name = "btnNext";
             this.btnNext.Size = new System.Drawing.Size(75, 23);
@@ -76,19 +78,9 @@
             this.lblScanned.Text = "Scanned: 0";
             this.lblScanned.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // filesPanel1
-            // 
-            this.filesPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.filesPanel1.BackColor = System.Drawing.Color.Transparent;
-            this.filesPanel1.Location = new System.Drawing.Point(0, 37);
-            this.filesPanel1.Name = "filesPanel1";
-            this.filesPanel1.Size = new System.Drawing.Size(724, 470);
-            this.filesPanel1.TabIndex = 0;
-            // 
             // btnRestoreTo
             // 
+            this.btnRestoreTo.Enabled = false;
             this.btnRestoreTo.Location = new System.Drawing.Point(393, 8);
             this.btnRestoreTo.Name = "btnRestoreTo";
             this.btnRestoreTo.Size = new System.Drawing.Size(75, 23);
@@ -96,6 +88,18 @@
             this.btnRestoreTo.Text = "Restore to...";
             this.btnRestoreTo.UseVisualStyleBackColor = true;
             this.btnRestoreTo.Click += new System.EventHandler(this.btnRestoreTo_Click);
+            // 
+            // filesPanel1
+            // 
+            this.filesPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.filesPanel1.BackColor = System.Drawing.Color.Transparent;
+            this.filesPanel1.Enabled = false;
+            this.filesPanel1.Location = new System.Drawing.Point(0, 37);
+            this.filesPanel1.Name = "filesPanel1";
+            this.filesPanel1.Size = new System.Drawing.Size(724, 470);
+            this.filesPanel1.TabIndex = 0;
             // 
             // View
             // 

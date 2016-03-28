@@ -19,6 +19,7 @@ namespace Backy
         private string _targetRootDirectory;
         private string _sourceRootDirectory;
         private IFileSystem _fileSystem;
+        private RestoreTo _restorToForm = new RestoreTo();
 
         public View(IFileSystem fileSystem)
         {
@@ -50,6 +51,8 @@ namespace Backy
 
                 this.btnPrev.Enabled = _state.MaxVersion > 1;
                 this.btnNext.Enabled = false;
+                this.btnRestoreTo.Enabled = true;
+                this.filesPanel1.Enabled = true;
                 this.lblCurrentVersion.Visible = true;
             }
 
@@ -134,7 +137,8 @@ namespace Backy
 
         private void btnRestoreTo_Click(object sender, EventArgs e)
         {
-
+            _restorToForm.SetRestoreData(this._targetRootDirectory, int.Parse(this.lblCurrentVersion.Text));
+            _restorToForm.Show();
         }
     }
 }
