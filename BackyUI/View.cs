@@ -131,5 +131,10 @@ namespace Backy
                 e.Cancel = true;
             }
         }
+
+        private void btnRestoreTo_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

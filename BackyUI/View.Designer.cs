@@ -33,6 +33,7 @@
             this.lblCurrentVersion = new System.Windows.Forms.Label();
             this.lblScanned = new System.Windows.Forms.Label();
             this.filesPanel1 = new Backy.FilesPanel();
+            this.btnRestoreTo = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnPrev
@@ -86,12 +87,23 @@
             this.filesPanel1.Size = new System.Drawing.Size(724, 470);
             this.filesPanel1.TabIndex = 0;
             // 
+            // btnRestoreTo
+            // 
+            this.btnRestoreTo.Location = new System.Drawing.Point(393, 8);
+            this.btnRestoreTo.Name = "btnRestoreTo";
+            this.btnRestoreTo.Size = new System.Drawing.Size(75, 23);
+            this.btnRestoreTo.TabIndex = 5;
+            this.btnRestoreTo.Text = "Restore to...";
+            this.btnRestoreTo.UseVisualStyleBackColor = true;
+            this.btnRestoreTo.Click += new System.EventHandler(this.btnRestoreTo_Click);
+            // 
             // View
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(724, 507);
+            this.Controls.Add(this.btnRestoreTo);
             this.Controls.Add(this.lblScanned);
             this.Controls.Add(this.lblCurrentVersion);
             this.Controls.Add(this.btnNext);
@@ -113,5 +125,6 @@
         private System.Windows.Forms.Button btnNext;
         private System.Windows.Forms.Label lblCurrentVersion;
         private System.Windows.Forms.Label lblScanned;
+        private System.Windows.Forms.Button btnRestoreTo;
     }
 }
