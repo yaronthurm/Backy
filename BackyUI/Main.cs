@@ -72,6 +72,7 @@ namespace Backy
             this.radScheduled.Enabled = true;
             this.radDetection.Enabled = true;
             this.btnView.Enabled = true;
+            this._viewForm.NotifyNewBackup();
         }
 
         private void FinishAutoBackupCallback()
@@ -81,6 +82,7 @@ namespace Backy
             this.autoRunTimer.Enabled = true;
             this.btnView.Enabled = true;
             this.btnStartStop.Enabled = true;
+            this._viewForm.NotifyNewBackup();
         }
 
         private void FinishDetectionBackupCallback()
@@ -90,6 +92,7 @@ namespace Backy
             this.btnView.Enabled = true;
             this.btnDetect.Enabled = true;
             Task.Run(() => this.WaitForFileChanges());
+            this._viewForm.NotifyNewBackup();
         }
 
         private void btnAbort_Click(object sender, EventArgs e)

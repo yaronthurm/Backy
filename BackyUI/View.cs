@@ -20,6 +20,7 @@ namespace Backy
         private string _sourceRootDirectory;
         private IFileSystem _fileSystem;
         private RestoreTo _restorToForm = new RestoreTo();
+        private bool _shouldUpdateView;
 
         public View(IFileSystem fileSystem)
         {
@@ -34,9 +35,10 @@ namespace Backy
 
         public async Task SetDirectoriesAndShow(string targetRootDirectory, string sourceRootDirectory)
         {
-            if (targetRootDirectory != _targetRootDirectory)
+            if (targetRootDirectory != _targetRootDirectory || _shouldUpdateView)
             {                
                 _targetRootDirectory = targetRootDirectory;
+                _shouldUpdateView = false;
                 this.filesPanel1.Clear();
                 this.lblCurrentVersion.Visible = false;
                 this.ResetScanCount();
@@ -60,6 +62,12 @@ namespace Backy
 
             this.Show();
         }
+
+        public void NotifyNewBackup()
+        {
+            _shouldUpdateView = true;
+        }
+
 
         private void ResetScanCount()
         {
