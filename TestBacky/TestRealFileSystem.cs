@@ -156,7 +156,7 @@ namespace TestBacky
 
                 // 1
                 cmd.Execute();
-                var state = new TransientState(fs, target).GetLastState();
+                var state = new StateCalculator(fs, target).GetLastState();
                 TestsUtils.AssertLists(new[] { "file1.txt", "file2.txt", "file3.txt", "file4.doc" }, state.GetFiles().Select(x => x.RelativeName));
 
                 // Add new files
@@ -165,7 +165,7 @@ namespace TestBacky
 
                 // 2
                 cmd.Execute();
-                state = new TransientState(fs, target).GetLastState();
+                state = new StateCalculator(fs, target).GetLastState();
                 TestsUtils.AssertLists(new[] { "file1.txt", "file2.txt", "file3.txt", "file4.doc",
                 "file5.txt", "file6.txt" }, state.GetFiles().Select(x => x.RelativeName));
 
@@ -175,7 +175,7 @@ namespace TestBacky
 
                 // 3
                 cmd.Execute();
-                state = new TransientState(fs, target).GetLastState();
+                state = new StateCalculator(fs, target).GetLastState();
                 TestsUtils.AssertLists(new[] { "file3.txt", "file4.doc", "file5.txt", "file6.txt" }, state.GetFiles().Select(x => x.RelativeName));
 
                 // Modify and add some files
@@ -185,7 +185,7 @@ namespace TestBacky
 
                 // 4
                 cmd.Execute();
-                state = new TransientState(fs, target).GetLastState();
+                state = new StateCalculator(fs, target).GetLastState();
                 TestsUtils.AssertLists(new[] { "file3.txt", "file4.doc", "file5.txt", "file6.txt", "file7.txt" }, state.GetFiles().Select(x => x.RelativeName));
 
                 // Rename some files
@@ -195,7 +195,7 @@ namespace TestBacky
 
                 // 5
                 cmd.Execute();
-                state = new TransientState(fs, target).GetLastState();
+                state = new StateCalculator(fs, target).GetLastState();
                 TestsUtils.AssertLists(new[] { "file3.txt", "file4.doc", "file5_renamed.txt", "subdir\\file6_renamed.txt", "file7.txt" }, state.GetFiles().Select(x => x.RelativeName));
 
                 // Pretend to rename - use 2 files with same length and last modify but with slight different content
@@ -210,7 +210,7 @@ namespace TestBacky
 
                 // 7
                 cmd.Execute();
-                state = new TransientState(fs, target).GetLastState();
+                state = new StateCalculator(fs, target).GetLastState();
                 TestsUtils.AssertLists(new[] { "file3.txt", "file4.doc", "file5_renamed.txt",
                 "subdir\\file6_renamed.txt", "file7.txt", "file8_pretend_rename.txt" }
                 , state.GetFiles().Select(x => x.RelativeName));

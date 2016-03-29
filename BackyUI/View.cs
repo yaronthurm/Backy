@@ -15,7 +15,7 @@ namespace Backy
 {
     public partial class View : Form
     {
-        private TransientState _state;
+        private StateCalculator _state;
         private string _targetRootDirectory;
         private string _sourceRootDirectory;
         private IFileSystem _fileSystem;
@@ -42,7 +42,7 @@ namespace Backy
                 this.ResetScanCount();
 
                 this.Show();
-                _state = new TransientState(_fileSystem, _targetRootDirectory);
+                _state = new StateCalculator(_fileSystem, _targetRootDirectory);
                 _state.OnProgress += OnScanProgressHandler;
                 var backupState =  await Task.Run(() => _state.GetLastState());
                 this.lblScanned.Visible = false;

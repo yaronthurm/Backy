@@ -34,7 +34,7 @@ namespace BackyLogic
 
         public static State GetLastBackedUpState(IFileSystem fileSystem, string target, Action fileEnumaretedCallback)
         {
-            var stateCalculator = new TransientState(fileSystem, target);
+            var stateCalculator = new StateCalculator(fileSystem, target);
             stateCalculator.OnProgress += fileEnumaretedCallback;
             var ret = stateCalculator.GetLastState();
             return ret;
@@ -92,7 +92,7 @@ namespace BackyLogic
 
 
 
-    public class TransientState
+    public class StateCalculator
     {
         public event Action OnProgress;
 
@@ -100,7 +100,7 @@ namespace BackyLogic
         private string _target;
         private Lazy<List<BackyFolder>> _backyFolders;
 
-        public TransientState(IFileSystem fileSystem, string target)
+        public StateCalculator(IFileSystem fileSystem, string target)
         {
             _fileSystem = fileSystem;
             _target = target;
