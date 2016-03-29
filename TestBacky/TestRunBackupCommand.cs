@@ -13,15 +13,6 @@ namespace TestBacky
     [TestClass]
     public class TestRunBackupCommand
     {
-        [TestMethod, Ignore]
-        public void Backup_00_Playing_around()
-        {
-            var files1 = Directory.GetFiles(@"D:\DataFromExternalDrive", "*.*", SearchOption.AllDirectories);
-            var files2 = Directory.GetFiles(@"D:\DataFromExternalDrive", "*.*", SearchOption.AllDirectories);
-            var files3 = Directory.GetFiles(@"D:\DataFromExternalDrive", "*.*", SearchOption.AllDirectories);
-            var files4 = Directory.GetFiles(@"D:\DataFromExternalDrive", "*.*", SearchOption.AllDirectories);
-        }
-
         [TestMethod]
         public void Backup_01_Running_for_the_first_time()
         {
