@@ -112,5 +112,15 @@ namespace TestBacky
             ret.Content = this.Content;
             return ret;
         }
+
+
+        public static EmulatorFile FromBacyFile(BackyLogic.BackyFile backyFile, BackyLogic.IFileSystem fs)
+        {
+            var ret = new EmulatorFile(
+                backyFile.RelativeName, 
+                backyFile.LastWriteTime, 
+                string.Join(Environment.NewLine, fs.ReadLines(backyFile.PhysicalPath)));
+            return ret;
+        }
     }
 }
