@@ -26,7 +26,9 @@ namespace TestBacky
         public void Copy(string sourceFileName, string destFileName)
         {
             var source = _files.First(x => x.Name == sourceFileName);
-            _files.Add(new EmulatorFile(destFileName, source.LastModified));
+            var clone = source.Clone();
+            clone.Name = destFileName;
+            _files.Add(clone);
         }
 
         public void CreateFile(string filename)
@@ -76,6 +78,12 @@ namespace TestBacky
         {
             _files.AddRange(newFiles);
         }
+
+        internal void DeleteFile(string fullname)
+        {
+            var file = _files.First(x => x.Name == fullname);
+            _files.Remove(file);
+        }
     }
 
     public class EmulatorFile
@@ -92,6 +100,15 @@ namespace TestBacky
         public EmulatorFile(string name, DateTime lastModified): this (name)
         {
             this.LastModified = lastModified;
+        }
+
+
+        public EmulatorFile Clone()
+        {
+            var ret = new EmulatorFile(this.Name, this.LastModified);
+            foreach (var line in this.Lines)
+                ret.Lines.Add(line);
+            return ret;
         }
     }
 }

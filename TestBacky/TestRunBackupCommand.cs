@@ -27,16 +27,13 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file1.txt"),
                 new EmulatorFile(@"c:\source\file2.txt"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt") };
-            var fileSystem = new FileSystemEmulator(files);
-            var cmd = new RunBackupCommand(fileSystem, source, target);
+            var fs = new FileSystemEmulator(files);
+            var cmd = new RunBackupCommand(fs, source, target);
             cmd.Execute();
 
             // Expected that all files will show up under version 1
             var expected = new[] { "file1.txt", "file2.txt", "subdir\\file11.txt" };
-            var stateCalculator = new StateCalculator(fileSystem, target);
-            stateCalculator.MaxVersion.ShouldBe(1);
-            var latestState = stateCalculator.GetLastState();
-            latestState.GetFiles().Select(x => x.RelativeName).ShouldBe(expected, true);
+            TestsUtils.AssertState(fs, target, expected);
         }
 
         [TestMethod]
@@ -55,19 +52,16 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file1.txt"),
                 new EmulatorFile(@"c:\source\file2.txt"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt") };
-            var fileSystem = new FileSystemEmulator(files);
-            var cmd = new RunBackupCommand(fileSystem, source, target);
+            var fs = new FileSystemEmulator(files);
+            var cmd = new RunBackupCommand(fs, source, target);
             cmd.Execute(); // Running once
 
-            cmd = new RunBackupCommand(fileSystem, source, target);
+            cmd = new RunBackupCommand(fs, source, target);
             cmd.Execute(); // Running twice
 
             // Expected that all files will show up under version 1
             var expected = new[] { "file1.txt", "file2.txt", "subdir\\file11.txt" };
-            var stateCalculator = new StateCalculator(fileSystem, target);
-            stateCalculator.MaxVersion.ShouldBe(1);
-            var latestState = stateCalculator.GetLastState();
-            latestState.GetFiles().Select(x => x.RelativeName).ShouldBe(expected, true);
+            TestsUtils.AssertState(fs, target, expected);
         }
 
         [TestMethod]
@@ -116,8 +110,8 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file1.txt"),
                 new EmulatorFile(@"c:\source\file2.txt"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt") };
-            var fileSystem = new FileSystemEmulator(files);
-            var cmd = new RunBackupCommand(fileSystem, source, target);
+            var fs = new FileSystemEmulator(files);
+            var cmd = new RunBackupCommand(fs, source, target);
 
             // First run
             cmd.Execute();
@@ -125,7 +119,7 @@ namespace TestBacky
             var newFiles = new EmulatorFile[] {
                 new EmulatorFile(@"c:\source\file3.txt"),
                 new EmulatorFile(@"c:\source\subdir\file22.txt") };
-            fileSystem.AddFiles(newFiles);
+            fs.AddFiles(newFiles);
             
             // Second run
             cmd.Execute();
@@ -133,48 +127,41 @@ namespace TestBacky
             // Expected to see 2 versions
             var expectedVersion1 = new[] { "file1.txt", "file2.txt", "subdir\\file11.txt" };
             var expectedVersion2 = new[] { "file1.txt", "file2.txt", "subdir\\file11.txt", "file3.txt", "subdir\\file22.txt" };
-            var stateCalculator = new StateCalculator(fileSystem, target);
-            stateCalculator.MaxVersion.ShouldBe(2);
-            var state1 = stateCalculator.GetState(1);
-            state1.GetFiles().Select(x => x.RelativeName).ShouldBe(expectedVersion1, ignoreOrder: true);
-            var state2 = stateCalculator.GetState(2);
-            state2.GetFiles().Select(x => x.RelativeName).ShouldBe(expectedVersion2, ignoreOrder: true);
-            var stateLatest = stateCalculator.GetLastState();
-            stateLatest.GetFiles().Select(x => x.RelativeName).ShouldBe(expectedVersion2, ignoreOrder: true);
+            TestsUtils.AssertState(fs, target, expectedVersion1, expectedVersion2);
         }
 
         [TestMethod]
         public void Backup_03_2_Running_for_the_second_time_Only_deleted_files()
         {
             // This test simulates running the tool for the second time after some files were deleted from source.
-            // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir/file11.txt
-            // In the second run, 2 file were deleted: file1.txt, subdir\file11.txt
-            // We expect that all original files will still be found under %target%\1\new
-            // and that a 'deleted.txt' file with the names of the files that were deleted will be found
-            // under %target%\2\deleted.txt
+            // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir\file11.txt
+            // In the second run, 2 files were deleted: file1.txt, subdir\file11.txt
+            // We expect to see 2 versions, the first with all original files, the second
+            // with only the remaining files
 
             var source = @"c:\source";
             var target = @"d:\target";
 
-            var sourceFiles = new string[] { @"file2.txt" };
-            var destFiles = new string[] { @"1\new\file1.txt", @"1\new\file2.txt", @"1\new\subdir\file11.txt" };
-            var files = sourceFiles.Select(x => Path.Combine(source, x)).Union(destFiles.Select(x => Path.Combine(target, x)));
+            var files = new EmulatorFile[] {
+                new EmulatorFile(@"c:\source\file1.txt"),
+                new EmulatorFile(@"c:\source\file2.txt"),
+                new EmulatorFile(@"c:\source\subdir\file11.txt") };
+            var fs = new FileSystemEmulator(files);
+            var cmd = new RunBackupCommand(fs, source, target);
 
-            var fileSystem = new FileSystemEmulator(files.Select(x => new EmulatorFile(x)));
-            var cmd = new RunBackupCommand(fileSystem, source, target);
+            // First run
             cmd.Execute();
 
-            // Expected that all old files from %source% will remain under %target%\1\new
-            // As well as 'deleted.txt' under %target%\2
-            var expected = new string[] {
-                @"1\new\file1.txt", @"1\new\file2.txt", @"1\new\subdir\file11.txt", // old files
-                @"2\deleted.txt" // for holding the names of deletd files
-                }.Select(x => Path.Combine(target, x));
-            var actual = fileSystem.EnumerateFiles(target);
-            TestsUtils.AssertLists<string>(expected, actual);
+            fs.DeleteFile(@"c:\source\file1.txt");
+            fs.DeleteFile(@"c:\source\subdir\file11.txt");
 
-            // Expected to see "file1.txt" and "subdir\file11.txt" in the deleted file
-            TestsUtils.AssertLists<string>(new[] { "file1.txt", "subdir\\file11.txt" }, fileSystem.ReadLines(Path.Combine(target, "2", "deleted.txt")));
+            // Second run
+            cmd.Execute();
+
+            // Expected to see 2 versions
+            var expectedVersion1 = new[] { "file1.txt", "file2.txt", "subdir\\file11.txt" };
+            var expectedVersion2 = new[] { "file2.txt" };
+            TestsUtils.AssertState(fs, target, expectedVersion1, expectedVersion2);
         }
 
         [TestMethod]
@@ -184,35 +171,35 @@ namespace TestBacky
             // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir/file11.txt
             // In the second run, 2 file were deleted: file1.txt, subdir\file11.txt
             // and 3 files were added: file3.txt, file4.txt, subdir2\file111.txt
-            // We expect that all original files will still be found under %target%\1\new
-            // That a 'deleted.txt' file with the names of the files that were deleted will be found
-            // under %target%\2\deleted.txt
-            // And that all new files will be under %target%\2\new
+            // We expect 2 versions to represent each state
 
             var source = @"c:\source";
             var target = @"d:\target";
 
-            var sourceFiles = new string[] { @"file2.txt", @"file3.txt", @"file4.txt", @"subdir2\file111.txt" };
-            var destFiles = new string[] { @"1\new\file1.txt", @"1\new\file2.txt", @"1\new\subdir\file11.txt" };
-            var files = sourceFiles.Select(x => Path.Combine(source, x)).Union(destFiles.Select(x => Path.Combine(target, x)));
+            var files = new EmulatorFile[] {
+                new EmulatorFile(@"c:\source\file1.txt"),
+                new EmulatorFile(@"c:\source\file2.txt"),
+                new EmulatorFile(@"c:\source\subdir\file11.txt") };
+            var fs = new FileSystemEmulator(files);
+            var cmd = new RunBackupCommand(fs, source, target);
 
-            var fileSystem = new FileSystemEmulator(files.Select(x => new EmulatorFile(x) { Lines = new List<string> { x } }));
-            var cmd = new RunBackupCommand(fileSystem, source, target);
+            // First run
             cmd.Execute();
 
-            // Expected that all old files from %source% will remain under %target%\1\new
-            // As well as 'deleted.txt' under %target%\2
-            // And all new files will be under %target%\2\new
-            var expected = new string[] {
-                @"1\new\file1.txt", @"1\new\file2.txt", @"1\new\subdir\file11.txt", // old files
-                @"2\deleted.txt", // for holding the names of deletd files
-                @"2\new\file3.txt", @"2\new\file4.txt", @"2\new\subdir2\file111.txt"
-                }.Select(x => Path.Combine(target, x));
-            var actual = fileSystem.EnumerateFiles(target);
-            TestsUtils.AssertLists<string>(expected, actual);
+            fs.DeleteFile(@"c:\source\file1.txt");
+            fs.DeleteFile(@"c:\source\subdir\file11.txt");
+            fs.AddFiles(new EmulatorFile[] {
+                new EmulatorFile(@"c:\source\file3.txt"),
+                new EmulatorFile(@"c:\source\file4.txt"),
+                new EmulatorFile(@"c:\source\subdir2\file111.txt") });
 
-            // Expected to see "file1.txt" and "subdir\file11.txt" in the deleted file
-            TestsUtils.AssertLists<string>(new[] { "file1.txt", "subdir\\file11.txt" }, fileSystem.ReadLines(Path.Combine(target, "2", "deleted.txt")));
+            // Second run
+            cmd.Execute();
+
+            // Expected to see 2 versions
+            var expectedVersion1 = new[] { "file1.txt", "file2.txt", "subdir\\file11.txt" };
+            var expectedVersion2 = new[] { "file2.txt", "file3.txt", "file4.txt", "subdir2\\file111.txt" };
+            TestsUtils.AssertState(fs, target, expectedVersion1, expectedVersion2);
         }
 
         [TestMethod]
