@@ -32,37 +32,13 @@ namespace BackyLogic
             try {
                 this.Progress?.StartStepWithoutProgress("Started: " + DateTime.Now);
 
-                int count = 0;
-
-                this.Progress?.StartUnboundedStep("Scanning source files. Files scanned:");
-                State currentState = State.GetCurrentState(_fileSystem, _source, () =>
-                {
-                    count++;
-                    if (count % 100 == 0) this.Progress?.UpdateProgress(count);
-                });
-                this.Progress?.UpdateProgress(count);
+                State currentState = GetCurrentState();
                 if (IsAborted()) return;
 
-                this.Progress?.StartUnboundedStep("Scanning backup files. Files scanned:");
-                count = 0;
-                State lastBackedupState = State.GetLastBackedUpState(_fileSystem, _target, () =>
-                {
-                    count++;
-                    if (count % 100 == 0) this.Progress?.UpdateProgress(count);
-                });
-                this.Progress?.UpdateProgress(count);
+                State lastBackedupState = GetLastBackedUpState();
                 if (IsAborted()) return;
 
-                this.Progress?.StartStepWithoutProgress("Calculating diff");
-                _diff = GetDiff(currentState, lastBackedupState);
-                _diff.CalculateDiff();
-                if (IsAborted()) return;
-                this.Progress?.StartStepWithoutProgress(
-                    "Finished calculating diff:\n" +
-                    $"  New files: {_diff.NewFiles.Count}\n" +
-                    $"  Modified files: {_diff.ModifiedFiles.Count}\n" +
-                    $"  Deleted files: {_diff.DeletedFiles.Count}\n" +
-                    $"  Renamed files: {_diff.RenamedFiles.Count}");
+                CalculateDiff(currentState, lastBackedupState);
 
                 if (NoChangesFromLastBackup(_diff))
                 {
@@ -70,13 +46,18 @@ namespace BackyLogic
                 }
 
                 var targetDir = GetTargetDirectory(lastBackedupState);
+
                 CopyAllNewFiles(targetDir, _diff);
                 if (IsAborted()) return;
+
                 CopyAllModifiedFiles(targetDir, _diff);
                 if (IsAborted()) return;
+
                 MarkAllDeletedFiles(targetDir, _diff);
                 if (IsAborted()) return;
+
                 MarkAllRenamedFiles(targetDir, _diff);
+                if (IsAborted()) return;
 
                 MakeReadOnly(targetDir);
             }
@@ -86,6 +67,46 @@ namespace BackyLogic
                 this.Progress?.StartStepWithoutProgress("Finished: " + DateTime.Now);
                 this.Progress?.StartStepWithoutProgress("Total time: " + sw.Elapsed);
             }
+        }
+
+        private void CalculateDiff(State currentState, State lastBackedupState)
+        {
+            this.Progress?.StartStepWithoutProgress("Calculating diff");
+                _diff = GetDiff(currentState, lastBackedupState);
+                _diff.CalculateDiff();
+                if (IsAborted()) return;
+                this.Progress?.StartStepWithoutProgress(
+                    "Finished calculating diff:\n" +
+                    $"  New files: {_diff.NewFiles.Count}\n" +
+                    $"  Modified files: {_diff.ModifiedFiles.Count}\n" +
+                    $"  Deleted files: {_diff.DeletedFiles.Count}\n" +
+                    $"  Renamed files: {_diff.RenamedFiles.Count}");
+        }
+
+        private State GetLastBackedUpState()
+        {
+            int count = 0;
+            this.Progress?.StartUnboundedStep("Scanning backup files. Files scanned:");
+            State lastBackedupState = State.GetLastBackedUpState(_fileSystem, _target, () =>
+            {
+                count++;
+                if (count % 100 == 0) this.Progress?.UpdateProgress(count);
+            });
+            this.Progress?.UpdateProgress(count);
+            return lastBackedupState;
+        }
+
+        private State GetCurrentState()
+        {
+            int count = 0;
+            this.Progress?.StartUnboundedStep("Scanning source files. Files scanned:");
+            State currentState = State.GetCurrentState(_fileSystem, _source, () =>
+            {
+                count++;
+                if (count % 100 == 0) this.Progress?.UpdateProgress(count);
+            });
+            this.Progress?.UpdateProgress(count);
+            return currentState;
         }
 
         private void MakeReadOnly(string targetDir)
