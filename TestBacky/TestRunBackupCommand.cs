@@ -36,7 +36,7 @@ namespace TestBacky
                 new EmulatorFile(@"file1.txt", content: "1"),
                 new EmulatorFile(@"file2.txt", content: "2"),
                 new EmulatorFile(@"subdir\file11.txt", content: "3") };
-            TestsUtils.AssertState(fs, target, expected);
+            TestsUtils.AssertState(fs, target, source, expected);
         }
 
         [TestMethod]
@@ -67,7 +67,7 @@ namespace TestBacky
                 new EmulatorFile(@"file1.txt", content: "1"),
                 new EmulatorFile(@"file2.txt", content: "2"),
                 new EmulatorFile(@"subdir\file11.txt", content: "3") };
-            TestsUtils.AssertState(fs, target, expected);
+            TestsUtils.AssertState(fs, target, source, expected);
         }
 
         [TestMethod]
@@ -83,20 +83,20 @@ namespace TestBacky
             var target = @"d:\target";
 
             var files = new EmulatorFile[] {
-                new EmulatorFile(@"c:\source\file1.txt"),
-                new EmulatorFile(@"c:\source\file2.txt"),
-                new EmulatorFile(@"c:\source\subdir\file11.txt") };
-            var fileSystem = new FileSystemEmulator(files);
-            var cmd = new RunBackupCommand(fileSystem, source, target);
+                new EmulatorFile(@"c:\source\file1.txt", content: "1"),
+                new EmulatorFile(@"c:\source\file2.txt", content: "2"),
+                new EmulatorFile(@"c:\source\subdir\file11.txt", content: "3") };
+            var fs = new FileSystemEmulator(files);
+            var cmd = new RunBackupCommand(fs, source, target);
             cmd.Execute(); // Running once
             cmd.Execute(); // Running twice
 
             // Expected that all files will show up under version 1
-            var expected = new[] { "file1.txt", "file2.txt", "subdir\\file11.txt" };
-            var stateCalculator = new StateCalculator(fileSystem, target);
-            stateCalculator.MaxVersion.ShouldBe(1);
-            var latestState = stateCalculator.GetLastState();
-            latestState.GetFiles().Select(x => x.RelativeName).ShouldBe(expected, true);
+            var expected = new[] {
+                new EmulatorFile(@"file1.txt", content: "1"),
+                new EmulatorFile(@"file2.txt", content: "2"),
+                new EmulatorFile(@"subdir\file11.txt", content: "3") };
+            TestsUtils.AssertState(fs, target, source, expected);
         }
 
         [TestMethod]
@@ -143,7 +143,7 @@ namespace TestBacky
                 new EmulatorFile(@"subdir\file22.txt")
             };
 
-            TestsUtils.AssertState(fs, target, expectedVersion1, expectedVersion2);
+            TestsUtils.AssertState(fs, target, source, expectedVersion1, expectedVersion2);
         }
 
         [TestMethod]
@@ -181,7 +181,7 @@ namespace TestBacky
                 new EmulatorFile(@"subdir\file11.txt") };
             var expectedVersion2 = new[] {
                 new EmulatorFile(@"file2.txt")};
-            TestsUtils.AssertState(fs, target, expectedVersion1, expectedVersion2);
+            TestsUtils.AssertState(fs, target, source, expectedVersion1, expectedVersion2);
         }
 
         [TestMethod]
@@ -227,7 +227,7 @@ namespace TestBacky
                 new EmulatorFile(@"file4.txt"),
                 new EmulatorFile(@"subdir2\file111.txt"),
             };
-            TestsUtils.AssertState(fs, target, expectedVersion1, expectedVersion2);
+            TestsUtils.AssertState(fs, target, source, expectedVersion1, expectedVersion2);
         }
 
         [TestMethod]
@@ -266,7 +266,7 @@ namespace TestBacky
                 new EmulatorFile(@"file2.txt", new DateTime(2015, 1, 1), "22"),
                 new EmulatorFile(@"subdir\file11.txt", new DateTime(2010, 1, 1), "3")};
 
-            TestsUtils.AssertState(fs, target, expectedVersion1, expectedVersion2);
+            TestsUtils.AssertState(fs, target, source, expectedVersion1, expectedVersion2);
         }
 
         [TestMethod]
@@ -310,7 +310,7 @@ namespace TestBacky
                 new EmulatorFile(@"file3.txt", content: "new file 3"),
                 new EmulatorFile(@"subdir3\file4.txt", content: "new file 4")};
 
-            TestsUtils.AssertState(fs, target, expectedVersion1, expectedVersion2);
+            TestsUtils.AssertState(fs, target, source, expectedVersion1, expectedVersion2);
         }
 
         [TestMethod]
@@ -356,7 +356,7 @@ namespace TestBacky
                 new EmulatorFile(@"file3.txt", content: "new file 3"),
                 new EmulatorFile(@"subdir3\file4.txt", content: "new file 4")};
 
-            TestsUtils.AssertState(fs, target, expectedVersion1, expectedVersion2);
+            TestsUtils.AssertState(fs, target, source, expectedVersion1, expectedVersion2);
         }
 
         [TestMethod]
@@ -395,7 +395,7 @@ namespace TestBacky
                 new EmulatorFile(@"file2.txt", new DateTime(2010, 1, 1), "2"),
                 new EmulatorFile(@"subdir_renamed\file11.txt", new DateTime(2010, 1, 1), "3")};
 
-            TestsUtils.AssertState(fs, target, expectedVersion1, expectedVersion2);
+            TestsUtils.AssertState(fs, target, source, expectedVersion1, expectedVersion2);
         }
     }
 }

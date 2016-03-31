@@ -22,7 +22,7 @@ namespace BackyLogic
         {
             _fileSystem = fileSystem;
             _source = source;
-            _target = target;
+            _target = FindOrCreateTargetForSource(source, target, fileSystem);
         }
 
 
@@ -211,7 +211,37 @@ namespace BackyLogic
 
         private string GetTargetDirectory(State lastBackedupState)
         {
-            var ret = System.IO.Path.Combine(_target, lastBackedupState.GetNextDirectory(_fileSystem, _target));
+            var version = lastBackedupState.GetNextDirectory(_fileSystem, _target);
+            var ret = Path.Combine(_target, version);
+            return ret;
+        }
+
+        private static string FindOrCreateTargetForSource(string source, string target, IFileSystem fs)
+        {
+            string sourceGuid = null;
+            var targetDir = fs.GetDirectories(target);
+            foreach (var innerDir in fs.GetDirectories(target))
+            {
+                var iniFile = fs.FindFile(innerDir, "backy.ini");
+                if (iniFile == null) continue;
+                var iniLines = fs.ReadLines(iniFile).ToArray();
+                var sourceFromIniFile = iniLines.First();
+                var guid = iniLines.Skip(1).First();
+                if (sourceFromIniFile == source)
+                {
+                    sourceGuid = guid;
+                    break;
+                }
+            }
+            if (sourceGuid == null)
+            {
+                sourceGuid = Guid.NewGuid().ToString("N");
+                fs.CreateFile(Path.Combine(target, sourceGuid, "backy.ini"));
+                fs.AppendLine(Path.Combine(target, sourceGuid, "backy.ini"), source);
+                fs.AppendLine(Path.Combine(target, sourceGuid, "backy.ini"), sourceGuid);
+            }
+
+            var ret = Path.Combine(target, sourceGuid);
             return ret;
         }
 

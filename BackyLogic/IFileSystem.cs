@@ -16,6 +16,8 @@ namespace BackyLogic
 
         IEnumerable<string> EnumerateFiles(string dirName);
 
+        string FindFile(string dirName, string fileName);
+
         IEnumerable<string> GetDirectories(string dirName);
 
         DateTime GetLastWriteTime(string fullname);
@@ -116,6 +118,13 @@ namespace BackyLogic
                     // else - continue
                 }
             }
+        }
+
+        public string FindFile(string dirName, string fileName)
+        {
+            var dir = new DirectoryInfo(dirName);
+            var file = dir.GetFiles(fileName).FirstOrDefault();
+            return file.FullName;
         }
     }
 

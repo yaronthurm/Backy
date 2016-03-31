@@ -20,9 +20,9 @@ namespace TestBacky
             Assert.IsFalse(diff.Any(), "extra items");
         }
 
-        public static void AssertState(IFileSystem fs, string target, params IEnumerable<EmulatorFile>[] expectedFilesByVersion)
+        public static void AssertState(IFileSystem fs, string target, string source, params IEnumerable<EmulatorFile>[] expectedFilesByVersion)
         {
-            var stateCalculator = new StateCalculator(fs, target);
+            var stateCalculator = new StateCalculator(fs, target, source);
             stateCalculator.MaxVersion.ShouldBe(expectedFilesByVersion.Length);
             for (int i = 0; i < expectedFilesByVersion.Length; i++)
             {

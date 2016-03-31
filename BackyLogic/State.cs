@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -100,11 +101,37 @@ namespace BackyLogic
         private string _target;
         private Lazy<List<BackyFolder>> _backyFolders;
 
-        public StateCalculator(IFileSystem fileSystem, string target)
+        public StateCalculator(IFileSystem fileSystem, string target, string source = null)
         {
             _fileSystem = fileSystem;
-            _target = target;
+            if (source == null)
+                _target = target;
+            else
+                _target = FindTargetForSource(source, target, fileSystem);
             _backyFolders = new Lazy<List<BackyFolder>>(this.GetFolders);
+        }
+
+        private static string FindTargetForSource(string source, string target, IFileSystem fs)
+        {
+            string sourceGuid = null;
+            var targetDir = fs.GetDirectories(target);
+            foreach (var innerDir in fs.GetDirectories(target))
+            {
+                var iniFile = fs.FindFile(innerDir, "backy.ini");
+                if (iniFile == null) continue;
+                var iniLines = fs.ReadLines(iniFile).ToArray();
+                var sourceFromIniFile = iniLines.First();
+                var guid = iniLines.Skip(1).First();
+                if (sourceFromIniFile == source)
+                {
+                    sourceGuid = guid;
+                    break;
+                }
+            }
+            if (sourceGuid == null)
+               throw new ApplicationException("Could not find directory for source: " + source);
+            var ret = Path.Combine(target, sourceGuid);
+            return ret;
         }
 
         public int MaxVersion

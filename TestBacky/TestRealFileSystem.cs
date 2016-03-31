@@ -26,12 +26,11 @@ namespace TestBacky
             {
                 var fs = new FileSystem();
                 var expectedStates = SimulateRunningBackups(source, target, fs);
-                TestsUtils.AssertState(fs, target, expectedStates);
+                TestsUtils.AssertState(fs, target, source, expectedStates);
             }
             finally
             {
-                foreach (var dir in Directory.GetDirectories(target))
-                    UnmarkDirectoryAsReadOnly(dir);
+                UnmarkDirectoryAsReadOnlyRecursive(target);
                 Directory.Delete(target, true);
                 Directory.Delete(source, true);
             }
@@ -43,7 +42,7 @@ namespace TestBacky
             var backupSource = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
             var backupTarget = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
             var cloneTarget = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
-            var cloneSource = backupTarget;
+            var cloneSource = new CloneSource { BackupPath = backupTarget, OriginalSourcePath = backupSource };
 
             Directory.CreateDirectory(backupSource);
             Directory.CreateDirectory(backupTarget);
@@ -68,8 +67,7 @@ namespace TestBacky
             }
             finally
             {
-                foreach (var dir in Directory.GetDirectories(backupTarget))
-                    UnmarkDirectoryAsReadOnly(dir);
+                UnmarkDirectoryAsReadOnlyRecursive(backupTarget);
                 Directory.Delete(backupSource, true);
                 Directory.Delete(backupTarget, true);
                 Directory.Delete(cloneTarget, true);
@@ -186,6 +184,12 @@ namespace TestBacky
 
             return new[] {expectedVersion1, expectedVersion2, expectedVersion3, expectedVersion4,
                     expectedVersion5, expectedVersion6, expectedVersion7};
+        }
+
+        private void UnmarkDirectoryAsReadOnlyRecursive(string dirName)
+        {
+            foreach (var dir in Directory.GetDirectories(dirName, "*", SearchOption.AllDirectories))
+                UnmarkDirectoryAsReadOnly(dir);
         }
 
         private void UnmarkDirectoryAsReadOnly(string dirName)

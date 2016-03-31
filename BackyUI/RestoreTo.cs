@@ -15,7 +15,7 @@ namespace Backy
 {
     public partial class RestoreTo : Form
     {
-        private string _cloneSource;
+        private CloneSource _cloneSource;
         private int _version;
         private CloneBackupCommand _cloneCommand;
 
@@ -24,7 +24,7 @@ namespace Backy
             InitializeComponent();
         }
 
-        public void SetRestoreData(string cloneSource, int version)
+        public void SetRestoreData(CloneSource cloneSource, int version)
         {
             _cloneSource = cloneSource;
             _version = version;

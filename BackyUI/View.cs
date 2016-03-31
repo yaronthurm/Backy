@@ -35,6 +35,7 @@ namespace Backy
 
         public async Task SetDirectoriesAndShow(string targetRootDirectory, string sourceRootDirectory)
         {
+            _sourceRootDirectory = sourceRootDirectory;
             if (targetRootDirectory != _targetRootDirectory || _shouldUpdateView)
             {                
                 _targetRootDirectory = targetRootDirectory;
@@ -44,7 +45,7 @@ namespace Backy
                 this.ResetScanCount();
 
                 this.Show();
-                _state = new StateCalculator(_fileSystem, _targetRootDirectory);
+                _state = new StateCalculator(_fileSystem, _targetRootDirectory, _sourceRootDirectory);
                 _state.OnProgress += OnScanProgressHandler;
                 var backupState =  await Task.Run(() => _state.GetLastState());
                 this.lblScanned.Visible = false;
@@ -58,7 +59,7 @@ namespace Backy
                 this.lblCurrentVersion.Visible = true;
             }
 
-            _sourceRootDirectory = sourceRootDirectory;
+            
 
             this.Show();
         }
@@ -145,7 +146,13 @@ namespace Backy
 
         private void btnRestoreTo_Click(object sender, EventArgs e)
         {
-            _restorToForm.SetRestoreData(this._targetRootDirectory, int.Parse(this.lblCurrentVersion.Text));
+            _restorToForm.SetRestoreData(new CloneSource
+            {
+                BackupPath = _targetRootDirectory,
+                OriginalSourcePath = _sourceRootDirectory
+            },
+            int.Parse(this.lblCurrentVersion.Text));
+
             _restorToForm.Show();
         }
     }

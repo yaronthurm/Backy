@@ -53,7 +53,17 @@ namespace TestBacky
 
         public IEnumerable<string> GetDirectories(string directory)
         {
-            var ret = this.EnumerateFiles(directory).Select(Path.GetDirectoryName).Distinct().ToList();
+            var files = this.EnumerateFiles(directory);
+            var directories = files.Select(x => Path.GetDirectoryName(x));
+            var depth = directory.Split('\\').Length;
+            // Only take the next depth
+            var ret = directories
+                .Select(x => x.Split('\\'))
+                .Where(x => x.Length > depth)
+                .Select(x => x[depth])
+                .Distinct()    
+                .Select(x => Path.Combine(directory, x))            
+                .ToList();
             return ret;
         }
 
@@ -104,6 +114,12 @@ namespace TestBacky
             var files = _files.Where(x => x.Name.StartsWith(currentName));
             foreach (var file in files)
                 file.Name = file.Name.Replace(currentName, newName);
+        }
+
+        public string FindFile(string dirName, string fileName)
+        {
+            var ret = _files.FirstOrDefault(x => Path.Combine(dirName, fileName) == x.Name);
+            return ret?.Name;
         }
     }
 
