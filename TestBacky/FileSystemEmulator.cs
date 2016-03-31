@@ -79,10 +79,16 @@ namespace TestBacky
             _files.AddRange(newFiles);
         }
 
-        internal void DeleteFile(string fullname)
+        public void DeleteFile(string fullname)
         {
             var file = _files.First(x => x.Name == fullname);
             _files.Remove(file);
+        }
+
+        public void UpdateLastModified(string fullname, DateTime newLastModified)
+        {
+            var file = _files.First(x => x.Name == fullname);
+            file.LastModified = newLastModified;
         }
     }
 

@@ -33,7 +33,7 @@ namespace TestBacky
 
             // Expected that all files will show up under version 1
             var expected = new[] { "file1.txt", "file2.txt", "subdir\\file11.txt" };
-            TestsUtils.AssertState(fs, target, expected);
+            TestsUtils.AssertStateByRelativeFileName(fs, target, expected);
         }
 
         [TestMethod]
@@ -61,7 +61,7 @@ namespace TestBacky
 
             // Expected that all files will show up under version 1
             var expected = new[] { "file1.txt", "file2.txt", "subdir\\file11.txt" };
-            TestsUtils.AssertState(fs, target, expected);
+            TestsUtils.AssertStateByRelativeFileName(fs, target, expected);
         }
 
         [TestMethod]
@@ -127,7 +127,7 @@ namespace TestBacky
             // Expected to see 2 versions
             var expectedVersion1 = new[] { "file1.txt", "file2.txt", "subdir\\file11.txt" };
             var expectedVersion2 = new[] { "file1.txt", "file2.txt", "subdir\\file11.txt", "file3.txt", "subdir\\file22.txt" };
-            TestsUtils.AssertState(fs, target, expectedVersion1, expectedVersion2);
+            TestsUtils.AssertStateByRelativeFileName(fs, target, expectedVersion1, expectedVersion2);
         }
 
         [TestMethod]
@@ -161,7 +161,7 @@ namespace TestBacky
             // Expected to see 2 versions
             var expectedVersion1 = new[] { "file1.txt", "file2.txt", "subdir\\file11.txt" };
             var expectedVersion2 = new[] { "file2.txt" };
-            TestsUtils.AssertState(fs, target, expectedVersion1, expectedVersion2);
+            TestsUtils.AssertStateByRelativeFileName(fs, target, expectedVersion1, expectedVersion2);
         }
 
         [TestMethod]
@@ -199,7 +199,7 @@ namespace TestBacky
             // Expected to see 2 versions
             var expectedVersion1 = new[] { "file1.txt", "file2.txt", "subdir\\file11.txt" };
             var expectedVersion2 = new[] { "file2.txt", "file3.txt", "file4.txt", "subdir2\\file111.txt" };
-            TestsUtils.AssertState(fs, target, expectedVersion1, expectedVersion2);
+            TestsUtils.AssertStateByRelativeFileName(fs, target, expectedVersion1, expectedVersion2);
         }
 
         [TestMethod]
@@ -208,37 +208,37 @@ namespace TestBacky
             // This test simulates running the tool for the second time after some files were modified.
             // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir/file11.txt
             // In the second run, file1.txt and file2.txt are modified
-            // We expect that all original files will be found under %target%\1\new
-            // and that the modified files will be found under %target%\2\modified
+
+            var source = @"c:\source";
+            var target = @"d:\target";
 
             var files = new EmulatorFile[] {
-                // Source
-                new EmulatorFile(@"c:\source\file1.txt", new DateTime(2015, 1, 1)), // modified file - from 2015
-                new EmulatorFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1)), // modified file - from 2015
-                new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1)),
+                new EmulatorFile(@"c:\source\file1.txt", new DateTime(2010, 1, 1)),
+                new EmulatorFile(@"c:\source\file2.txt", new DateTime(2010, 1, 1)),
+                new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1))};
+            var fs = new FileSystemEmulator(files);
+            var cmd = new RunBackupCommand(fs, source, target);
 
-                // Target
-                new EmulatorFile(@"d:\target\1\new\file1.txt", new DateTime(2010, 1, 1)), // old file - from 2010
-                new EmulatorFile(@"d:\target\1\new\file2.txt", new DateTime(2010, 1, 1)), // old file - from 2010
-                new EmulatorFile(@"d:\target\1\new\subdir\file11.txt", new DateTime(2010, 1, 1)), // same as source
-            };
-
-            var fileSystem = new FileSystemEmulator(files);
-            var cmd = new RunBackupCommand(fileSystem, @"c:\source", @"d:\target");
+            // First run
             cmd.Execute();
 
-            // Expected that all old files from %source% will remain under %target%\1\new
-            // And modified files will be under %target%\2\modified
-            var expected = new string[] {
-                @"d:\target\1\new\file1.txt",
-                @"d:\target\1\new\file2.txt",
-                @"d:\target\1\new\subdir\file11.txt",
+            fs.UpdateLastModified(@"c:\source\file1.txt", new DateTime(2015, 1, 1));
+            fs.UpdateLastModified(@"c:\source\file2.txt", new DateTime(2015, 1, 1));
 
-                @"d:\target\2\modified\file1.txt",
-                @"d:\target\2\modified\file2.txt"
-            };
-            var actual = fileSystem.EnumerateFiles(@"d:\target");
-            TestsUtils.AssertLists<string>(expected, actual);
+            // Second run
+            cmd.Execute();
+
+            // Expected to see 2 versions
+            var expectedVersion1 = new[] {
+                new EmulatorFile(@"file1.txt", new DateTime(2010, 1, 1)),
+                new EmulatorFile(@"file2.txt", new DateTime(2010, 1, 1)),
+                new EmulatorFile(@"subdir\file11.txt", new DateTime(2010, 1, 1))};
+            var expectedVersion2 = new[] {
+                new EmulatorFile(@"file1.txt", new DateTime(2015, 1, 1)),
+                new EmulatorFile(@"file2.txt", new DateTime(2015, 1, 1)),
+                new EmulatorFile(@"subdir\file11.txt", new DateTime(2010, 1, 1))};
+
+            TestsUtils.AssertStateFull(fs, target, expectedVersion1, expectedVersion2);
         }
 
         [TestMethod]

@@ -21,7 +21,7 @@ namespace TestBacky
         }
 
 
-        public static void AssertState(IFileSystem fs, string target, params IEnumerable<string>[] expectedFilesByVersion)
+        public static void AssertStateByRelativeFileName(IFileSystem fs, string target, params IEnumerable<string>[] expectedFilesByVersion)
         {
             var stateCalculator = new StateCalculator(fs, target);
             stateCalculator.MaxVersion.ShouldBe(expectedFilesByVersion.Length);
@@ -33,6 +33,40 @@ namespace TestBacky
 
             var latestState = stateCalculator.GetLastState();
             latestState.GetFiles().Select(x => x.RelativeName).ShouldBe(expectedFilesByVersion.Last(), ignoreOrder: true);
+        }
+
+        public static void AssertStateFull(IFileSystem fs, string target, params IEnumerable<EmulatorFile>[] expectedFilesByVersion)
+        {
+            var stateCalculator = new StateCalculator(fs, target);
+            stateCalculator.MaxVersion.ShouldBe(expectedFilesByVersion.Length);
+            for (int i = 0; i < expectedFilesByVersion.Length; i++)
+            {
+                var state = stateCalculator.GetState(i + 1);
+                var actualFiles = state.GetFiles().Select(x => new EmulatorFile(x.RelativeName, x.LastWriteTime));
+                var expectedFiles = expectedFilesByVersion[i];
+                AssertEmulatorFiles(fs, expectedFiles, actualFiles);
+            }
+
+            {
+                var latestState = stateCalculator.GetLastState();
+                var actualFiles = latestState.GetFiles().Select(x => new EmulatorFile(x.RelativeName, x.LastWriteTime)); 
+                var expectedFiles = expectedFilesByVersion.Last();
+                AssertEmulatorFiles(fs, expectedFiles, actualFiles);
+            }
+        }
+
+        public static void AssertEmulatorFiles(IFileSystem fs, IEnumerable<EmulatorFile> expected, IEnumerable<EmulatorFile> actual)
+        {
+            // First, assert relative names
+            actual.Select(x => x.Name).ShouldBe(expected.Select(x => x.Name), ignoreOrder: true);
+
+            // Now check one by one
+            foreach (var actualFile in actual)
+            {
+                var correspondingExpectedFile = expected.First(x => x.Name == actualFile.Name);
+                actualFile.LastModified.ShouldBe(correspondingExpectedFile.LastModified);
+                actualFile.Lines.ShouldBe(correspondingExpectedFile.Lines);
+            }
         }
     }
 }
