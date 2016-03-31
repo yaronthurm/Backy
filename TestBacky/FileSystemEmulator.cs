@@ -20,7 +20,7 @@ namespace TestBacky
         public void AppendLine(string filename, string line)
         {
             var file = _files.First(x => x.Name == filename);
-            file.Lines.Add(line);
+            file.Content += line + Environment.NewLine;
         }
 
         public void Copy(string sourceFileName, string destFileName)
@@ -47,7 +47,7 @@ namespace TestBacky
             var file2 = _files.First(x => x.Name == pathToFile2);
             var ret =
                 file1.LastModified == file2.LastModified &&
-                string.Join("\n", file1.Lines) == string.Join("\n", file2.Lines);
+                file1.Content == file2.Content;
             return ret;
         }
 
@@ -71,7 +71,8 @@ namespace TestBacky
         public IEnumerable<string> ReadLines(string filename)
         {
             var file = _files.First(x => x.Name == filename);
-            return file.Lines;
+            var ret = file.Content.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+            return ret;
         }
 
         public void AddFiles(EmulatorFile[] newFiles)
@@ -95,25 +96,20 @@ namespace TestBacky
     public class EmulatorFile
     {
         public string Name;
-        public List<string> Lines = new List<string>();
+        public string Content;
         public DateTime LastModified;
 
-        public EmulatorFile(string name)
+        public EmulatorFile(string name, DateTime lastModified = new DateTime(), string content = "")
         {
             this.Name = name;
-        }
-
-        public EmulatorFile(string name, DateTime lastModified): this (name)
-        {
             this.LastModified = lastModified;
+            this.Content = content;
         }
-
 
         public EmulatorFile Clone()
         {
             var ret = new EmulatorFile(this.Name, this.LastModified);
-            foreach (var line in this.Lines)
-                ret.Lines.Add(line);
+            ret.Content = this.Content;
             return ret;
         }
     }

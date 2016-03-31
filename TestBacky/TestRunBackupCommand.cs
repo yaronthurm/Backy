@@ -304,8 +304,8 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file1.txt", new DateTime(2015, 1, 1)), // modified file - from 2015
                 new EmulatorFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1)), // modified file - from 2015
                 // new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1)), // deleted file
-                new EmulatorFile(@"c:\source\file3.txt", new DateTime(2010, 1, 1)) { Lines = new List<string> { "123" } }, // new file
-                new EmulatorFile(@"c:\source\subdir2\file44.txt", new DateTime(2010, 1, 1)) { Lines = new List<string> { "123" } }, // new file
+                new EmulatorFile(@"c:\source\file3.txt", new DateTime(2010, 1, 1), "123"), // new file
+                new EmulatorFile(@"c:\source\subdir2\file44.txt", new DateTime(2010, 1, 1), "123"), // new file
 
                 // Target
                 new EmulatorFile(@"d:\target\1\new\file1.txt", new DateTime(2010, 1, 1)), // old file - from 2010
@@ -349,14 +349,14 @@ namespace TestBacky
             // We expect that all original files will be found under %target%\1\new
             // all renames should show up in the 'renamed.txt' file under %target%\2\
 
-            var file1 = new EmulatorFile(@"d:\target\1\new\file1.txt", new DateTime(2015, 1, 1)) { Lines = new List<string> { "file1" } };
-            var file1Renamed = new EmulatorFile(@"c:\source\file1_renamed.txt", new DateTime(2015, 1, 1)) { Lines = new List<string> { "file1" } };
+            var file1 = new EmulatorFile(@"d:\target\1\new\file1.txt", new DateTime(2015, 1, 1), "file1");
+            var file1Renamed = new EmulatorFile(@"c:\source\file1_renamed.txt", new DateTime(2015, 1, 1), "file1");
             
-            var file2 = new EmulatorFile(@"d:\target\1\new\file2.txt", new DateTime(2015, 1, 1)) { Lines = new List<string> { "file2" } };
-            var file2NotRenamed = new EmulatorFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1)) { Lines = new List<string> { "file2" } };
+            var file2 = new EmulatorFile(@"d:\target\1\new\file2.txt", new DateTime(2015, 1, 1), "file2");
+            var file2NotRenamed = new EmulatorFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1), "file2");
 
-            var file11 = new EmulatorFile(@"d:\target\1\new\subdir\file11.txt", new DateTime(2015, 1, 1)) { Lines = new List<string> { "file11" } };
-            var file11Renamed = new EmulatorFile(@"c:\source\subdir_renamed\file11.txt", new DateTime(2015, 1, 1)) { Lines = new List<string> { "file11" } };
+            var file11 = new EmulatorFile(@"d:\target\1\new\subdir\file11.txt", new DateTime(2015, 1, 1), "file11");
+            var file11Renamed = new EmulatorFile(@"c:\source\subdir_renamed\file11.txt", new DateTime(2015, 1, 1), "file11");
 
             var files = new EmulatorFile[] {
                 // Source

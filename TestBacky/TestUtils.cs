@@ -65,7 +65,7 @@ namespace TestBacky
             {
                 var correspondingExpectedFile = expected.First(x => x.Name == actualFile.Name);
                 actualFile.LastModified.ShouldBe(correspondingExpectedFile.LastModified);
-                actualFile.Lines.ShouldBe(correspondingExpectedFile.Lines);
+                actualFile.Content.ShouldBe(correspondingExpectedFile.Content);
             }
         }
     }
