@@ -33,14 +33,22 @@ namespace TestBacky
             {
                 var cmd = new RunBackupCommand(new FileSystem(), source, target);
 
+                var now = DateTime.Now;
+
                 // Create files in source and run first time
+                WriteFile(source, "file1.txt", "hello1", now);
                 File.WriteAllText(Path.Combine(source, "file1.txt"), "hello1");
+                File.SetLastWriteTime(Path.Combine(source, "file1.txt"), now);
                 File.WriteAllText(Path.Combine(source, "file2.txt"), "hello2");
                 File.WriteAllText(Path.Combine(source, "file3.txt"), "hello3");
                 File.WriteAllText(Path.Combine(source, "file4.doc"), "");
 
                 // 1
                 cmd.Execute();
+                var expectedVersion1 = new[] {
+                    new EmulatorFile(@"file1.txt", new DateTime(2010, 1, 1), "1"),
+                    new EmulatorFile(@"file2.txt", new DateTime(2010, 1, 1), "2"),
+                    new EmulatorFile(@"subdir\file11.txt", new DateTime(2010, 1, 1), "3")};
 
                 // Add new files
                 File.WriteAllText(Path.Combine(source, "file5.txt"), "hello5");
@@ -73,7 +81,7 @@ namespace TestBacky
                 cmd.Execute();
 
                 // Pretend to rename - use 2 files with same length and last modify but with slight different content
-                DateTime now = DateTime.Now;
+                //DateTime now = DateTime.Now;
                 File.WriteAllText(Path.Combine(source, "file8.txt"), "hello8");
                 File.SetLastWriteTime(Path.Combine(source, "file8.txt"), now);
                 // 6
@@ -126,6 +134,13 @@ namespace TestBacky
                 Directory.Delete(source, true);
             }
         }
+
+        private static void WriteFile(string dir, string name, string content, DateTime date)
+        {
+            File.WriteAllText(Path.Combine(dir, name), content);
+            File.SetLastWriteTime(Path.Combine(dir, name), date);
+        }
+
 
         [TestMethod]
         public void RealFileSystem_02_Run_backup_and_test_state_as_the_app_sees()

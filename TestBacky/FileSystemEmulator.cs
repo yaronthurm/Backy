@@ -86,10 +86,24 @@ namespace TestBacky
             _files.Remove(file);
         }
 
-        public void UpdateLastModified(string fullname, DateTime newLastModified)
+        public void UpdateFile(string fullname, DateTime newLastModified, string newContent)
         {
             var file = _files.First(x => x.Name == fullname);
             file.LastModified = newLastModified;
+            file.Content = newContent;
+        }
+
+        internal void RenameFile(string currentName, string newName)
+        {
+            var file = _files.First(x => x.Name == currentName);
+            file.Name = newName;
+        }
+
+        internal void RenameDirectory(string currentName, string newName)
+        {
+            var files = _files.Where(x => x.Name.StartsWith(currentName));
+            foreach (var file in files)
+                file.Name = file.Name.Replace(currentName, newName);
         }
     }
 

@@ -241,30 +241,30 @@ namespace TestBacky
             var target = @"d:\target";
 
             var files = new EmulatorFile[] {
-                new EmulatorFile(@"c:\source\file1.txt", new DateTime(2010, 1, 1)),
-                new EmulatorFile(@"c:\source\file2.txt", new DateTime(2010, 1, 1)),
-                new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1))};
+                new EmulatorFile(@"c:\source\file1.txt", new DateTime(2010, 1, 1), "1"),
+                new EmulatorFile(@"c:\source\file2.txt", new DateTime(2010, 1, 1), "2"),
+                new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1), "3")};
             var fs = new FileSystemEmulator(files);
             var cmd = new RunBackupCommand(fs, source, target);
 
             // First run
             cmd.Execute();
 
-            fs.UpdateLastModified(@"c:\source\file1.txt", new DateTime(2015, 1, 1));
-            fs.UpdateLastModified(@"c:\source\file2.txt", new DateTime(2015, 1, 1));
+            fs.UpdateFile(@"c:\source\file1.txt", new DateTime(2015, 1, 1), "11");
+            fs.UpdateFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1), "22");
 
             // Second run
             cmd.Execute();
 
             // Expected to see 2 versions
             var expectedVersion1 = new[] {
-                new EmulatorFile(@"file1.txt", new DateTime(2010, 1, 1)),
-                new EmulatorFile(@"file2.txt", new DateTime(2010, 1, 1)),
-                new EmulatorFile(@"subdir\file11.txt", new DateTime(2010, 1, 1))};
+                new EmulatorFile(@"file1.txt", new DateTime(2010, 1, 1), "1"),
+                new EmulatorFile(@"file2.txt", new DateTime(2010, 1, 1), "2"),
+                new EmulatorFile(@"subdir\file11.txt", new DateTime(2010, 1, 1), "3")};
             var expectedVersion2 = new[] {
-                new EmulatorFile(@"file1.txt", new DateTime(2015, 1, 1)),
-                new EmulatorFile(@"file2.txt", new DateTime(2015, 1, 1)),
-                new EmulatorFile(@"subdir\file11.txt", new DateTime(2010, 1, 1))};
+                new EmulatorFile(@"file1.txt", new DateTime(2015, 1, 1), "11"),
+                new EmulatorFile(@"file2.txt", new DateTime(2015, 1, 1), "22"),
+                new EmulatorFile(@"subdir\file11.txt", new DateTime(2010, 1, 1), "3")};
 
             TestsUtils.AssertState(fs, target, expectedVersion1, expectedVersion2);
         }
@@ -275,43 +275,42 @@ namespace TestBacky
             // This test simulates running the tool for the second time after some files were modified and some were added.
             // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir/file11.txt
             // In the second run, file1.txt and file2.txt are modified and file3.txt, subdir3/file44.txt were added
-            // We expect that all original files will be found under %target%\1\new
-            // all modified files will be found under %target%\2\modified
-            // and all new files will be found under %target%\2\new
+
+            var source = @"c:\source";
+            var target = @"d:\target";
 
             var files = new EmulatorFile[] {
-                // Source
-                new EmulatorFile(@"c:\source\file1.txt", new DateTime(2015, 1, 1)), // modified file - from 2015
-                new EmulatorFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1)), // modified file - from 2015
-                new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1)), // no change
-                new EmulatorFile(@"c:\source\file3.txt", new DateTime(2010, 1, 1)), // new file
-                new EmulatorFile(@"c:\source\subdir2\file44.txt", new DateTime(2010, 1, 1)), // new file
+                new EmulatorFile(@"c:\source\file1.txt", new DateTime(2010, 1, 1), "1"),
+                new EmulatorFile(@"c:\source\file2.txt", new DateTime(2010, 1, 1), "2"),
+                new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1), "3")};
+            var fs = new FileSystemEmulator(files);
+            var cmd = new RunBackupCommand(fs, source, target);
 
-                // Target
-                new EmulatorFile(@"d:\target\1\new\file1.txt", new DateTime(2010, 1, 1)), // old file - from 2010
-                new EmulatorFile(@"d:\target\1\new\file2.txt", new DateTime(2010, 1, 1)), // old file - from 2010
-                new EmulatorFile(@"d:\target\1\new\subdir\file11.txt", new DateTime(2010, 1, 1)), // same as source
-            };
-
-            var fileSystem = new FileSystemEmulator(files);
-            var cmd = new RunBackupCommand(fileSystem, @"c:\source", @"d:\target");
+            // First run
             cmd.Execute();
 
-            // Expected that all old files from %source% will remain under %target%\1\new
-            // And modified files will be under %target%\2\modified
-            var expected = new string[] {
-                @"d:\target\1\new\file1.txt",
-                @"d:\target\1\new\file2.txt",
-                @"d:\target\1\new\subdir\file11.txt",
+            fs.UpdateFile(@"c:\source\file1.txt", new DateTime(2015, 1, 1), "11");
+            fs.UpdateFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1), "22");
+            fs.AddFiles(new[] {
+                new EmulatorFile(@"c:\source\file3.txt", content: "new file 3"),
+                new EmulatorFile(@"c:\source\subdir3\file4.txt", content: "new file 4") });
 
-                @"d:\target\2\modified\file1.txt",
-                @"d:\target\2\modified\file2.txt",
+            // Second run
+            cmd.Execute();
 
-                @"d:\target\2\new\file3.txt",
-                @"d:\target\2\new\subdir2\file44.txt"
-            };
-            var actual = fileSystem.EnumerateFiles(@"d:\target");
-            TestsUtils.AssertLists<string>(expected, actual);
+            // Expected to see 2 versions
+            var expectedVersion1 = new[] {
+                new EmulatorFile(@"file1.txt", new DateTime(2010, 1, 1), "1"),
+                new EmulatorFile(@"file2.txt", new DateTime(2010, 1, 1), "2"),
+                new EmulatorFile(@"subdir\file11.txt", new DateTime(2010, 1, 1), "3")};
+            var expectedVersion2 = new[] {
+                new EmulatorFile(@"file1.txt", new DateTime(2015, 1, 1), "11"),
+                new EmulatorFile(@"file2.txt", new DateTime(2015, 1, 1), "22"),
+                new EmulatorFile(@"subdir\file11.txt", new DateTime(2010, 1, 1), "3"),
+                new EmulatorFile(@"file3.txt", content: "new file 3"),
+                new EmulatorFile(@"subdir3\file4.txt", content: "new file 4")};
+
+            TestsUtils.AssertState(fs, target, expectedVersion1, expectedVersion2);
         }
 
         [TestMethod]
@@ -320,52 +319,44 @@ namespace TestBacky
             // This test simulates running the tool for the second time after some files were modified, some were added
             // and some were deleted.
             // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir/file11.txt
-            // In the second run, file1.txt and file2.txt are modified, file3.txt and subdir3/file44.txt were added
+            // In the second run, file1.txt and file2.txt are modified, file3.txt and subdir3/file4.txt were added
             // and subdir\file11.txt was deleted.
-            // We expect that all original files will be found under %target%\1\new
-            // all modified files will be found under %target%\2\modified
-            // all new files will be found under %target%\2\new
-            // and a 'deleted.txt' file will be found containing the name of the deleted file
+
+            var source = @"c:\source";
+            var target = @"d:\target";
 
             var files = new EmulatorFile[] {
-                // Source
-                new EmulatorFile(@"c:\source\file1.txt", new DateTime(2015, 1, 1)), // modified file - from 2015
-                new EmulatorFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1)), // modified file - from 2015
-                // new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1)), // deleted file
-                new EmulatorFile(@"c:\source\file3.txt", new DateTime(2010, 1, 1), "123"), // new file
-                new EmulatorFile(@"c:\source\subdir2\file44.txt", new DateTime(2010, 1, 1), "123"), // new file
+                new EmulatorFile(@"c:\source\file1.txt", new DateTime(2010, 1, 1), "1"),
+                new EmulatorFile(@"c:\source\file2.txt", new DateTime(2010, 1, 1), "2"),
+                new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1), "3")};
+            var fs = new FileSystemEmulator(files);
+            var cmd = new RunBackupCommand(fs, source, target);
 
-                // Target
-                new EmulatorFile(@"d:\target\1\new\file1.txt", new DateTime(2010, 1, 1)), // old file - from 2010
-                new EmulatorFile(@"d:\target\1\new\file2.txt", new DateTime(2010, 1, 1)), // old file - from 2010
-                new EmulatorFile(@"d:\target\1\new\subdir\file11.txt", new DateTime(2010, 1, 1)), // same as source
-            };
-
-            var fileSystem = new FileSystemEmulator(files);
-            var cmd = new RunBackupCommand(fileSystem, @"c:\source", @"d:\target");
+            // First run
             cmd.Execute();
 
-            // Expected that all old files from %source% will remain under %target%\1\new
-            // And modified files will be under %target%\2\modified
-            var expected = new string[] {
-                @"d:\target\1\new\file1.txt",
-                @"d:\target\1\new\file2.txt",
-                @"d:\target\1\new\subdir\file11.txt",
+            fs.UpdateFile(@"c:\source\file1.txt", new DateTime(2015, 1, 1), "11");
+            fs.UpdateFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1), "22");
+            fs.AddFiles(new[] {
+                new EmulatorFile(@"c:\source\file3.txt", content: "new file 3"),
+                new EmulatorFile(@"c:\source\subdir3\file4.txt", content: "new file 4") });
+            fs.DeleteFile(@"c:\source\subdir\file11.txt");
 
-                @"d:\target\2\modified\file1.txt",
-                @"d:\target\2\modified\file2.txt",
+            // Second run
+            cmd.Execute();
 
-                @"d:\target\2\new\file3.txt",
-                @"d:\target\2\new\subdir2\file44.txt",
+            // Expected to see 2 versions
+            var expectedVersion1 = new[] {
+                new EmulatorFile(@"file1.txt", new DateTime(2010, 1, 1), "1"),
+                new EmulatorFile(@"file2.txt", new DateTime(2010, 1, 1), "2"),
+                new EmulatorFile(@"subdir\file11.txt", new DateTime(2010, 1, 1), "3")};
+            var expectedVersion2 = new[] {
+                new EmulatorFile(@"file1.txt", new DateTime(2015, 1, 1), "11"),
+                new EmulatorFile(@"file2.txt", new DateTime(2015, 1, 1), "22"),
+                new EmulatorFile(@"file3.txt", content: "new file 3"),
+                new EmulatorFile(@"subdir3\file4.txt", content: "new file 4")};
 
-                @"d:\target\2\deleted.txt",
-
-            };
-            var actual = fileSystem.EnumerateFiles(@"d:\target");
-            TestsUtils.AssertLists<string>(expected, actual);
-
-            // Expected to see deleted file
-            TestsUtils.AssertLists<string>(new[] { "subdir\\file11.txt" }, fileSystem.ReadLines(Path.Combine(@"d:\target", "2", "deleted.txt")));
+            TestsUtils.AssertState(fs, target, expectedVersion1, expectedVersion2);
         }
 
         [TestMethod]
@@ -374,96 +365,37 @@ namespace TestBacky
             // This test simulates running the tool for the second time after some files were renamed
             // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir/file11.txt
             // In the second run, file1.txt and subdir are renamed
-            // We expect that all original files will be found under %target%\1\new
-            // all renames should show up in the 'renamed.txt' file under %target%\2\
 
-            var file1 = new EmulatorFile(@"d:\target\1\new\file1.txt", new DateTime(2015, 1, 1), "file1");
-            var file1Renamed = new EmulatorFile(@"c:\source\file1_renamed.txt", new DateTime(2015, 1, 1), "file1");
-            
-            var file2 = new EmulatorFile(@"d:\target\1\new\file2.txt", new DateTime(2015, 1, 1), "file2");
-            var file2NotRenamed = new EmulatorFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1), "file2");
-
-            var file11 = new EmulatorFile(@"d:\target\1\new\subdir\file11.txt", new DateTime(2015, 1, 1), "file11");
-            var file11Renamed = new EmulatorFile(@"c:\source\subdir_renamed\file11.txt", new DateTime(2015, 1, 1), "file11");
+            var source = @"c:\source";
+            var target = @"d:\target";
 
             var files = new EmulatorFile[] {
-                // Source
-                file1Renamed, file2NotRenamed, file11Renamed,
+                new EmulatorFile(@"c:\source\file1.txt", new DateTime(2010, 1, 1), "1"),
+                new EmulatorFile(@"c:\source\file2.txt", new DateTime(2010, 1, 1), "2"),
+                new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1), "3")};
+            var fs = new FileSystemEmulator(files);
+            var cmd = new RunBackupCommand(fs, source, target);
 
-                // Target
-                file1, file2, file11
-            };
-
-            var fileSystem = new FileSystemEmulator(files);
-            var cmd = new RunBackupCommand(fileSystem, @"c:\source", @"d:\target");
+            // First run
             cmd.Execute();
 
-            // Expected that all old files from %source% will remain under %target%\1\new
-            // And renamed files will be marked under %target%\2\renamed.txt
-            var expected = new string[] {
-                @"d:\target\1\new\file1.txt",
-                @"d:\target\1\new\file2.txt",
-                @"d:\target\1\new\subdir\file11.txt",
+            fs.RenameFile(@"c:\source\file1.txt", @"c:\source\file1_renamed.txt");
+            fs.RenameDirectory(@"c:\source\subdir", @"c:\source\subdir_renamed");
 
-                @"d:\target\2\renamed.txt",
-            };
-            var actual = fileSystem.EnumerateFiles(@"d:\target");
-            TestsUtils.AssertLists<string>(expected, actual);
+            // Second run
+            cmd.Execute();
 
-            // Expected to see renamed file
-            var renamedFiles = fileSystem.ReadLines(Path.Combine(@"d:\target", "2", "renamed.txt"))
-                .Select(JObject.Parse)
-                .Select(x => new
-                {
-                    oldName = x.Value<string>("oldName"),
-                    newName = x.Value<string>("newName")
-                }).ToArray();
+            // Expected to see 2 versions
+            var expectedVersion1 = new[] {
+                new EmulatorFile(@"file1.txt", new DateTime(2010, 1, 1), "1"),
+                new EmulatorFile(@"file2.txt", new DateTime(2010, 1, 1), "2"),
+                new EmulatorFile(@"subdir\file11.txt", new DateTime(2010, 1, 1), "3")};
+            var expectedVersion2 = new[] {
+                new EmulatorFile(@"file1_renamed.txt", new DateTime(2010, 1, 1), "1"),
+                new EmulatorFile(@"file2.txt", new DateTime(2010, 1, 1), "2"),
+                new EmulatorFile(@"subdir_renamed\file11.txt", new DateTime(2010, 1, 1), "3")};
 
-            Assert.AreEqual(2, renamedFiles.Length);
-            Assert.AreEqual("file1.txt", renamedFiles[0].oldName);
-            Assert.AreEqual("file1_renamed.txt", renamedFiles[0].newName);
-            Assert.AreEqual("subdir\\file11.txt", renamedFiles[1].oldName);
-            Assert.AreEqual("subdir_renamed\\file11.txt", renamedFiles[1].newName);
-        }
-
-        [TestMethod]
-        public void Backup_03_7_Running_twice_after_modifiying_files()
-        {
-            // This test simulates running the tool for the second time after some files were modified.
-            // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir/file11.txt
-            // In the second run, file1.txt and file2.txt are modified
-            // We expect that all original files will be found under %target%\1\new
-            // and that the modified files will be found under %target%\2\modified
-
-            var files = new EmulatorFile[] {
-                // Source
-                new EmulatorFile(@"c:\source\file1.txt", new DateTime(2015, 1, 1)), // modified file - from 2015
-                new EmulatorFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1)), // modified file - from 2015
-                new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1)),
-
-                // Target
-                new EmulatorFile(@"d:\target\1\new\file1.txt", new DateTime(2010, 1, 1)), // old file - from 2010
-                new EmulatorFile(@"d:\target\1\new\file2.txt", new DateTime(2010, 1, 1)), // old file - from 2010
-                new EmulatorFile(@"d:\target\1\new\subdir\file11.txt", new DateTime(2010, 1, 1)), // same as source
-            };
-
-            var fileSystem = new FileSystemEmulator(files);
-            var cmd = new RunBackupCommand(fileSystem, @"c:\source", @"d:\target");
-            cmd.Execute(); // Run once
-            cmd.Execute(); // Run twice
-
-            // Expected that all old files from %source% will remain under %target%\1\new
-            // And modified files will be under %target%\2\modified
-            var expected = new string[] {
-                @"d:\target\1\new\file1.txt",
-                @"d:\target\1\new\file2.txt",
-                @"d:\target\1\new\subdir\file11.txt",
-
-                @"d:\target\2\modified\file1.txt",
-                @"d:\target\2\modified\file2.txt"
-            };
-            var actual = fileSystem.EnumerateFiles(@"d:\target");
-            TestsUtils.AssertLists<string>(expected, actual);
+            TestsUtils.AssertState(fs, target, expectedVersion1, expectedVersion2);
         }
     }
 }
