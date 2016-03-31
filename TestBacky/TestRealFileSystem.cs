@@ -19,217 +19,14 @@ namespace TestBacky
             var source = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
             var target = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
 
-            // Clear target
-            if (Directory.Exists(target)) // This method sometimes return true when the directory doesn't realy exists
-                Directory.Delete(target, true);
             Directory.CreateDirectory(target);
-
-            // Clear source
-            if (Directory.Exists(source))
-                Directory.Delete(source, true);
-            Directory.CreateDirectory(source);
-
-            try
-            {
-                var cmd = new RunBackupCommand(new FileSystem(), source, target);
-
-                var now = DateTime.Now;
-
-                // Create files in source and run first time
-                WriteFile(source, "file1.txt", "hello1", now);
-                File.WriteAllText(Path.Combine(source, "file1.txt"), "hello1");
-                File.SetLastWriteTime(Path.Combine(source, "file1.txt"), now);
-                File.WriteAllText(Path.Combine(source, "file2.txt"), "hello2");
-                File.WriteAllText(Path.Combine(source, "file3.txt"), "hello3");
-                File.WriteAllText(Path.Combine(source, "file4.doc"), "");
-
-                // 1
-                cmd.Execute();
-                var expectedVersion1 = new[] {
-                    new EmulatorFile(@"file1.txt", new DateTime(2010, 1, 1), "1"),
-                    new EmulatorFile(@"file2.txt", new DateTime(2010, 1, 1), "2"),
-                    new EmulatorFile(@"subdir\file11.txt", new DateTime(2010, 1, 1), "3")};
-
-                // Add new files
-                File.WriteAllText(Path.Combine(source, "file5.txt"), "hello5");
-                File.WriteAllText(Path.Combine(source, "file6.txt"), "hello6");
-
-                // 2
-                cmd.Execute();
-
-                // Delete a few files
-                File.Delete(Path.Combine(source, "file1.txt"));
-                File.Delete(Path.Combine(source, "file2.txt"));
-
-                // 3
-                cmd.Execute();
-
-                // Modify and add some files
-                File.WriteAllText(Path.Combine(source, "file5.txt"), "hello5 - modified");
-                File.WriteAllText(Path.Combine(source, "file6.txt"), "hello6 - modified");
-                File.WriteAllText(Path.Combine(source, "file7.txt"), "hello7");
-
-                // 4
-                cmd.Execute();
-
-                // Rename some files
-                File.Move(Path.Combine(source, "file5.txt"), Path.Combine(source, "file5_renamed.txt"));
-                Directory.CreateDirectory(Path.Combine(source, "subdir"));
-                File.Move(Path.Combine(source, "file6.txt"), Path.Combine(source, "subdir", "file6_renamed.txt"));
-
-                // 5
-                cmd.Execute();
-
-                // Pretend to rename - use 2 files with same length and last modify but with slight different content
-                //DateTime now = DateTime.Now;
-                File.WriteAllText(Path.Combine(source, "file8.txt"), "hello8");
-                File.SetLastWriteTime(Path.Combine(source, "file8.txt"), now);
-                // 6
-                cmd.Execute();
-                File.Delete(Path.Combine(source, "file8.txt"));
-                File.WriteAllText(Path.Combine(source, "file8_pretend_rename.txt"), "hello9");
-                File.SetLastWriteTime(Path.Combine(source, "file8_pretend_rename.txt"), now);
-
-                // 7
-                cmd.Execute();
-
-                // Assert existence of files according to structure
-                var actualTargetFiles = Directory.GetFiles(target, "*", SearchOption.AllDirectories);
-                var expectedTargetFiles = new[]
-                    { "1\\new\\file1.txt", "1\\new\\file2.txt", "1\\new\\file3.txt", "1\\new\\file4.doc",
-                  "2\\new\\file5.txt", "2\\new\\file6.txt",
-                  "3\\deleted.txt",
-                  "4\\modified\\file5.txt", "4\\modified\\file6.txt", "4\\new\\file7.txt",
-                  "5\\renamed.txt",
-                  "6\\new\\file8.txt",
-                  "7\\deleted.txt", "7\\new\\file8_pretend_rename.txt"
-            }.Select(x => Path.Combine(target, x));
-                TestsUtils.AssertLists(expectedTargetFiles, actualTargetFiles);
-
-                // Assert deleted file are marked correctly
-                var expectedDeleted = new[] { "file1.txt", "file2.txt" };
-                var actualDeleted = File.ReadAllLines(Path.Combine(target, "3", "deleted.txt"));
-                TestsUtils.AssertLists(expectedDeleted, actualDeleted);
-
-                // Assert renamed files are marked correctly
-                var renamedFiles = File.ReadAllLines(Path.Combine(target, "5", "renamed.txt"))
-                    .Select(JObject.Parse)
-                    .Select(x => new
-                    {
-                        oldName = x.Value<string>("oldName"),
-                        newName = x.Value<string>("newName")
-                    }).ToArray();
-
-                Assert.AreEqual(2, renamedFiles.Length);
-                Assert.AreEqual("file5.txt", renamedFiles[0].oldName);
-                Assert.AreEqual("file5_renamed.txt", renamedFiles[0].newName);
-                Assert.AreEqual("file6.txt", renamedFiles[1].oldName);
-                Assert.AreEqual("subdir\\file6_renamed.txt", renamedFiles[1].newName);
-            }
-            finally
-            {
-                foreach (var dir in Directory.GetDirectories(target))
-                    UnmarkDirectoryAsReadOnly(dir);
-                Directory.Delete(target, true);
-                Directory.Delete(source, true);
-            }
-        }
-
-        private static void WriteFile(string dir, string name, string content, DateTime date)
-        {
-            File.WriteAllText(Path.Combine(dir, name), content);
-            File.SetLastWriteTime(Path.Combine(dir, name), date);
-        }
-
-
-        [TestMethod]
-        public void RealFileSystem_02_Run_backup_and_test_state_as_the_app_sees()
-        {
-            var source = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
-            var target = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
-
-            // Clear target
-            if (Directory.Exists(target)) // This method sometimes return true when the directory doesn't realy exists
-                Directory.Delete(target, true);
-            Directory.CreateDirectory(target);
-
-            // Clear source
-            if (Directory.Exists(source))
-                Directory.Delete(source, true);
             Directory.CreateDirectory(source);
 
             try
             {
                 var fs = new FileSystem();
-                var cmd = new RunBackupCommand(fs, source, target);
-
-                // Create files in source and run first time
-                File.WriteAllText(Path.Combine(source, "file1.txt"), "hello1");
-                File.WriteAllText(Path.Combine(source, "file2.txt"), "hello2");
-                File.WriteAllText(Path.Combine(source, "file3.txt"), "hello3");
-                File.WriteAllText(Path.Combine(source, "file4.doc"), "");
-
-                // 1
-                cmd.Execute();
-                var state = new StateCalculator(fs, target).GetLastState();
-                TestsUtils.AssertLists(new[] { "file1.txt", "file2.txt", "file3.txt", "file4.doc" }, state.GetFiles().Select(x => x.RelativeName));
-
-                // Add new files
-                File.WriteAllText(Path.Combine(source, "file5.txt"), "hello5");
-                File.WriteAllText(Path.Combine(source, "file6.txt"), "hello6");
-
-                // 2
-                cmd.Execute();
-                state = new StateCalculator(fs, target).GetLastState();
-                TestsUtils.AssertLists(new[] { "file1.txt", "file2.txt", "file3.txt", "file4.doc",
-                "file5.txt", "file6.txt" }, state.GetFiles().Select(x => x.RelativeName));
-
-                // Delete a few files
-                File.Delete(Path.Combine(source, "file1.txt"));
-                File.Delete(Path.Combine(source, "file2.txt"));
-
-                // 3
-                cmd.Execute();
-                state = new StateCalculator(fs, target).GetLastState();
-                TestsUtils.AssertLists(new[] { "file3.txt", "file4.doc", "file5.txt", "file6.txt" }, state.GetFiles().Select(x => x.RelativeName));
-
-                // Modify and add some files
-                File.WriteAllText(Path.Combine(source, "file5.txt"), "hello5 - modified");
-                File.WriteAllText(Path.Combine(source, "file6.txt"), "hello6 - modified");
-                File.WriteAllText(Path.Combine(source, "file7.txt"), "hello7");
-
-                // 4
-                cmd.Execute();
-                state = new StateCalculator(fs, target).GetLastState();
-                TestsUtils.AssertLists(new[] { "file3.txt", "file4.doc", "file5.txt", "file6.txt", "file7.txt" }, state.GetFiles().Select(x => x.RelativeName));
-
-                // Rename some files
-                File.Move(Path.Combine(source, "file5.txt"), Path.Combine(source, "file5_renamed.txt"));
-                Directory.CreateDirectory(Path.Combine(source, "subdir"));
-                File.Move(Path.Combine(source, "file6.txt"), Path.Combine(source, "subdir", "file6_renamed.txt"));
-
-                // 5
-                cmd.Execute();
-                state = new StateCalculator(fs, target).GetLastState();
-                TestsUtils.AssertLists(new[] { "file3.txt", "file4.doc", "file5_renamed.txt", "subdir\\file6_renamed.txt", "file7.txt" }, state.GetFiles().Select(x => x.RelativeName));
-
-                // Pretend to rename - use 2 files with same length and last modify but with slight different content
-                DateTime now = DateTime.Now;
-                File.WriteAllText(Path.Combine(source, "file8.txt"), "hello8");
-                File.SetLastWriteTime(Path.Combine(source, "file8.txt"), now);
-                // 6
-                cmd.Execute();
-                File.Delete(Path.Combine(source, "file8.txt"));
-                File.WriteAllText(Path.Combine(source, "file8_pretend_rename.txt"), "hello9");
-                File.SetLastWriteTime(Path.Combine(source, "file8_pretend_rename.txt"), now);
-
-                // 7
-                cmd.Execute();
-                state = new StateCalculator(fs, target).GetLastState();
-                TestsUtils.AssertLists(new[] { "file3.txt", "file4.doc", "file5_renamed.txt",
-                "subdir\\file6_renamed.txt", "file7.txt", "file8_pretend_rename.txt" }
-                , state.GetFiles().Select(x => x.RelativeName));
-
+                var expectedStates = SimulateRunningBackups(source, target, fs);
+                TestsUtils.AssertState(fs, target, expectedStates);
             }
             finally
             {
@@ -239,25 +36,25 @@ namespace TestBacky
                 Directory.Delete(source, true);
             }
         }
-
+        
         [TestMethod]
-        public void RealFileSystem_03_Run_clone_on_different_stages()
+        public void RealFileSystem_02_Run_clone_on_different_stages()
         {
-            var cloneSource = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
+            var backupSource = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
+            var backupTarget = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
             var cloneTarget = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
+            var cloneSource = backupTarget;
 
-            // Clear target
-            if (Directory.Exists(cloneTarget)) // This method sometimes return true when the directory doesn't realy exists
-                Directory.Delete(cloneTarget, true);
+            Directory.CreateDirectory(backupSource);
+            Directory.CreateDirectory(backupTarget);
             Directory.CreateDirectory(cloneTarget);
-
-            // Clear source
-            if (Directory.Exists(cloneSource))
-                Directory.Delete(cloneSource, true);
-            Directory.CreateDirectory(cloneSource);
+            
 
             try
             {
+                var fs = new FileSystem();
+                var expectedStates = SimulateRunningBackups(backupSource, backupTarget, fs);
+
                 // 1 - new files
                 Directory.CreateDirectory(Path.Combine(cloneSource, "1\\new"));
                 File.WriteAllText(Path.Combine(cloneSource, "1\\new\\file1.txt"), "hello1");
@@ -409,6 +206,115 @@ namespace TestBacky
 
 
 
+        private IEnumerable<EmulatorFile>[] SimulateRunningBackups(string source, string target, IFileSystem fs)
+        {
+            var cmd = new RunBackupCommand(fs, source, target);
+
+            var now = new DateTime(2010, 1, 1);
+
+            // Create files in source and run first time
+            WriteFile(source, "file1.txt", "hello1", now);
+            WriteFile(source, "file2.txt", "hello2", now);
+            WriteFile(source, "file3.txt", "hello3", now);
+            WriteFile(source, "file4.doc", "", now);
+
+            // 1
+            cmd.Execute();
+            var expectedVersion1 = new[] {
+                    new EmulatorFile(@"file1.txt", now, "hello1"),
+                    new EmulatorFile(@"file2.txt", now, "hello2"),
+                    new EmulatorFile(@"file3.txt", now, "hello3"),
+                    new EmulatorFile(@"file4.doc", now, "")};
+
+            // Add new files
+            WriteFile(source, "file5.txt", "hello5", now);
+            WriteFile(source, "file6.txt", "hello6", now);
+
+            // 2
+            cmd.Execute();
+            var expectedVersion2 = new[] {
+                    new EmulatorFile(@"file1.txt", now, "hello1"),
+                    new EmulatorFile(@"file2.txt", now, "hello2"),
+                    new EmulatorFile(@"file3.txt", now, "hello3"),
+                    new EmulatorFile(@"file4.doc", now, ""),
+                    new EmulatorFile(@"file5.txt", now, "hello5"),
+                    new EmulatorFile(@"file6.txt", now, "hello6")};
+
+            // Delete a few files
+            File.Delete(Path.Combine(source, "file1.txt"));
+            File.Delete(Path.Combine(source, "file2.txt"));
+
+            // 3
+            cmd.Execute();
+            var expectedVersion3 = new[] {
+                    new EmulatorFile(@"file3.txt", now, "hello3"),
+                    new EmulatorFile(@"file4.doc", now, ""),
+                    new EmulatorFile(@"file5.txt", now, "hello5"),
+                    new EmulatorFile(@"file6.txt", now, "hello6")};
+
+            // Modify and add some files
+            var now1 = new DateTime(2010, 1, 2);
+            WriteFile(source, "file5.txt", "hello5 - modified", now1);
+            WriteFile(source, "file6.txt", "hello6 - modified", now1);
+            WriteFile(source, "file7.txt", "hello7", now1);
+
+            // 4
+            cmd.Execute();
+            var expectedVersion4 = new[] {
+                    new EmulatorFile(@"file3.txt", now, "hello3"),
+                    new EmulatorFile(@"file4.doc", now, ""),
+                    new EmulatorFile(@"file5.txt", now1, "hello5 - modified"),
+                    new EmulatorFile(@"file6.txt", now1, "hello6 - modified"),
+                    new EmulatorFile(@"file7.txt", now1, "hello7")
+                };
+
+            // Rename some files
+            File.Move(Path.Combine(source, "file5.txt"), Path.Combine(source, "file5_renamed.txt"));
+            Directory.CreateDirectory(Path.Combine(source, "subdir"));
+            File.Move(Path.Combine(source, "file6.txt"), Path.Combine(source, "subdir", "file6_renamed.txt"));
+
+            // 5
+            cmd.Execute();
+            var expectedVersion5 = new[] {
+                    new EmulatorFile(@"file3.txt", now, "hello3"),
+                    new EmulatorFile(@"file4.doc", now, ""),
+                    new EmulatorFile(@"file5_renamed.txt", now1, "hello5 - modified"),
+                    new EmulatorFile(@"subdir\file6_renamed.txt", now1, "hello6 - modified"),
+                    new EmulatorFile(@"file7.txt", now1, "hello7")
+                };
+
+            // Pretend to rename - use 2 files with same length and last modify but with slight different content
+            var now2 = new DateTime(2010, 1, 3);
+            WriteFile(source, "file8.txt", "hello8", now2);
+            // 6
+            cmd.Execute();
+            var expectedVersion6 = new[] {
+                    new EmulatorFile(@"file3.txt", now, "hello3"),
+                    new EmulatorFile(@"file4.doc", now, ""),
+                    new EmulatorFile(@"file5_renamed.txt", now1, "hello5 - modified"),
+                    new EmulatorFile(@"subdir\file6_renamed.txt", now1, "hello6 - modified"),
+                    new EmulatorFile(@"file7.txt", now1, "hello7"),
+                    new EmulatorFile(@"file8.txt", now2, "hello8")
+                };
+
+            File.Delete(Path.Combine(source, "file8.txt"));
+            WriteFile(source, "file8_pretend_rename.txt", "hello9", now2);
+
+            // 7
+            cmd.Execute();
+            var expectedVersion7 = new[] {
+                    new EmulatorFile(@"file3.txt", now, "hello3"),
+                    new EmulatorFile(@"file4.doc", now, ""),
+                    new EmulatorFile(@"file5_renamed.txt", now1, "hello5 - modified"),
+                    new EmulatorFile(@"subdir\file6_renamed.txt", now1, "hello6 - modified"),
+                    new EmulatorFile(@"file7.txt", now1, "hello7"),
+                    new EmulatorFile(@"file8_pretend_rename.txt", now2, "hello9")
+                };
+
+            return new[] {expectedVersion1, expectedVersion2, expectedVersion3, expectedVersion4,
+                    expectedVersion5, expectedVersion6, expectedVersion7};
+        }
+
         private void UnmarkDirectoryAsReadOnly(string dirName)
         {
             DirectoryInfo dInfo = new DirectoryInfo(dirName);
@@ -421,6 +327,13 @@ namespace TestBacky
                     InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit,
                     PropagationFlags.None, AccessControlType.Allow));
             dInfo.SetAccessControl(dSecurity);
+        }
+
+        private static void WriteFile(string dir, string name, string content, DateTime date)
+        {
+            var path = Path.Combine(dir, name);
+            File.WriteAllText(path, content);
+            File.SetLastWriteTime(path, date);
         }
     }
 }

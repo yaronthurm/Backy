@@ -20,7 +20,6 @@ namespace TestBacky
             Assert.IsFalse(diff.Any(), "extra items");
         }
 
-
         public static void AssertState(IFileSystem fs, string target, params IEnumerable<EmulatorFile>[] expectedFilesByVersion)
         {
             var stateCalculator = new StateCalculator(fs, target);
@@ -30,30 +29,29 @@ namespace TestBacky
                 var state = stateCalculator.GetState(i + 1);
                 var actualFiles = state.GetFiles().Select(x => EmulatorFile.FromBacyFile(x, fs));
                 var expectedFiles = expectedFilesByVersion[i];
-                AssertEmulatorFiles(fs, expectedFiles, actualFiles);
+                AssertEmulatorFiles(fs, expectedFiles, actualFiles, (i+1).ToString());
             }
 
             {
                 var latestState = stateCalculator.GetLastState();
                 var actualFiles = latestState.GetFiles().Select(x => EmulatorFile.FromBacyFile(x, fs));
                 var expectedFiles = expectedFilesByVersion.Last();
-                AssertEmulatorFiles(fs, expectedFiles, actualFiles);
+                AssertEmulatorFiles(fs, expectedFiles, actualFiles, "last");
             }
         }
 
-
-
-        private static void AssertEmulatorFiles(IFileSystem fs, IEnumerable<EmulatorFile> expected, IEnumerable<EmulatorFile> actual)
+        private static void AssertEmulatorFiles(IFileSystem fs, IEnumerable<EmulatorFile> expected, IEnumerable<EmulatorFile> actual, string index)
         {
             // First, assert relative names
-            actual.Select(x => x.Name).ShouldBe(expected.Select(x => x.Name), ignoreOrder: true);
+            actual.Select(x => x.Name).ShouldBe(expected.Select(x => x.Name), ignoreOrder: true, customMessage: "index: " + index);
 
             // Now check one by one
             foreach (var actualFile in actual)
             {
+                var msg = "file: " + actualFile.Name + " index: " + index;
                 var correspondingExpectedFile = expected.First(x => x.Name == actualFile.Name);
-                actualFile.LastModified.ShouldBe(correspondingExpectedFile.LastModified);
-                actualFile.Content.ShouldBe(correspondingExpectedFile.Content);
+                actualFile.LastModified.ShouldBe(correspondingExpectedFile.LastModified, customMessage: msg);
+                actualFile.Content.ShouldBe(correspondingExpectedFile.Content, customMessage: msg);
             }
         }
     }
