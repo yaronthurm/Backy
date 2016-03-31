@@ -128,12 +128,12 @@ namespace TestBacky
         }
 
 
-        public static EmulatorFile FromBacyFile(BackyLogic.BackyFile backyFile, BackyLogic.IFileSystem fs)
+        public static EmulatorFile FromlFileName(string fullName, string relativeName, BackyLogic.IFileSystem fs)
         {
             var ret = new EmulatorFile(
-                backyFile.RelativeName, 
-                backyFile.LastWriteTime, 
-                string.Join(Environment.NewLine, fs.ReadLines(backyFile.PhysicalPath)));
+                relativeName, 
+                fs.GetLastWriteTime(fullName), 
+                string.Join(Environment.NewLine, fs.ReadLines(fullName)));
             return ret;
         }
     }

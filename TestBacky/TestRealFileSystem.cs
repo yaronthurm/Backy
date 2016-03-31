@@ -36,7 +36,7 @@ namespace TestBacky
                 Directory.Delete(source, true);
             }
         }
-        
+
         [TestMethod]
         public void RealFileSystem_02_Run_clone_on_different_stages()
         {
@@ -48,158 +48,31 @@ namespace TestBacky
             Directory.CreateDirectory(backupSource);
             Directory.CreateDirectory(backupTarget);
             Directory.CreateDirectory(cloneTarget);
-            
+
 
             try
             {
                 var fs = new FileSystem();
                 var expectedStates = SimulateRunningBackups(backupSource, backupTarget, fs);
 
-                // 1 - new files
-                Directory.CreateDirectory(Path.Combine(cloneSource, "1\\new"));
-                File.WriteAllText(Path.Combine(cloneSource, "1\\new\\file1.txt"), "hello1");
-                File.WriteAllText(Path.Combine(cloneSource, "1\\new\\file2.txt"), "hello2");
-                File.WriteAllText(Path.Combine(cloneSource, "1\\new\\file3.txt"), "hello3");
-                File.WriteAllText(Path.Combine(cloneSource, "1\\new\\file4.doc"), "");
-
-                // 2 - more new files
-                Directory.CreateDirectory(Path.Combine(cloneSource, "2\\new"));
-                File.WriteAllText(Path.Combine(cloneSource, "2\\new\\file5.txt"), "hello5");
-                File.WriteAllText(Path.Combine(cloneSource, "2\\new\\file6.txt"), "hello6");
-
-                // 3 - deleted files
-                Directory.CreateDirectory(Path.Combine(cloneSource, "3"));
-                File.WriteAllText(Path.Combine(cloneSource, "3\\deleted.txt"), "file1.txt\nfile2.txt");
-
-                // 4 - Modify and add some files
-                Directory.CreateDirectory(Path.Combine(cloneSource, "4\\new"));
-                Directory.CreateDirectory(Path.Combine(cloneSource, "4\\modified"));
-                File.WriteAllText(Path.Combine(cloneSource, "4\\modified\\file5.txt"), "hello5 - modified");
-                File.WriteAllText(Path.Combine(cloneSource, "4\\modified\\file6.txt"), "hello6 - modified");
-                File.WriteAllText(Path.Combine(cloneSource, "4\\new\\file7.txt"), "hello7");
-
-                // 5 - Rename some files
-                Directory.CreateDirectory(Path.Combine(cloneSource, "5"));
-                File.WriteAllText(Path.Combine(cloneSource, "5\\renamed.txt"),
-                    "{\"oldName\":\"file5.txt\",\"newName\": \"file5_renamed.txt\"}" + "\n" +
-                    "{\"oldName\":\"file6.txt\",\"newName\": \"subdir\\\\file6_renamed.txt\"}");
-
-                // Clone version 1
-                {
-                    var cmd = new CloneBackupCommand(new FileSystem(), cloneSource, cloneTarget, 1);
-                    cmd.Execute();
-
-                    // Expected to see all files from version 1
-                    var expected = new[]
-                    {
-                        Path.Combine(cloneTarget, "file1.txt"),
-                        Path.Combine(cloneTarget, "file2.txt"),
-                        Path.Combine(cloneTarget, "file3.txt"),
-                        Path.Combine(cloneTarget, "file4.doc"),
-                    };
-                    TestsUtils.AssertLists(expected, Directory.GetFiles(cloneTarget));
-                    Assert.AreEqual("hello1", File.ReadAllText(Path.Combine(cloneTarget, "file1.txt")));
-                    Assert.AreEqual("hello2", File.ReadAllText(Path.Combine(cloneTarget, "file2.txt")));
-                    Assert.AreEqual("hello3", File.ReadAllText(Path.Combine(cloneTarget, "file3.txt")));
-                    Assert.AreEqual("", File.ReadAllText(Path.Combine(cloneTarget, "file4.doc")));
-                }
-
-                // Clone version 2
+                for (int i = 0; i < expectedStates.Length; i++)
                 {
                     Directory.Delete(cloneTarget, true);
-                    var cmd = new CloneBackupCommand(new FileSystem(), cloneSource, cloneTarget, 2);
+                    var cmd = new CloneBackupCommand(fs, cloneSource, cloneTarget, i+1);
                     cmd.Execute();
 
-                    // Expected to see all files from version 1
-                    var expected = new[]
-                    {
-                        Path.Combine(cloneTarget, "file1.txt"),
-                        Path.Combine(cloneTarget, "file2.txt"),
-                        Path.Combine(cloneTarget, "file3.txt"),
-                        Path.Combine(cloneTarget, "file4.doc"),
-                        Path.Combine(cloneTarget, "file5.txt"),
-                        Path.Combine(cloneTarget, "file6.txt")
-                    };
-                    TestsUtils.AssertLists(expected, Directory.GetFiles(cloneTarget));
-                    Assert.AreEqual("hello1", File.ReadAllText(Path.Combine(cloneTarget, "file1.txt")));
-                    Assert.AreEqual("hello2", File.ReadAllText(Path.Combine(cloneTarget, "file2.txt")));
-                    Assert.AreEqual("hello3", File.ReadAllText(Path.Combine(cloneTarget, "file3.txt")));
-                    Assert.AreEqual("", File.ReadAllText(Path.Combine(cloneTarget, "file4.doc")));
-                    Assert.AreEqual("hello5", File.ReadAllText(Path.Combine(cloneTarget, "file5.txt")));
-                    Assert.AreEqual("hello6", File.ReadAllText(Path.Combine(cloneTarget, "file6.txt")));
-                }
-
-                // Clone version 3
-                {
-                    Directory.Delete(cloneTarget, true);
-                    var cmd = new CloneBackupCommand(new FileSystem(), cloneSource, cloneTarget, 3);
-                    cmd.Execute();
-
-                    // Expected to see all files from version 1
-                    var expected = new[]
-                    {
-                        Path.Combine(cloneTarget, "file3.txt"),
-                        Path.Combine(cloneTarget, "file4.doc"),
-                        Path.Combine(cloneTarget, "file5.txt"),
-                        Path.Combine(cloneTarget, "file6.txt")
-                    };
-                    TestsUtils.AssertLists(expected, Directory.GetFiles(cloneTarget));
-                    Assert.AreEqual("hello3", File.ReadAllText(Path.Combine(cloneTarget, "file3.txt")));
-                    Assert.AreEqual("", File.ReadAllText(Path.Combine(cloneTarget, "file4.doc")));
-                    Assert.AreEqual("hello5", File.ReadAllText(Path.Combine(cloneTarget, "file5.txt")));
-                    Assert.AreEqual("hello6", File.ReadAllText(Path.Combine(cloneTarget, "file6.txt")));
-                }
-
-                // Clone version 4
-                {
-                    Directory.Delete(cloneTarget, true);
-                    var cmd = new CloneBackupCommand(new FileSystem(), cloneSource, cloneTarget, 4);
-                    cmd.Execute();
-
-                    // Expected to see all files from version 1
-                    var expected = new[]
-                    {
-                        Path.Combine(cloneTarget, "file3.txt"),
-                        Path.Combine(cloneTarget, "file4.doc"),
-                        Path.Combine(cloneTarget, "file5.txt"),
-                        Path.Combine(cloneTarget, "file6.txt"),
-                        Path.Combine(cloneTarget, "file7.txt")
-                    };
-                    TestsUtils.AssertLists(expected, Directory.GetFiles(cloneTarget));
-                    Assert.AreEqual("hello3", File.ReadAllText(Path.Combine(cloneTarget, "file3.txt")));
-                    Assert.AreEqual("", File.ReadAllText(Path.Combine(cloneTarget, "file4.doc")));
-                    Assert.AreEqual("hello5 - modified", File.ReadAllText(Path.Combine(cloneTarget, "file5.txt")));
-                    Assert.AreEqual("hello6 - modified", File.ReadAllText(Path.Combine(cloneTarget, "file6.txt")));
-                    Assert.AreEqual("hello7", File.ReadAllText(Path.Combine(cloneTarget, "file7.txt")));
-                }
-
-                // Clone version 5
-                {
-                    Directory.Delete(cloneTarget, true);
-                    var cmd = new CloneBackupCommand(new FileSystem(), cloneSource, cloneTarget, 5);
-                    cmd.Execute();
-
-                    // Expected to see all files from version 1
-                    var expected = new[]
-                    {
-                        Path.Combine(cloneTarget, "file3.txt"),
-                        Path.Combine(cloneTarget, "file4.doc"),
-                        Path.Combine(cloneTarget, "file5_renamed.txt"),
-                        Path.Combine(cloneTarget, "subdir\\file6_renamed.txt"),
-                        Path.Combine(cloneTarget, "file7.txt")
-                    };
-                    TestsUtils.AssertLists(expected, Directory.GetFiles(cloneTarget, "*", SearchOption.AllDirectories));
-                    Assert.AreEqual("hello3", File.ReadAllText(Path.Combine(cloneTarget, "file3.txt")));
-                    Assert.AreEqual("", File.ReadAllText(Path.Combine(cloneTarget, "file4.doc")));
-                    Assert.AreEqual("hello5 - modified", File.ReadAllText(Path.Combine(cloneTarget, "file5_renamed.txt")));
-                    Assert.AreEqual("hello6 - modified", File.ReadAllText(Path.Combine(cloneTarget, "subdir\\file6_renamed.txt")));
-                    Assert.AreEqual("hello7", File.ReadAllText(Path.Combine(cloneTarget, "file7.txt")));
+                    var actual = Directory.GetFiles(cloneTarget, "*", SearchOption.AllDirectories)
+                        .Select(x => EmulatorFile.FromlFileName(x, x.Replace(cloneTarget + "\\", ""), fs));
+                    TestsUtils.AssertEmulatorFiles(fs, expectedStates[i], actual, "clone: " + i);
                 }
             }
             finally
             {
+                foreach (var dir in Directory.GetDirectories(backupTarget))
+                    UnmarkDirectoryAsReadOnly(dir);
+                Directory.Delete(backupSource, true);
+                Directory.Delete(backupTarget, true);
                 Directory.Delete(cloneTarget, true);
-                Directory.Delete(cloneSource, true);
             }
         }
 
