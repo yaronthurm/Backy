@@ -7,6 +7,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using System.Security.AccessControl;
+using Shouldly;
 
 namespace TestBacky
 {
@@ -16,105 +17,130 @@ namespace TestBacky
         [TestMethod]
         public void Backup_01_Running_for_the_first_time()
         {
-            // This test simulate running the tool for the first time.
-            // We only have files under the source directory
-            // After running the tool, we expect to see all files from the source copied into
-            // the target location under %target%/1/new
+            // This test simulates running the tool for the first time.
+            // After running the tool, we expect to see all files from the source
 
             var source = @"c:\source";
             var target = @"d:\target";
 
-            var files = new string[] { @"file1.txt", @"file2.txt", @"subdir\file11.txt" };
-
-            var emulatorFiles = files.Select(x => Path.Combine(source, x)).Select(x => new EmulatorFile(x));
-            var fileSystem = new FileSystemEmulator(emulatorFiles);
+            var files = new EmulatorFile[] {
+                new EmulatorFile(@"c:\source\file1.txt"),
+                new EmulatorFile(@"c:\source\file2.txt"),
+                new EmulatorFile(@"c:\source\subdir\file11.txt") };
+            var fileSystem = new FileSystemEmulator(files);
             var cmd = new RunBackupCommand(fileSystem, source, target);
             cmd.Execute();
 
-            // Expected that all files from %source% will be under %target%\1\new
-            var expected = files.Select(x => Path.Combine(target, "1\\new", x));
-            var actual = fileSystem.EnumerateFiles(target);
-            TestsUtils.AssertLists<string>(expected, actual);
+            // Expected that all files will show up under version 1
+            var expected = new[] { "file1.txt", "file2.txt", "subdir\\file11.txt" };
+            var stateCalculator = new StateCalculator(fileSystem, target);
+            stateCalculator.MaxVersion.ShouldBe(1);
+            var latestState = stateCalculator.GetLastState();
+            latestState.GetFiles().Select(x => x.RelativeName).ShouldBe(expected, true);
         }
 
         [TestMethod]
         public void Backup_02_1_Running_for_the_second_time_No_change_in_source()
         {
-            // This test simulate running the tool for the second time without any change in the source.
+            // This test simulates running the tool for the second time without any change in the source.
             // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir/file11.txt
             // In the second run, nothing was changed.
             // We expect that after running backup the second time, the backup directory will 
-            // contain all previous files under directory %target%/1/new
+            // be the same as after running it for the first time
 
             var source = @"c:\source";
             var target = @"d:\target";
 
-            var sourceFiles = new string[] { @"file1.txt", @"file2.txt", @"subdir\file11.txt" };
-            var destFiles = new string[] { @"1\new\file1.txt", @"1\new\file2.txt", @"1\new\subdir\file11.txt" };
-            var files = sourceFiles.Select(x => Path.Combine(source, x)).Union(destFiles.Select(x => Path.Combine(target, x)));
-
-            var fileSystem = new FileSystemEmulator(files.Select(x => new EmulatorFile(x)));
+            var files = new EmulatorFile[] {
+                new EmulatorFile(@"c:\source\file1.txt"),
+                new EmulatorFile(@"c:\source\file2.txt"),
+                new EmulatorFile(@"c:\source\subdir\file11.txt") };
+            var fileSystem = new FileSystemEmulator(files);
             var cmd = new RunBackupCommand(fileSystem, source, target);
-            cmd.Execute();
+            cmd.Execute(); // Running once
 
-            // Expected that all old files from %source% will be under %target%\1\new
-            var expected = new string[] { @"1\new\file1.txt", @"1\new\file2.txt", @"1\new\subdir\file11.txt" }.Select(x => Path.Combine(target, x));
-            var actual = fileSystem.EnumerateFiles(target);
-            TestsUtils.AssertLists<string>(expected, actual);
+            cmd = new RunBackupCommand(fileSystem, source, target);
+            cmd.Execute(); // Running twice
+
+            // Expected that all files will show up under version 1
+            var expected = new[] { "file1.txt", "file2.txt", "subdir\\file11.txt" };
+            var stateCalculator = new StateCalculator(fileSystem, target);
+            stateCalculator.MaxVersion.ShouldBe(1);
+            var latestState = stateCalculator.GetLastState();
+            latestState.GetFiles().Select(x => x.RelativeName).ShouldBe(expected, true);
         }
 
         [TestMethod]
         public void Backup_02_2_Running_twice_by_executing_command_twice()
         {
-            // This test simulate running the tool for the first time and right after running it again
+            // This test simulates running the tool for the second time without any change in the source.
             // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir/file11.txt
             // In the second run, nothing was changed.
             // We expect that after running backup the second time, the backup directory will 
-            // contain all previous files under directory %target%/1/new
+            // be the same as after running it for the first time
+
             var source = @"c:\source";
             var target = @"d:\target";
 
-            var files = new string[] { @"file1.txt", @"file2.txt", @"subdir\file11.txt" };
-
-            var fileSystem = new FileSystemEmulator(files.Select(x => Path.Combine(source, x)).Select(x => new EmulatorFile(x)));
+            var files = new EmulatorFile[] {
+                new EmulatorFile(@"c:\source\file1.txt"),
+                new EmulatorFile(@"c:\source\file2.txt"),
+                new EmulatorFile(@"c:\source\subdir\file11.txt") };
+            var fileSystem = new FileSystemEmulator(files);
             var cmd = new RunBackupCommand(fileSystem, source, target);
-            cmd.Execute();
-            cmd.Execute();
+            cmd.Execute(); // Running once
+            cmd.Execute(); // Running twice
 
-            // Expected that all old files from %source% will be under %target%\1\new
-            var expected = new string[] { @"1\new\file1.txt", @"1\new\file2.txt", @"1\new\subdir\file11.txt" }.Select(x => Path.Combine(target, x));
-            var actual = fileSystem.EnumerateFiles(target);
-            TestsUtils.AssertLists<string>(expected, actual);
+            // Expected that all files will show up under version 1
+            var expected = new[] { "file1.txt", "file2.txt", "subdir\\file11.txt" };
+            var stateCalculator = new StateCalculator(fileSystem, target);
+            stateCalculator.MaxVersion.ShouldBe(1);
+            var latestState = stateCalculator.GetLastState();
+            latestState.GetFiles().Select(x => x.RelativeName).ShouldBe(expected, true);
         }
 
         [TestMethod]
         public void Backup_03_1_Running_for_the_second_time_Only_new_files()
         {
-            // This test simulate running the tool for the second time with new files added to the source.
+            // This test simulates running the tool for the second time with new files added to the source.
             // In the first run there were 3 files in the source: file1.txt, file2.txt, subdir/file11.txt
             // In the second run, there were 2 new files: file3.txt, subdir/file22.txt
             // We expect that after running backup the second time, the the backup directory will 
-            // contain all previous files under %target%/1/new and all new files under %target%/2/new
+            // contain 2 version, the latest with all files and the first one with only the files
+            // from the first run
 
             var source = @"c:\source";
             var target = @"d:\target";
 
-            var sourceFiles = new string[] { @"file1.txt", @"file2.txt", @"subdir\file11.txt", @"file3.txt", @"subdir\file22.txt" };
-            var destFiles = new string[] { @"1\new\file1.txt", @"1\new\file2.txt", @"1\new\subdir\file11.txt" };
-            var files = sourceFiles.Select(x => Path.Combine(source, x)).Union(destFiles.Select(x => Path.Combine(target, x)));
-
-            var fileSystem = new FileSystemEmulator(files.Select(x => new EmulatorFile(x)));
+            var files = new EmulatorFile[] {
+                new EmulatorFile(@"c:\source\file1.txt"),
+                new EmulatorFile(@"c:\source\file2.txt"),
+                new EmulatorFile(@"c:\source\subdir\file11.txt") };
+            var fileSystem = new FileSystemEmulator(files);
             var cmd = new RunBackupCommand(fileSystem, source, target);
+
+            // First run
             cmd.Execute();
 
-            // Expected that all old files from <source> will be under <target>\1\new
-            // Expected that all new files from <source> will be under <target>\2\new
-            var expected = new string[] {
-                @"1\new\file1.txt", @"1\new\file2.txt", @"1\new\subdir\file11.txt", // old files under 1/new
-                @"2\new\file3.txt", @"2\new\subdir\file22.txt" } // new files under 2/new
-            .Select(x => Path.Combine(target, x));
-            var actual = fileSystem.EnumerateFiles(target);
-            TestsUtils.AssertLists<string>(expected, actual);
+            var newFiles = new EmulatorFile[] {
+                new EmulatorFile(@"c:\source\file3.txt"),
+                new EmulatorFile(@"c:\source\subdir\file22.txt") };
+            fileSystem.AddFiles(newFiles);
+            
+            // Second run
+            cmd.Execute();
+
+            // Expected to see 2 versions
+            var expectedVersion1 = new[] { "file1.txt", "file2.txt", "subdir\\file11.txt" };
+            var expectedVersion2 = new[] { "file1.txt", "file2.txt", "subdir\\file11.txt", "file3.txt", "subdir\\file22.txt" };
+            var stateCalculator = new StateCalculator(fileSystem, target);
+            stateCalculator.MaxVersion.ShouldBe(2);
+            var state1 = stateCalculator.GetState(1);
+            state1.GetFiles().Select(x => x.RelativeName).ShouldBe(expectedVersion1, ignoreOrder: true);
+            var state2 = stateCalculator.GetState(2);
+            state2.GetFiles().Select(x => x.RelativeName).ShouldBe(expectedVersion2, ignoreOrder: true);
+            var stateLatest = stateCalculator.GetLastState();
+            stateLatest.GetFiles().Select(x => x.RelativeName).ShouldBe(expectedVersion2, ignoreOrder: true);
         }
 
         [TestMethod]

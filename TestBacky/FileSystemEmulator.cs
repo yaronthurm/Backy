@@ -70,7 +70,12 @@ namespace TestBacky
         {
             var file = _files.First(x => x.Name == filename);
             return file.Lines;
-        }        
+        }
+
+        public void AddFiles(EmulatorFile[] newFiles)
+        {
+            _files.AddRange(newFiles);
+        }
     }
 
     public class EmulatorFile
