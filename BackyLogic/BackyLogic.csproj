@@ -48,6 +48,10 @@
     <Compile Include="FoldersDiff.cs" />
     <Compile Include="HierarchicalDictionary.cs" />
     <Compile Include="CloneBackupCommand.cs" />
+    <Compile Include="FileSystem.cs" />
+    <Compile Include="IMultiStepProgress.cs" />
+    <Compile Include="BackyFolder.cs" />
+    <Compile Include="StateCalculator.cs" />
     <Compile Include="State.cs" />
     <Compile Include="RunBackupCommand.cs" />
     <Compile Include="IFileSystem.cs" />

@@ -24,7 +24,7 @@ namespace TestBacky
 
             try
             {
-                var fs = new FileSystem();
+                var fs = new OSFileSystem();
                 var expectedStates = SimulateRunningBackups(source, target, fs);
                 TestsUtils.AssertState(fs, target, source, expectedStates);
             }
@@ -51,7 +51,7 @@ namespace TestBacky
 
             try
             {
-                var fs = new FileSystem();
+                var fs = new OSFileSystem();
                 var expectedStates = SimulateRunningBackups(backupSource, backupTarget, fs);
 
                 for (int i = 0; i < expectedStates.Length; i++)

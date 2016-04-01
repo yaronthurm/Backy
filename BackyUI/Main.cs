@@ -38,7 +38,7 @@ namespace Backy
             _watcher.Renamed += (s1, e1) => _detectChanges.Set();
             _watcher.IncludeSubdirectories = true;
 
-            _fileSystem = new FileSystem();
+            _fileSystem = new OSFileSystem();
             _viewForm = new View(_fileSystem);
         }
 
@@ -168,7 +168,7 @@ namespace Backy
             {
                 this.autoRunTimer.Enabled = false;
                 this.multiStepProgress1.Clear();
-                _backupCommand = new RunBackupCommand(new FileSystem(), this.txtSource.Text, this.txtTarget.Text);
+                _backupCommand = new RunBackupCommand(new OSFileSystem(), this.txtSource.Text, this.txtTarget.Text);
                 _backupCommand.Progress = this.multiStepProgress1;
                 Task.Run(() => _backupCommand.Execute()).ContinueWith(x => this.Invoke((Action)this.FinishAutoBackupCallback));
 
@@ -240,7 +240,7 @@ namespace Backy
             if (this._onChangeDetectionCounter.CurrentValue == 0)
             {
                 this.changeDetectionTimer.Stop();
-                _backupCommand = new RunBackupCommand(new FileSystem(), this.txtSource.Text, this.txtTarget.Text);
+                _backupCommand = new RunBackupCommand(new OSFileSystem(), this.txtSource.Text, this.txtTarget.Text);
                 _backupCommand.Progress = this.multiStepProgress1;
                 _detectChanges.Reset();
 

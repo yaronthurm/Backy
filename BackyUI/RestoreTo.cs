@@ -90,7 +90,7 @@ namespace Backy
         
         private void btnRun_Click(object sender, EventArgs e)
         {
-            _cloneCommand = new CloneBackupCommand(new FileSystem(), this._cloneSource, this.txtRestoreTarget.Text, this._version);
+            _cloneCommand = new CloneBackupCommand(new OSFileSystem(), this._cloneSource, this.txtRestoreTarget.Text, this._version);
             _cloneCommand.Progress = this.multiStepProgress1;
 
             Task.Run(() => _cloneCommand.Execute()).ContinueWith(x => this.Invoke((Action)this.FinishRestoreCallback));
