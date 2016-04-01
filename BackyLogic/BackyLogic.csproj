@@ -48,7 +48,9 @@
     <Compile Include="FoldersDiff.cs" />
     <Compile Include="HierarchicalDictionary.cs" />
     <Compile Include="CloneBackupCommand.cs" />
-    <Compile Include="FileSystem.cs" />
+    <Compile Include="OSMachineIDProvider.cs" />
+    <Compile Include="OSFileSystem.cs" />
+    <Compile Include="IMachineIDProvider.cs" />
     <Compile Include="IMultiStepProgress.cs" />
     <Compile Include="BackyFolder.cs" />
     <Compile Include="StateCalculator.cs" />
