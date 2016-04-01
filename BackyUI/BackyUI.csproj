@@ -66,6 +66,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddBackupSourcesPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="AddBackupSourcesPanel.Designer.cs">
+      <DependentUpon>AddBackupSourcesPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="FilesPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -104,12 +110,21 @@
     <Compile Include="Settings.Designer.cs">
       <DependentUpon>Settings.cs</DependentUpon>
     </Compile>
+    <Compile Include="BackupSourceView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="BackupSourceView.Designer.cs">
+      <DependentUpon>BackupSourceView.cs</DependentUpon>
+    </Compile>
     <Compile Include="View.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="View.Designer.cs">
       <DependentUpon>View.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="AddBackupSourcesPanel.resx">
+      <DependentUpon>AddBackupSourcesPanel.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FilesPanel.resx">
       <DependentUpon>FilesPanel.cs</DependentUpon>
     </EmbeddedResource>
@@ -133,6 +148,12 @@
     </Compile>
     <EmbeddedResource Include="RestoreTo.resx">
       <DependentUpon>RestoreTo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings.resx">
+      <DependentUpon>Settings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BackupSourceView.resx">
+      <DependentUpon>BackupSourceView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="View.resx">
       <DependentUpon>View.cs</DependentUpon>

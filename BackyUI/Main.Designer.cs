@@ -50,6 +50,7 @@
             this.btnOpenSource = new System.Windows.Forms.Button();
             this.btnOpenTarget = new System.Windows.Forms.Button();
             this.multiStepProgress1 = new Backy.MultiStepProgress();
+            this.btnSettings = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numSeconds)).BeginInit();
             this.SuspendLayout();
             // 
@@ -266,11 +267,22 @@
             this.multiStepProgress1.Size = new System.Drawing.Size(440, 300);
             this.multiStepProgress1.TabIndex = 19;
             // 
+            // btnSettings
+            // 
+            this.btnSettings.Location = new System.Drawing.Point(83, 1);
+            this.btnSettings.Name = "btnSettings";
+            this.btnSettings.Size = new System.Drawing.Size(75, 23);
+            this.btnSettings.TabIndex = 33;
+            this.btnSettings.Text = "Settings";
+            this.btnSettings.UseVisualStyleBackColor = true;
+            this.btnSettings.Click += new System.EventHandler(this.btnSettings_Click);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(440, 493);
+            this.Controls.Add(this.btnSettings);
             this.Controls.Add(this.btnOpenTarget);
             this.Controls.Add(this.btnOpenSource);
             this.Controls.Add(this.btnDetect);
@@ -325,6 +337,7 @@
         private System.Windows.Forms.Timer changeDetectionTimer;
         private System.Windows.Forms.Button btnOpenSource;
         private System.Windows.Forms.Button btnOpenTarget;
+        private System.Windows.Forms.Button btnSettings;
     }
 }
 
