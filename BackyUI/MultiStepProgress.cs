@@ -102,7 +102,7 @@ namespace Backy
                 Anchor = AnchorStyles.Left | AnchorStyles.Right
             });
 
-            ScrollToBottom();
+            UIUtils.ScrollToBottom(this.flowLayoutPanel1);
         }
 
         private void AddProgressLabel()
@@ -124,7 +124,7 @@ namespace Backy
             lbl.Height = h;
             lbl.Width = (int)(this.flowLayoutPanel1.Width * 0.9);
 
-            ScrollToBottom();
+            UIUtils.ScrollToBottom(this.flowLayoutPanel1);
         }
 
         private void SetText(int currentValue)
@@ -158,17 +158,5 @@ namespace Backy
             }
         }
 
-
-
-        private void ScrollToBottom()
-        {
-            SendMessage(this.flowLayoutPanel1.Handle, WmVscroll, SbBottom, 0x0);
-        }
-
-        [DllImport("user32.dll")]
-        private static extern IntPtr SendMessage(IntPtr window, int message, int wparam, int lparam);
-
-        private const int SbBottom = 0x7;
-        private const int WmVscroll = 0x115;
     }
 }

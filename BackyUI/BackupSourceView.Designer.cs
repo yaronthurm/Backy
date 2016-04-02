@@ -72,8 +72,9 @@
             this.btnRemove.TabIndex = 4;
             this.btnRemove.Text = "Remove";
             this.btnRemove.UseVisualStyleBackColor = true;
+            this.btnRemove.Click += new System.EventHandler(this.btnRemove_Click);
             // 
-            // SourceDirectory
+            // BackupSourceView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -81,7 +82,7 @@
             this.Controls.Add(this.btnDisable);
             this.Controls.Add(this.lblFileName);
             this.Controls.Add(this.pictureBox1);
-            this.Name = "SourceDirectory";
+            this.Name = "BackupSourceView";
             this.Size = new System.Drawing.Size(290, 99);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);

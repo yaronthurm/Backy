@@ -48,6 +48,7 @@
             this.ClientSize = new System.Drawing.Size(661, 450);
             this.Controls.Add(this.addSourcesPanel1);
             this.Name = "Settings";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Settings";
             this.ResumeLayout(false);
 

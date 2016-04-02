@@ -116,6 +116,7 @@
     <Compile Include="BackupSourceView.Designer.cs">
       <DependentUpon>BackupSourceView.cs</DependentUpon>
     </Compile>
+    <Compile Include="UIUtils.cs" />
     <Compile Include="View.cs">
       <SubType>Form</SubType>
     </Compile>
