@@ -12,7 +12,6 @@ namespace Backy
 {
     public partial class AddBackupSourcesPanel : UserControl
     {
-        private List<string> _selectedDirectories = new List<string>();
 
         public AddBackupSourcesPanel()
         {
@@ -46,7 +45,7 @@ namespace Backy
                 var msgRes = MessageBox.Show(
                     $"Directory '{selectedPath}' contains the following selected directories:\n" +
                     $"{string.Join(Environment.NewLine, containing)}\n" +
-                    "Choose ok to replace the contained directories with the selected directory or cancle.",
+                    "Choose OK to replace the contained directories with the selected directory.",
                     "",
                      MessageBoxButtons.OKCancel
                     );
@@ -63,7 +62,6 @@ namespace Backy
             var directoriesToRemove = GetAllContainedPaths(selectedPath);
             foreach (var directoryToRemvoe in directoriesToRemove)
             {
-                _selectedDirectories.Remove(directoryToRemvoe);
                 var uiToRemove = GetUIControlByPath(directoryToRemvoe);
                 this.flowLayoutPanel1.Controls.Remove(uiToRemove);
             }
@@ -75,7 +73,7 @@ namespace Backy
             foreach (var control in this.flowLayoutPanel1.Controls)
             {
                 var backupControl = control as BackupSourceView;
-                if (backupControl != null && backupControl.GetPath() == path)
+                if (backupControl != null && backupControl.Path == path)
                 {
                     return backupControl;
                 }
@@ -85,31 +83,47 @@ namespace Backy
 
         private string[] GetAllContainedPaths(string selectedPath)
         {
-            var ret = _selectedDirectories.Where(x => x.StartsWith(selectedPath)).ToArray();
+            // Get all existing paths that are contained in the selected path
+            // e.g. c:\users\yaron\music is contained inside c:\users\yaron
+
+            var ret = this.GetAllBackupSourceControls()
+                .Select(x => x.Path)
+                .Where(x => x.StartsWith(selectedPath)).ToArray();
             return ret;
+        }
+
+        private IEnumerable<BackupSourceView> GetAllBackupSourceControls()
+        {
+            foreach (var ctrl in this.flowLayoutPanel1.Controls)
+                if (ctrl is BackupSourceView)
+                    yield return (BackupSourceView)ctrl;
         }
 
         private bool PathContainsAnAlreadyExistingPath(string selectedPath)
         {
-            var ret = _selectedDirectories.Any(x => x.StartsWith(selectedPath));
+            var ret = this.GetAllBackupSourceControls()
+                .Any(x => x.Path.StartsWith(selectedPath));
             return ret;
         }
 
         private bool PathIsContainedInAnExistingPath(string selectedPath)
         {
-            var ret = _selectedDirectories.Any(x => selectedPath.StartsWith(x));
+            var ret = this.GetAllBackupSourceControls()
+                .Any(x => selectedPath.StartsWith(x.Path));
             return ret;
         }
 
         private string GetContainingPath(string selectedPath)
         {
-            var ret = _selectedDirectories.First(x => selectedPath.StartsWith(x));
+            var ret = this.GetAllBackupSourceControls()
+                .Select(x => x.Path)
+                .First(x => selectedPath.StartsWith(x));
             return ret;
         }
 
-        private bool PathAlreadyAdded(object selectedPath)
+        private bool PathAlreadyAdded(string selectedPath)
         {
-            var ret = _selectedDirectories.Contains(selectedPath);
+            var ret = this.GetAllBackupSourceControls().Any(x => x.Path == selectedPath);
             return ret;
         }
 
@@ -125,7 +139,6 @@ namespace Backy
 
         private void AddNewSourceUIControl(string selectedPath)
         {
-            _selectedDirectories.Add(selectedPath);
             var sourceDirectoryControl = new BackupSourceView();
             sourceDirectoryControl.OnRemoveClick += SourceDirectoryControl_OnRemoveClick;
             sourceDirectoryControl.SetDirectory(selectedPath);
@@ -140,7 +153,6 @@ namespace Backy
         private void SourceDirectoryControl_OnRemoveClick(BackupSourceView source)
         {
             this.flowLayoutPanel1.Controls.Remove(source);
-            _selectedDirectories.Remove(source.GetPath());
         }
     }
 }

@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.lblFileName = new System.Windows.Forms.Label();
+            this.lblPath = new System.Windows.Forms.Label();
             this.btnDisable = new System.Windows.Forms.Button();
             this.btnRemove = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -45,15 +45,15 @@
             this.pictureBox1.TabIndex = 1;
             this.pictureBox1.TabStop = false;
             // 
-            // lblFileName
+            // lblPath
             // 
-            this.lblFileName.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblFileName.Location = new System.Drawing.Point(104, 0);
-            this.lblFileName.MaximumSize = new System.Drawing.Size(200, 100);
-            this.lblFileName.Name = "lblFileName";
-            this.lblFileName.Size = new System.Drawing.Size(176, 69);
-            this.lblFileName.TabIndex = 2;
-            this.lblFileName.Text = "Name";
+            this.lblPath.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblPath.Location = new System.Drawing.Point(104, 0);
+            this.lblPath.MaximumSize = new System.Drawing.Size(200, 100);
+            this.lblPath.Name = "lblPath";
+            this.lblPath.Size = new System.Drawing.Size(176, 69);
+            this.lblPath.TabIndex = 2;
+            this.lblPath.Text = "Name";
             // 
             // btnDisable
             // 
@@ -80,7 +80,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.btnRemove);
             this.Controls.Add(this.btnDisable);
-            this.Controls.Add(this.lblFileName);
+            this.Controls.Add(this.lblPath);
             this.Controls.Add(this.pictureBox1);
             this.Name = "BackupSourceView";
             this.Size = new System.Drawing.Size(290, 99);
@@ -92,7 +92,7 @@
         #endregion
 
         private System.Windows.Forms.PictureBox pictureBox1;
-        private System.Windows.Forms.Label lblFileName;
+        private System.Windows.Forms.Label lblPath;
         private System.Windows.Forms.Button btnDisable;
         private System.Windows.Forms.Button btnRemove;
     }
