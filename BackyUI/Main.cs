@@ -273,9 +273,20 @@ namespace Backy
         private void btnSettings_Click(object sender, EventArgs e)
         {
             var settingsForm = new Settings();
-            settingsForm.Show();
+            var settings = BackyLogic.Settings.Load();
+            settingsForm.SetSettigns(settings);
+
+            var res = settingsForm.ShowDialog();
+            if (res == DialogResult.Cancel) return;
+
+            
+            settings.SetSources(settingsForm.GetSelectedSources());
+            settings.SetTarget(settingsForm.GetSelectedTarget());
+            settings.Save();
         }
     }
+
+    
 
 
     public class CountdownCounter

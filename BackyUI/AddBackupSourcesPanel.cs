@@ -57,6 +57,17 @@ namespace Backy
             this.AddNewSourceUIControl(selectedPath);
         }
 
+        public void AddSource(string source)
+        {
+            this.AddNewSourceUIControl(source);
+        }
+
+        public string[] GetSelectedSources()
+        {
+            var ret = this.GetAllBackupSourceControls().Select(x => x.Path).ToArray();
+            return ret;
+        }
+
         private void ReplaceContainedDirectoriesWithContainingDirectory(string selectedPath)
         {
             var directoriesToRemove = GetAllContainedPaths(selectedPath);
