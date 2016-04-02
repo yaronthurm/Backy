@@ -41,15 +41,18 @@
             this.radDetection = new System.Windows.Forms.RadioButton();
             this.numSeconds = new System.Windows.Forms.NumericUpDown();
             this.changeDetectionTimer = new System.Windows.Forms.Timer(this.components);
-            this.multiStepProgress1 = new Backy.MultiStepProgress();
             this.btnSettings = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.multiStepProgress1 = new Backy.MultiStepProgress();
             ((System.ComponentModel.ISupportInitialize)(this.numSeconds)).BeginInit();
             this.SuspendLayout();
             // 
             // btnRun
             // 
             this.btnRun.Enabled = false;
-            this.btnRun.Location = new System.Drawing.Point(94, 96);
+            this.btnRun.Location = new System.Drawing.Point(94, 220);
             this.btnRun.Name = "btnRun";
             this.btnRun.Size = new System.Drawing.Size(75, 23);
             this.btnRun.TabIndex = 4;
@@ -60,7 +63,7 @@
             // btnAbort
             // 
             this.btnAbort.Enabled = false;
-            this.btnAbort.Location = new System.Drawing.Point(311, 133);
+            this.btnAbort.Location = new System.Drawing.Point(311, 257);
             this.btnAbort.Name = "btnAbort";
             this.btnAbort.Size = new System.Drawing.Size(75, 23);
             this.btnAbort.TabIndex = 10;
@@ -70,7 +73,7 @@
             // 
             // btnView
             // 
-            this.btnView.Location = new System.Drawing.Point(311, 96);
+            this.btnView.Location = new System.Drawing.Point(311, 220);
             this.btnView.Name = "btnView";
             this.btnView.Size = new System.Drawing.Size(75, 23);
             this.btnView.TabIndex = 18;
@@ -81,7 +84,7 @@
             // radManual
             // 
             this.radManual.AutoSize = true;
-            this.radManual.Location = new System.Drawing.Point(12, 99);
+            this.radManual.Location = new System.Drawing.Point(12, 223);
             this.radManual.Name = "radManual";
             this.radManual.Size = new System.Drawing.Size(60, 17);
             this.radManual.TabIndex = 22;
@@ -91,7 +94,7 @@
             // radScheduled
             // 
             this.radScheduled.AutoSize = true;
-            this.radScheduled.Location = new System.Drawing.Point(12, 128);
+            this.radScheduled.Location = new System.Drawing.Point(12, 252);
             this.radScheduled.Name = "radScheduled";
             this.radScheduled.Size = new System.Drawing.Size(76, 17);
             this.radScheduled.TabIndex = 23;
@@ -101,7 +104,7 @@
             // btnStartStop
             // 
             this.btnStartStop.Enabled = false;
-            this.btnStartStop.Location = new System.Drawing.Point(94, 125);
+            this.btnStartStop.Location = new System.Drawing.Point(94, 249);
             this.btnStartStop.Name = "btnStartStop";
             this.btnStartStop.Size = new System.Drawing.Size(75, 23);
             this.btnStartStop.TabIndex = 24;
@@ -113,7 +116,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(233, 132);
+            this.label3.Location = new System.Drawing.Point(233, 256);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(32, 13);
             this.label3.TabIndex = 26;
@@ -126,7 +129,7 @@
             // 
             // btnDetect
             // 
-            this.btnDetect.Location = new System.Drawing.Point(94, 154);
+            this.btnDetect.Location = new System.Drawing.Point(94, 278);
             this.btnDetect.Name = "btnDetect";
             this.btnDetect.Size = new System.Drawing.Size(75, 23);
             this.btnDetect.TabIndex = 28;
@@ -139,7 +142,7 @@
             // 
             this.radDetection.AutoSize = true;
             this.radDetection.Checked = true;
-            this.radDetection.Location = new System.Drawing.Point(12, 157);
+            this.radDetection.Location = new System.Drawing.Point(12, 281);
             this.radDetection.Name = "radDetection";
             this.radDetection.Size = new System.Drawing.Size(78, 17);
             this.radDetection.TabIndex = 27;
@@ -151,7 +154,7 @@
             // 
             this.numSeconds.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Backy.Properties.Settings.Default, "autoBackupInterval", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.numSeconds.Enabled = false;
-            this.numSeconds.Location = new System.Drawing.Point(176, 127);
+            this.numSeconds.Location = new System.Drawing.Point(176, 251);
             this.numSeconds.Maximum = new decimal(new int[] {
             600,
             0,
@@ -172,18 +175,9 @@
             this.changeDetectionTimer.Interval = 1000;
             this.changeDetectionTimer.Tick += new System.EventHandler(this.changeDetectionTimer_Tick);
             // 
-            // multiStepProgress1
-            // 
-            this.multiStepProgress1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
-            this.multiStepProgress1.BackColor = System.Drawing.Color.Transparent;
-            this.multiStepProgress1.Location = new System.Drawing.Point(0, 193);
-            this.multiStepProgress1.Name = "multiStepProgress1";
-            this.multiStepProgress1.Size = new System.Drawing.Size(440, 300);
-            this.multiStepProgress1.TabIndex = 19;
-            // 
             // btnSettings
             // 
-            this.btnSettings.Location = new System.Drawing.Point(94, 25);
+            this.btnSettings.Location = new System.Drawing.Point(271, 40);
             this.btnSettings.Name = "btnSettings";
             this.btnSettings.Size = new System.Drawing.Size(75, 23);
             this.btnSettings.TabIndex = 33;
@@ -191,11 +185,54 @@
             this.btnSettings.UseVisualStyleBackColor = true;
             this.btnSettings.Click += new System.EventHandler(this.btnSettings_Click);
             // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.label1.Location = new System.Drawing.Point(12, 9);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(48, 13);
+            this.label1.TabIndex = 34;
+            this.label1.Text = "Step 1:";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(12, 24);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(238, 13);
+            this.label2.TabIndex = 35;
+            this.label2.Text = "Chose which directories to back up and to where";
+            this.label2.Click += new System.EventHandler(this.label2_Click);
+            // 
+            // richTextBox1
+            // 
+            this.richTextBox1.BackColor = System.Drawing.SystemColors.Control;
+            this.richTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.richTextBox1.Location = new System.Drawing.Point(15, 40);
+            this.richTextBox1.Name = "richTextBox1";
+            this.richTextBox1.Size = new System.Drawing.Size(250, 91);
+            this.richTextBox1.TabIndex = 37;
+            this.richTextBox1.Text = "";
+            this.richTextBox1.TextChanged += new System.EventHandler(this.richTextBox1_TextChanged);
+            // 
+            // multiStepProgress1
+            // 
+            this.multiStepProgress1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
+            this.multiStepProgress1.BackColor = System.Drawing.Color.Gray;
+            this.multiStepProgress1.Location = new System.Drawing.Point(0, 337);
+            this.multiStepProgress1.Name = "multiStepProgress1";
+            this.multiStepProgress1.Size = new System.Drawing.Size(440, 156);
+            this.multiStepProgress1.TabIndex = 19;
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(440, 493);
+            this.Controls.Add(this.richTextBox1);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.label1);
             this.Controls.Add(this.btnSettings);
             this.Controls.Add(this.btnDetect);
             this.Controls.Add(this.radDetection);
@@ -235,6 +272,9 @@
         private System.Windows.Forms.RadioButton radDetection;
         private System.Windows.Forms.Timer changeDetectionTimer;
         private System.Windows.Forms.Button btnSettings;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.RichTextBox richTextBox1;
     }
 }
 

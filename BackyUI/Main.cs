@@ -238,6 +238,26 @@ namespace Backy
         private void Main_Load(object sender, EventArgs e)
         {
             //this.btnDetect_Click(null, null);
+            // Step 1: selected sources and target
+            if (_settings.Sources.Any() && !string.IsNullOrEmpty(_settings.Target))
+            {
+                this.richTextBox1.SelectionFont = new Font(this.Font, FontStyle.Bold | FontStyle.Underline);
+                this.richTextBox1.AppendText("Chosen directories:\n");
+                this.richTextBox1.SelectionFont = this.Font;
+                this.richTextBox1.AppendText(string.Join(";\n", _settings.Sources));
+                this.richTextBox1.SelectionFont = new Font(this.Font, FontStyle.Bold | FontStyle.Underline);
+                this.richTextBox1.AppendText("\nTarget:\n");
+                this.richTextBox1.SelectionFont = this.Font;
+                this.richTextBox1.AppendText(_settings.Target);
+                this.btnSettings.Text = "Change...";
+            }
+            else
+            {
+                this.richTextBox1.SelectionFont = new Font(this.Font, FontStyle.Bold | FontStyle.Underline);
+                this.richTextBox1.AppendText("You haven't yet chosen directories to backup.\n");
+                this.richTextBox1.AppendText("Press setup to start.");
+                this.btnSettings.Text = "Setup...";
+            }
         }
 
         private void btnSettings_Click(object sender, EventArgs e)
@@ -254,9 +274,19 @@ namespace Backy
             settings.SetTarget(settingsForm.GetSelectedTarget());
             settings.Save();
         }
+
+        private void label2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void richTextBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 
-    
+
 
 
     public class CountdownCounter
