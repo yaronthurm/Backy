@@ -36,11 +36,7 @@ namespace Backy
 
         private void btnBrowseFoldersRestoreTarget_Click(object sender, EventArgs e)
         {
-            var folderBrowser = new FolderBrowserDialog();
-            folderBrowser.ShowNewFolderButton = true;
-            folderBrowser.SelectedPath = this.txtRestoreTarget.Text;
-            var result = folderBrowser.ShowDialog();
-            this.txtRestoreTarget.Text = folderBrowser.SelectedPath;
+            this.txtRestoreTarget.Text = UIUtils.ChooseEmptyFolder();
         }
 
         private void txtRestoreTarget_TextChanged(object sender, EventArgs e)
@@ -51,6 +47,9 @@ namespace Backy
 
         private void ValidateRestoreDirectory()
         {
+            if (this.txtRestoreTarget.Text == "")
+                return;
+
             // Make sure the directory exists
             if (!Directory.Exists(this.txtRestoreTarget.Text))
             {
