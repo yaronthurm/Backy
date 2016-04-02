@@ -22,6 +22,7 @@ namespace Backy
         private CountdownCounter _onChangeDetectionCounter = new CountdownCounter(10);
         private IFileSystem _fileSystem;
         private View _viewForm;
+        private BackyLogic.Settings _settings = BackyLogic.Settings.Load();
         
 
         public Main()
@@ -53,7 +54,7 @@ namespace Backy
         private void btnRun_Click(object sender, EventArgs e)
         {
             this.multiStepProgress1.Clear();
-            _backupCommand = new RunBackupCommand(_fileSystem, this.txtSource.Text, this.txtTarget.Text);
+            _backupCommand = new RunBackupCommand(_fileSystem, _settings.Sources[0], _settings.Target);
             _backupCommand.Progress = this.multiStepProgress1;
 
             Task.Run(() => _backupCommand.Execute()).ContinueWith(x => this.Invoke((Action)this.FinishManualBackupCallback));
@@ -103,27 +104,7 @@ namespace Backy
 
         private void btnView_Click(object sender, EventArgs e)
         {
-            _viewForm.SetDirectoriesAndShow(this.txtTarget.Text, this.txtSource.Text);
-        }
-
-        private void btnBrowseFoldersSource_Click(object sender, EventArgs e)
-        {
-            var folderBrowser = new FolderBrowserDialog();
-            folderBrowser.ShowNewFolderButton = false;
-            folderBrowser.SelectedPath = this.txtSource.Text;
-            var result = folderBrowser.ShowDialog();
-            this.txtSource.Text = folderBrowser.SelectedPath;
-            Properties.Settings.Default.Save();
-        }
-
-        private void btnBrowseFoldersTarget_Click(object sender, EventArgs e)
-        {
-            var folderBrowser = new FolderBrowserDialog();
-            folderBrowser.ShowNewFolderButton = true;
-            folderBrowser.SelectedPath = this.txtTarget.Text;
-            var result = folderBrowser.ShowDialog();
-            this.txtTarget.Text = folderBrowser.SelectedPath;
-            Properties.Settings.Default.Save();
+            _viewForm.SetDirectoriesAndShow(_settings.Target,  _settings.Sources[0]);
         }
 
         private void txtSource_Validated(object sender, EventArgs e)
@@ -168,7 +149,7 @@ namespace Backy
             {
                 this.autoRunTimer.Enabled = false;
                 this.multiStepProgress1.Clear();
-                _backupCommand = new RunBackupCommand(new OSFileSystem(), this.txtSource.Text, this.txtTarget.Text);
+                _backupCommand = new RunBackupCommand(new OSFileSystem(), _settings.Sources[0], _settings.Target);
                 _backupCommand.Progress = this.multiStepProgress1;
                 Task.Run(() => _backupCommand.Execute()).ContinueWith(x => this.Invoke((Action)this.FinishAutoBackupCallback));
 
@@ -182,14 +163,14 @@ namespace Backy
         {
             if (this.btnDetect.Text == "Detect")
             {
-                if (!Directory.Exists(this.txtSource.Text)) return;
+                if (!Directory.Exists(_settings.Sources[0])) return;
 
                 this.radScheduled.Enabled = false;
                 this.radManual.Enabled = false;
                 this.btnDetect.Text = "Stop";
                 this.multiStepProgress1.Clear();
 
-                _watcher.Path = this.txtSource.Text;
+                _watcher.Path = _settings.Sources[0];
                 _watcher.EnableRaisingEvents = true;
                 this.multiStepProgress1.StartUnboundedStep("Running in:");
                 this.multiStepProgress1.UpdateProgress(_onChangeDetectionCounter.CurrentValue);
@@ -240,7 +221,7 @@ namespace Backy
             if (this._onChangeDetectionCounter.CurrentValue == 0)
             {
                 this.changeDetectionTimer.Stop();
-                _backupCommand = new RunBackupCommand(new OSFileSystem(), this.txtSource.Text, this.txtTarget.Text);
+                _backupCommand = new RunBackupCommand(new OSFileSystem(), _settings.Sources[0], _settings.Target);
                 _backupCommand.Progress = this.multiStepProgress1;
                 _detectChanges.Reset();
 
@@ -253,21 +234,10 @@ namespace Backy
             }
         }
 
-        private void btnOpenSource_Click(object sender, EventArgs e)
-        {
-            if (Directory.Exists(this.txtSource.Text))
-                Process.Start(this.txtSource.Text);
-        }
-
-        private void btnOpenTarget_Click(object sender, EventArgs e)
-        {
-            if (Directory.Exists(this.txtTarget.Text))
-                Process.Start(this.txtTarget.Text);
-        }
 
         private void Main_Load(object sender, EventArgs e)
         {
-            this.btnDetect_Click(null, null);
+            //this.btnDetect_Click(null, null);
         }
 
         private void btnSettings_Click(object sender, EventArgs e)

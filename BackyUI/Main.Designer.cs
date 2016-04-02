@@ -29,13 +29,9 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            this.label1 = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
             this.btnRun = new System.Windows.Forms.Button();
             this.btnAbort = new System.Windows.Forms.Button();
             this.btnView = new System.Windows.Forms.Button();
-            this.btnBrowseFoldersSource = new System.Windows.Forms.Button();
-            this.btnBrowseFoldersTarget = new System.Windows.Forms.Button();
             this.radManual = new System.Windows.Forms.RadioButton();
             this.radScheduled = new System.Windows.Forms.RadioButton();
             this.btnStartStop = new System.Windows.Forms.Button();
@@ -44,33 +40,11 @@
             this.btnDetect = new System.Windows.Forms.Button();
             this.radDetection = new System.Windows.Forms.RadioButton();
             this.numSeconds = new System.Windows.Forms.NumericUpDown();
-            this.txtTarget = new System.Windows.Forms.TextBox();
-            this.txtSource = new System.Windows.Forms.TextBox();
             this.changeDetectionTimer = new System.Windows.Forms.Timer(this.components);
-            this.btnOpenSource = new System.Windows.Forms.Button();
-            this.btnOpenTarget = new System.Windows.Forms.Button();
             this.multiStepProgress1 = new Backy.MultiStepProgress();
             this.btnSettings = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numSeconds)).BeginInit();
             this.SuspendLayout();
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(36, 30);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(41, 13);
-            this.label1.TabIndex = 0;
-            this.label1.Text = "Source";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(36, 63);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(38, 13);
-            this.label2.TabIndex = 1;
-            this.label2.Text = "Target";
             // 
             // btnRun
             // 
@@ -103,26 +77,6 @@
             this.btnView.Text = "View";
             this.btnView.UseVisualStyleBackColor = true;
             this.btnView.Click += new System.EventHandler(this.btnView_Click);
-            // 
-            // btnBrowseFoldersSource
-            // 
-            this.btnBrowseFoldersSource.Location = new System.Drawing.Point(361, 28);
-            this.btnBrowseFoldersSource.Name = "btnBrowseFoldersSource";
-            this.btnBrowseFoldersSource.Size = new System.Drawing.Size(25, 23);
-            this.btnBrowseFoldersSource.TabIndex = 20;
-            this.btnBrowseFoldersSource.Text = "...";
-            this.btnBrowseFoldersSource.UseVisualStyleBackColor = true;
-            this.btnBrowseFoldersSource.Click += new System.EventHandler(this.btnBrowseFoldersSource_Click);
-            // 
-            // btnBrowseFoldersTarget
-            // 
-            this.btnBrowseFoldersTarget.Location = new System.Drawing.Point(361, 61);
-            this.btnBrowseFoldersTarget.Name = "btnBrowseFoldersTarget";
-            this.btnBrowseFoldersTarget.Size = new System.Drawing.Size(25, 23);
-            this.btnBrowseFoldersTarget.TabIndex = 21;
-            this.btnBrowseFoldersTarget.Text = "...";
-            this.btnBrowseFoldersTarget.UseVisualStyleBackColor = true;
-            this.btnBrowseFoldersTarget.Click += new System.EventHandler(this.btnBrowseFoldersTarget_Click);
             // 
             // radManual
             // 
@@ -213,50 +167,10 @@
             this.numSeconds.TabIndex = 25;
             this.numSeconds.Value = global::Backy.Properties.Settings.Default.autoBackupInterval;
             // 
-            // txtTarget
-            // 
-            this.txtTarget.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::Backy.Properties.Settings.Default, "TargetFolder", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.txtTarget.Location = new System.Drawing.Point(83, 63);
-            this.txtTarget.Name = "txtTarget";
-            this.txtTarget.Size = new System.Drawing.Size(272, 20);
-            this.txtTarget.TabIndex = 3;
-            this.txtTarget.Text = global::Backy.Properties.Settings.Default.TargetFolder;
-            this.txtTarget.Validated += new System.EventHandler(this.txtTarget_Validated);
-            // 
-            // txtSource
-            // 
-            this.txtSource.DataBindings.Add(new System.Windows.Forms.Binding("Text", global::Backy.Properties.Settings.Default, "SourceFolder", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
-            this.txtSource.Location = new System.Drawing.Point(83, 30);
-            this.txtSource.Name = "txtSource";
-            this.txtSource.Size = new System.Drawing.Size(272, 20);
-            this.txtSource.TabIndex = 2;
-            this.txtSource.Text = global::Backy.Properties.Settings.Default.SourceFolder;
-            this.txtSource.Validated += new System.EventHandler(this.txtSource_Validated);
-            // 
             // changeDetectionTimer
             // 
             this.changeDetectionTimer.Interval = 1000;
             this.changeDetectionTimer.Tick += new System.EventHandler(this.changeDetectionTimer_Tick);
-            // 
-            // btnOpenSource
-            // 
-            this.btnOpenSource.Location = new System.Drawing.Point(392, 28);
-            this.btnOpenSource.Name = "btnOpenSource";
-            this.btnOpenSource.Size = new System.Drawing.Size(25, 23);
-            this.btnOpenSource.TabIndex = 31;
-            this.btnOpenSource.Text = "->";
-            this.btnOpenSource.UseVisualStyleBackColor = true;
-            this.btnOpenSource.Click += new System.EventHandler(this.btnOpenSource_Click);
-            // 
-            // btnOpenTarget
-            // 
-            this.btnOpenTarget.Location = new System.Drawing.Point(392, 61);
-            this.btnOpenTarget.Name = "btnOpenTarget";
-            this.btnOpenTarget.Size = new System.Drawing.Size(25, 23);
-            this.btnOpenTarget.TabIndex = 32;
-            this.btnOpenTarget.Text = "->";
-            this.btnOpenTarget.UseVisualStyleBackColor = true;
-            this.btnOpenTarget.Click += new System.EventHandler(this.btnOpenTarget_Click);
             // 
             // multiStepProgress1
             // 
@@ -269,7 +183,7 @@
             // 
             // btnSettings
             // 
-            this.btnSettings.Location = new System.Drawing.Point(83, 1);
+            this.btnSettings.Location = new System.Drawing.Point(94, 25);
             this.btnSettings.Name = "btnSettings";
             this.btnSettings.Size = new System.Drawing.Size(75, 23);
             this.btnSettings.TabIndex = 33;
@@ -283,8 +197,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(440, 493);
             this.Controls.Add(this.btnSettings);
-            this.Controls.Add(this.btnOpenTarget);
-            this.Controls.Add(this.btnOpenSource);
             this.Controls.Add(this.btnDetect);
             this.Controls.Add(this.radDetection);
             this.Controls.Add(this.label3);
@@ -292,16 +204,10 @@
             this.Controls.Add(this.btnStartStop);
             this.Controls.Add(this.radScheduled);
             this.Controls.Add(this.radManual);
-            this.Controls.Add(this.btnBrowseFoldersTarget);
-            this.Controls.Add(this.btnBrowseFoldersSource);
             this.Controls.Add(this.multiStepProgress1);
             this.Controls.Add(this.btnView);
             this.Controls.Add(this.btnAbort);
             this.Controls.Add(this.btnRun);
-            this.Controls.Add(this.txtTarget);
-            this.Controls.Add(this.txtSource);
-            this.Controls.Add(this.label2);
-            this.Controls.Add(this.label1);
             this.MaximumSize = new System.Drawing.Size(456, 800);
             this.MinimumSize = new System.Drawing.Size(456, 488);
             this.Name = "Main";
@@ -315,17 +221,10 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox txtSource;
-        private System.Windows.Forms.TextBox txtTarget;
         private System.Windows.Forms.Button btnRun;
         private System.Windows.Forms.Button btnAbort;
         private System.Windows.Forms.Button btnView;
         private MultiStepProgress multiStepProgress1;
-        private System.Windows.Forms.Button btnBrowseFoldersSource;
-        private System.Windows.Forms.Button btnBrowseFoldersTarget;
         private System.Windows.Forms.RadioButton radManual;
         private System.Windows.Forms.RadioButton radScheduled;
         private System.Windows.Forms.Button btnStartStop;
@@ -335,8 +234,6 @@
         private System.Windows.Forms.Button btnDetect;
         private System.Windows.Forms.RadioButton radDetection;
         private System.Windows.Forms.Timer changeDetectionTimer;
-        private System.Windows.Forms.Button btnOpenSource;
-        private System.Windows.Forms.Button btnOpenTarget;
         private System.Windows.Forms.Button btnSettings;
     }
 }
