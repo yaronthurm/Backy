@@ -33,20 +33,77 @@ namespace Backy
                 return;
             }
 
-            var containedIn = GetContainingPathOrNull(selectedPath);
-            if (containedIn != null)
+            if (PathIsContainedInAnExistingPath(selectedPath))
             {
+                var containedIn = GetContainingPath(selectedPath);
                 MessageBox.Show($"Directory '{selectedPath}' is already contained in '{containedIn}'");
+                return;
+            }
+
+            if (PathContainsAnAlreadyExistingPath(selectedPath))
+            {
+                string[] containing = GetAllContainedPaths(selectedPath);
+                var msgRes = MessageBox.Show(
+                    $"Directory '{selectedPath}' contains the following selected directories:\n" +
+                    $"{string.Join(Environment.NewLine, containing)}\n" +
+                    "Choose ok to replace the contained directories with the selected directory or cancle.",
+                    "",
+                     MessageBoxButtons.OKCancel
+                    );
+                if (msgRes == DialogResult.OK)
+                    ReplaceContainedDirectoriesWithContainingDirectory(selectedPath);
                 return;
             }
 
             this.AddNewSourceUIControl(selectedPath);
         }
 
-
-        private string GetContainingPathOrNull(string selectedPath)
+        private void ReplaceContainedDirectoriesWithContainingDirectory(string selectedPath)
         {
-            var ret = _selectedDirectories.FirstOrDefault(x => selectedPath.StartsWith(x));
+            var directoriesToRemove = GetAllContainedPaths(selectedPath);
+            foreach (var directoryToRemvoe in directoriesToRemove)
+            {
+                _selectedDirectories.Remove(directoryToRemvoe);
+                var uiToRemove = GetUIControlByPath(directoryToRemvoe);
+                this.flowLayoutPanel1.Controls.Remove(uiToRemove);
+            }
+            this.AddNewSourceUIControl(selectedPath);
+        }
+
+        private BackupSourceView GetUIControlByPath(string path)
+        {
+            foreach (var control in this.flowLayoutPanel1.Controls)
+            {
+                var backupControl = control as BackupSourceView;
+                if (backupControl != null && backupControl.GetPath() == path)
+                {
+                    return backupControl;
+                }
+            }
+            throw new ApplicationException("Count not find UI control for path: " + path);
+        }
+
+        private string[] GetAllContainedPaths(string selectedPath)
+        {
+            var ret = _selectedDirectories.Where(x => x.StartsWith(selectedPath)).ToArray();
+            return ret;
+        }
+
+        private bool PathContainsAnAlreadyExistingPath(string selectedPath)
+        {
+            var ret = _selectedDirectories.Any(x => x.StartsWith(selectedPath));
+            return ret;
+        }
+
+        private bool PathIsContainedInAnExistingPath(string selectedPath)
+        {
+            var ret = _selectedDirectories.Any(x => selectedPath.StartsWith(x));
+            return ret;
+        }
+
+        private string GetContainingPath(string selectedPath)
+        {
+            var ret = _selectedDirectories.First(x => selectedPath.StartsWith(x));
             return ret;
         }
 
