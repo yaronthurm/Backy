@@ -72,6 +72,12 @@
     <Compile Include="AddBackupSourcesPanel.Designer.cs">
       <DependentUpon>AddBackupSourcesPanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="BackupTargetView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="BackupTargetView.Designer.cs">
+      <DependentUpon>BackupTargetView.cs</DependentUpon>
+    </Compile>
     <Compile Include="FilesPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -125,6 +131,9 @@
     </Compile>
     <EmbeddedResource Include="AddBackupSourcesPanel.resx">
       <DependentUpon>AddBackupSourcesPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BackupTargetView.resx">
+      <DependentUpon>BackupTargetView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FilesPanel.resx">
       <DependentUpon>FilesPanel.cs</DependentUpon>

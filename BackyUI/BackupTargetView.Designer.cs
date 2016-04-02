@@ -1,6 +1,6 @@
 ﻿namespace Backy
 {
-    partial class BackupSourceView
+    partial class BackupTargetView
     {
         /// <summary> 
         /// Required designer variable.
@@ -30,8 +30,6 @@
         {
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.lblPath = new System.Windows.Forms.Label();
-            this.btnDisable = new System.Windows.Forms.Button();
-            this.btnRemove = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -52,39 +50,18 @@
             this.lblPath.Location = new System.Drawing.Point(89, 0);
             this.lblPath.MaximumSize = new System.Drawing.Size(200, 100);
             this.lblPath.Name = "lblPath";
-            this.lblPath.Size = new System.Drawing.Size(156, 54);
+            this.lblPath.Size = new System.Drawing.Size(156, 80);
             this.lblPath.TabIndex = 2;
             this.lblPath.Text = "Name";
             // 
-            // btnDisable
-            // 
-            this.btnDisable.Location = new System.Drawing.Point(170, 57);
-            this.btnDisable.Name = "btnDisable";
-            this.btnDisable.Size = new System.Drawing.Size(75, 23);
-            this.btnDisable.TabIndex = 3;
-            this.btnDisable.Text = "Disable";
-            this.btnDisable.UseVisualStyleBackColor = true;
-            // 
-            // btnRemove
-            // 
-            this.btnRemove.Location = new System.Drawing.Point(89, 57);
-            this.btnRemove.Name = "btnRemove";
-            this.btnRemove.Size = new System.Drawing.Size(75, 23);
-            this.btnRemove.TabIndex = 4;
-            this.btnRemove.Text = "Remove";
-            this.btnRemove.UseVisualStyleBackColor = true;
-            this.btnRemove.Click += new System.EventHandler(this.btnRemove_Click);
-            // 
-            // BackupSourceView
+            // BackupTargetView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.Controls.Add(this.btnRemove);
-            this.Controls.Add(this.btnDisable);
             this.Controls.Add(this.lblPath);
             this.Controls.Add(this.pictureBox1);
-            this.Name = "BackupSourceView";
+            this.Name = "BackupTargetView";
             this.Size = new System.Drawing.Size(248, 82);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
@@ -95,7 +72,5 @@
 
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Label lblPath;
-        private System.Windows.Forms.Button btnDisable;
-        private System.Windows.Forms.Button btnRemove;
     }
 }
