@@ -37,13 +37,12 @@ namespace Backy
 
 
 
-        public async Task SetDirectoriesAndShow()
+        public async Task SetDirectories()
         {
             this.filesPanel1.Clear();
             this.lblCurrentVersion.Visible = false;
             this.ResetScanCount();
 
-            this.Show();
             _state = new StateCalculator(_fileSystem, _setting.Target, _selectedSourceDirectory);
             _state.OnProgress += OnScanProgressHandler;
             var backupState = await Task.Run(() => _state.GetLastState());
@@ -60,7 +59,8 @@ namespace Backy
 
         public void NotifyNewBackup()
         {
-            //this.SetDirectoriesAndShow();
+            PopulateCombo();
+            this.SetDirectories();
         }
 
 
@@ -152,6 +152,12 @@ namespace Backy
 
         private void View_Load(object sender, EventArgs e)
         {
+            PopulateCombo();
+        }
+
+        private void PopulateCombo()
+        {
+            this.comboBox1.Items.Clear();
             this.comboBox1.Items.AddRange(_setting.Sources.Select(x => x.Path).ToArray());
             this.comboBox1.SelectedIndex = 0;
         }
@@ -159,7 +165,7 @@ namespace Backy
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             _selectedSourceDirectory = this.comboBox1.SelectedItem.ToString();
-            this.SetDirectoriesAndShow();
+            this.SetDirectories();
         }
     }
 }

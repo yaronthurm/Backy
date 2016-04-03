@@ -44,7 +44,34 @@ namespace BackyLogic
 
         public DateTime GetLastWriteTime(string fullname)
         {
-            return File.GetLastWriteTime(fullname);
+            var fileInfo = SafeGetFileInfo(fullname);
+            return fileInfo.LastWriteTime;
+        }
+
+        private static FileInfo SafeGetFileInfo(string fullname)
+        {
+            if (fullname.Length < 260)
+                return new FileInfo(fullname);
+
+            int indexOf = fullname.LastIndexOf("\\");
+            var dirname = fullname.Substring(0, indexOf);
+            var filename = fullname.Substring(indexOf + 1, fullname.Length - indexOf - 1);
+            DirectoryInfo dirInfo = SafeGetDirectoryInfo(dirname);
+            var ret = dirInfo.EnumerateFiles().First(x => x.Name == filename);
+            return ret;
+        }
+
+        private static DirectoryInfo SafeGetDirectoryInfo(string fullname)
+        {
+            if (fullname.Length < 260)
+                return new DirectoryInfo(fullname);
+
+            int indexOf = fullname.LastIndexOf("\\");
+            var parentDirName = fullname.Substring(0, indexOf);
+            var dirname = fullname.Substring(indexOf + 1, fullname.Length - indexOf - 1);
+            DirectoryInfo dirInfo = SafeGetDirectoryInfo(dirname);
+            var ret = dirInfo.EnumerateDirectories().First(x => x.Name == dirname);
+            return ret;
         }
 
         public void MakeDirectoryReadOnly(string dirName)
