@@ -14,6 +14,12 @@ namespace TestBacky
     public class TestRealFileSystem
     {
         [TestMethod]
+        public void UnmarkAsReadOnly()
+        {
+            UnmarkDirectoryAsReadOnlyRecursive(@"D:\TargetGuid");
+        }
+
+        [TestMethod]
         public void RealFileSystem_01_Run_backup_and_test_files_on_disk()
         {
             var source = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));

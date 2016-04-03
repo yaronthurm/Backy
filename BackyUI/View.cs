@@ -16,57 +16,51 @@ namespace Backy
     public partial class View : Form
     {
         private StateCalculator _state;
-        private string _targetRootDirectory;
-        private string _sourceRootDirectory;
+        private string _selectedSourceDirectory;
         private IFileSystem _fileSystem;
         private RestoreTo _restorToForm = new RestoreTo();
-        private bool _shouldUpdateView;
+        private BackyLogic.Settings _setting;
 
-        public View(IFileSystem fileSystem)
+
+        public View(IFileSystem fileSystem, BackyLogic.Settings setting)
         {
             InitializeComponent();
 
             _fileSystem = fileSystem;
             this.filesPanel1.AddContextMenuItem("Open", x => Process.Start(x.PhysicalPath));
             this.filesPanel1.AddContextMenuItem("Copy", x => Clipboard.SetFileDropList(new System.Collections.Specialized.StringCollection { x.PhysicalPath }));
-            this.filesPanel1.AddContextMenuItem("Restore", x => RestoreFile(x, _sourceRootDirectory));
+            this.filesPanel1.AddContextMenuItem("Restore", x => RestoreFile(x, _selectedSourceDirectory));
+
+            _setting = setting;
         }
 
 
-        public async Task SetDirectoriesAndShow(string targetRootDirectory, string sourceRootDirectory)
+
+
+        public async Task SetDirectoriesAndShow()
         {
-            _sourceRootDirectory = sourceRootDirectory;
-            if (targetRootDirectory != _targetRootDirectory || _shouldUpdateView)
-            {                
-                _targetRootDirectory = targetRootDirectory;
-                _shouldUpdateView = false;
-                this.filesPanel1.Clear();
-                this.lblCurrentVersion.Visible = false;
-                this.ResetScanCount();
-
-                this.Show();
-                _state = new StateCalculator(_fileSystem, _targetRootDirectory, _sourceRootDirectory);
-                _state.OnProgress += OnScanProgressHandler;
-                var backupState =  await Task.Run(() => _state.GetLastState());
-                this.lblScanned.Visible = false;
-                this.lblCurrentVersion.Text = _state.MaxVersion.ToString();
-                this.SetFiles(backupState.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
-
-                this.btnPrev.Enabled = _state.MaxVersion > 1;
-                this.btnNext.Enabled = false;
-                this.btnRestoreTo.Enabled = true;
-                this.filesPanel1.Enabled = true;
-                this.lblCurrentVersion.Visible = true;
-            }
-
-            
+            this.filesPanel1.Clear();
+            this.lblCurrentVersion.Visible = false;
+            this.ResetScanCount();
 
             this.Show();
+            _state = new StateCalculator(_fileSystem, _setting.Target, _selectedSourceDirectory);
+            _state.OnProgress += OnScanProgressHandler;
+            var backupState = await Task.Run(() => _state.GetLastState());
+            this.lblScanned.Visible = false;
+            this.lblCurrentVersion.Text = _state.MaxVersion.ToString();
+            this.SetFiles(backupState.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
+
+            this.btnPrev.Enabled = _state.MaxVersion > 1;
+            this.btnNext.Enabled = false;
+            this.btnRestoreTo.Enabled = true;
+            this.filesPanel1.Enabled = true;
+            this.lblCurrentVersion.Visible = true;
         }
 
         public void NotifyNewBackup()
         {
-            _shouldUpdateView = true;
+            //this.SetDirectoriesAndShow();
         }
 
 
@@ -93,7 +87,7 @@ namespace Backy
 
         private void SetFiles(IEnumerable<FileView> files)
         {
-            this.filesPanel1.PopulateFiles(files, _targetRootDirectory);
+            this.filesPanel1.PopulateFiles(files, _setting.Target);
         }
 
         private void btnPrev_Click(object sender, EventArgs e)
@@ -148,12 +142,24 @@ namespace Backy
         {
             _restorToForm.SetRestoreData(new CloneSource
             {
-                BackupPath = _targetRootDirectory,
-                OriginalSourcePath = _sourceRootDirectory
+                BackupPath = _setting.Target,
+                OriginalSourcePath = _selectedSourceDirectory
             },
             int.Parse(this.lblCurrentVersion.Text));
 
             _restorToForm.Show();
+        }
+
+        private void View_Load(object sender, EventArgs e)
+        {
+            this.comboBox1.Items.AddRange(_setting.Sources.Select(x => x.Path).ToArray());
+            this.comboBox1.SelectedIndex = 0;
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            _selectedSourceDirectory = this.comboBox1.SelectedItem.ToString();
+            this.SetDirectoriesAndShow();
         }
     }
 }

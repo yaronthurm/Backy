@@ -41,7 +41,7 @@ namespace Backy
             _watcher.IncludeSubdirectories = true;
 
             _fileSystem = new OSFileSystem();
-            _viewForm = new View(_fileSystem);
+            _viewForm = new View(_fileSystem, _settings);
 
             this.multiStepProgress1.BackColor = SystemColors.Control;
             this.richTextBox1.BackColor = SystemColors.Control;
@@ -143,7 +143,8 @@ namespace Backy
 
         private void btnView_Click(object sender, EventArgs e)
         {
-            _viewForm.SetDirectoriesAndShow(_settings.Target,  _settings.Sources[0].Path);
+            //_viewForm.SetDirectoriesAndShow(_settings.Target,  _settings.Sources);
+            _viewForm.Show();
         }
 
         private void btnStartStop_Click(object sender, EventArgs e)

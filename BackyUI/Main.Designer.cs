@@ -137,6 +137,7 @@
             this.btnDetect.Tag = "1";
             this.btnDetect.Text = "Detect";
             this.btnDetect.UseVisualStyleBackColor = true;
+            this.btnDetect.Visible = false;
             this.btnDetect.Click += new System.EventHandler(this.btnDetect_Click);
             // 
             // radDetection
@@ -148,6 +149,7 @@
             this.radDetection.TabIndex = 27;
             this.radDetection.Text = "On change";
             this.radDetection.UseVisualStyleBackColor = true;
+            this.radDetection.Visible = false;
             // 
             // numSeconds
             // 
