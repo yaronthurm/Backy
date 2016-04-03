@@ -23,6 +23,7 @@ namespace Backy
         private IFileSystem _fileSystem;
         private View _viewForm;
         private BackyLogic.Settings _settings = BackyLogic.Settings.Load();
+        private CancellationTokenSource _cancelTokenSource;
         
 
         public Main()
@@ -41,6 +42,9 @@ namespace Backy
 
             _fileSystem = new OSFileSystem();
             _viewForm = new View(_fileSystem);
+
+            this.multiStepProgress1.BackColor = SystemColors.Control;
+            this.richTextBox1.BackColor = SystemColors.Control;
         }
 
         private void Radio_CheckedChanged(object sender, EventArgs e)
@@ -54,16 +58,51 @@ namespace Backy
         private void btnRun_Click(object sender, EventArgs e)
         {
             this.multiStepProgress1.Clear();
-            _backupCommand = new RunBackupCommand(_fileSystem, _settings.Sources[0], _settings.Target);
-            _backupCommand.Progress = this.multiStepProgress1;
-
-            Task.Run(() => _backupCommand.Execute()).ContinueWith(x => this.Invoke((Action)this.FinishManualBackupCallback));
+            var backupTask = GetTaskForRunningBackupOnAllActiveSources();
+            Task.Run(() => backupTask.RunSynchronously()).ContinueWith(x => this.Invoke((Action)this.FinishManualBackupCallback));
 
             this.btnAbort.Enabled = true;
             this.btnRun.Enabled = false;
             this.radScheduled.Enabled = false;
             this.radDetection.Enabled = false;
             this.btnView.Enabled = false;
+        }
+
+        private void autoRunTimer_Tick(object sender, EventArgs e)
+        {
+            this.numSeconds.Value--;
+            if (this.numSeconds.Value == 0)
+            {
+                this.autoRunTimer.Enabled = false;
+                this.multiStepProgress1.Clear();
+                var backupTask = GetTaskForRunningBackupOnAllActiveSources();
+                Task.Run(() => backupTask.RunSynchronously()).ContinueWith(x => this.Invoke((Action)this.FinishAutoBackupCallback));
+
+                this.btnAbort.Enabled = true;
+                this.btnView.Enabled = false;
+                this.btnStartStop.Enabled = false;
+            }
+        }
+
+        private Task GetTaskForRunningBackupOnAllActiveSources()
+        {
+            _cancelTokenSource = new CancellationTokenSource();
+            var backupCommands = _settings
+                .Sources
+                .Where(x => x.Enabled)
+                .Select(x =>
+                new RunBackupCommand(_fileSystem, x.Path, _settings.Target, _cancelTokenSource.Token) { Progress = this.multiStepProgress1 });
+
+            var tasks = backupCommands.Select(x => new Task(x.Execute)).ToArray();
+            var ret = new Task(() =>
+            {
+                foreach (var task in tasks)
+                {
+                    task.Start();
+                    task.Wait();
+                }
+            });
+            return ret;
         }
 
         private void FinishManualBackupCallback()
@@ -98,23 +137,13 @@ namespace Backy
 
         private void btnAbort_Click(object sender, EventArgs e)
         {
-            _backupCommand.Abort();
+            _cancelTokenSource.Cancel();
             this.btnAbort.Enabled = false;
         }
 
         private void btnView_Click(object sender, EventArgs e)
         {
-            _viewForm.SetDirectoriesAndShow(_settings.Target,  _settings.Sources[0]);
-        }
-
-        private void txtSource_Validated(object sender, EventArgs e)
-        {
-            Properties.Settings.Default.Save();
-        }
-
-        private void txtTarget_Validated(object sender, EventArgs e)
-        {
-            Properties.Settings.Default.Save();
+            _viewForm.SetDirectoriesAndShow(_settings.Target,  _settings.Sources[0].Path);
         }
 
         private void btnStartStop_Click(object sender, EventArgs e)
@@ -142,35 +171,18 @@ namespace Backy
             }
         }
 
-        private void autoRunTimer_Tick(object sender, EventArgs e)
-        {
-            this.numSeconds.Value--;
-            if (this.numSeconds.Value == 0)
-            {
-                this.autoRunTimer.Enabled = false;
-                this.multiStepProgress1.Clear();
-                _backupCommand = new RunBackupCommand(new OSFileSystem(), _settings.Sources[0], _settings.Target);
-                _backupCommand.Progress = this.multiStepProgress1;
-                Task.Run(() => _backupCommand.Execute()).ContinueWith(x => this.Invoke((Action)this.FinishAutoBackupCallback));
-
-                this.btnAbort.Enabled = true;
-                this.btnView.Enabled = false;
-                this.btnStartStop.Enabled = false;
-            }
-        }
-
         private void btnDetect_Click(object sender, EventArgs e)
         {
             if (this.btnDetect.Text == "Detect")
             {
-                if (!Directory.Exists(_settings.Sources[0])) return;
+                if (!Directory.Exists(_settings.Sources[0].Path)) return;
 
                 this.radScheduled.Enabled = false;
                 this.radManual.Enabled = false;
                 this.btnDetect.Text = "Stop";
                 this.multiStepProgress1.Clear();
 
-                _watcher.Path = _settings.Sources[0];
+                _watcher.Path = _settings.Sources[0].Path;
                 _watcher.EnableRaisingEvents = true;
                 this.multiStepProgress1.StartUnboundedStep("Running in:");
                 this.multiStepProgress1.UpdateProgress(_onChangeDetectionCounter.CurrentValue);
@@ -221,7 +233,7 @@ namespace Backy
             if (this._onChangeDetectionCounter.CurrentValue == 0)
             {
                 this.changeDetectionTimer.Stop();
-                _backupCommand = new RunBackupCommand(new OSFileSystem(), _settings.Sources[0], _settings.Target);
+                _backupCommand = new RunBackupCommand(new OSFileSystem(), _settings.Sources[0].Path, _settings.Target);
                 _backupCommand.Progress = this.multiStepProgress1;
                 _detectChanges.Reset();
 
@@ -237,14 +249,19 @@ namespace Backy
 
         private void Main_Load(object sender, EventArgs e)
         {
-            //this.btnDetect_Click(null, null);
-            // Step 1: selected sources and target
+            PopulateSelectedDirectories();
+            Radio_CheckedChanged(null, null);
+        }
+
+        private void PopulateSelectedDirectories()
+        {
+            this.richTextBox1.Text = "";
             if (_settings.Sources.Any() && !string.IsNullOrEmpty(_settings.Target))
             {
                 this.richTextBox1.SelectionFont = new Font(this.Font, FontStyle.Bold | FontStyle.Underline);
                 this.richTextBox1.AppendText("Chosen directories:\n");
                 this.richTextBox1.SelectionFont = this.Font;
-                this.richTextBox1.AppendText(string.Join(";\n", _settings.Sources));
+                this.richTextBox1.AppendText(string.Join(";\n", _settings.Sources.Select(x => x.Path + (x.Enabled ? "" : " (Disabled)"))));
                 this.richTextBox1.SelectionFont = new Font(this.Font, FontStyle.Bold | FontStyle.Underline);
                 this.richTextBox1.AppendText("\nTarget:\n");
                 this.richTextBox1.SelectionFont = this.Font;
@@ -253,7 +270,7 @@ namespace Backy
             }
             else
             {
-                this.richTextBox1.SelectionFont = new Font(this.Font, FontStyle.Bold | FontStyle.Underline);
+                this.richTextBox1.SelectionFont = new Font(this.Font, FontStyle.Bold);
                 this.richTextBox1.AppendText("You haven't yet chosen directories to backup.\n");
                 this.richTextBox1.AppendText("Press setup to start.");
                 this.btnSettings.Text = "Setup...";
@@ -263,26 +280,16 @@ namespace Backy
         private void btnSettings_Click(object sender, EventArgs e)
         {
             var settingsForm = new Settings();
-            var settings = BackyLogic.Settings.Load();
-            settingsForm.SetSettigns(settings);
+            settingsForm.SetSettigns(_settings);
 
             var res = settingsForm.ShowDialog();
             if (res == DialogResult.Cancel) return;
 
             
-            settings.SetSources(settingsForm.GetSelectedSources());
-            settings.SetTarget(settingsForm.GetSelectedTarget());
-            settings.Save();
-        }
-
-        private void label2_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void richTextBox1_TextChanged(object sender, EventArgs e)
-        {
-
+            _settings.SetSources(settingsForm.GetSelectedSources());
+            _settings.SetTarget(settingsForm.GetSelectedTarget());
+            _settings.Save();
+            PopulateSelectedDirectories();
         }
     }
 

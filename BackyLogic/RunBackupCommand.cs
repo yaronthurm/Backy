@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BackyLogic
@@ -14,27 +15,30 @@ namespace BackyLogic
         private string _source;
         private string _target;
         private IFileSystem _fileSystem;
-        private bool _abort;
         private FoldersDiff _diff;
         public IMultiStepProgress Progress;
+        private CancellationToken _cancellationToken;
 
-        public RunBackupCommand(IFileSystem fileSystem, string source, string target)
+        public RunBackupCommand(IFileSystem fileSystem, string source, string target, CancellationToken cancellationToken = new CancellationToken())
         {
             _fileSystem = fileSystem;
             _source = source;
             _target = FindOrCreateTargetForSource(source, target, fileSystem);
+            _cancellationToken = cancellationToken;
         }
 
 
         public void Execute()
         {
+            if (IsAborted()) return;
             var sw = Stopwatch.StartNew();
             try {
-                this.Progress?.StartStepWithoutProgress("Started: " + DateTime.Now);
+                this.Progress?.StartStepWithoutProgress($"Started backing up '{_source}' at: { DateTime.Now }");
 
                 State currentState = GetCurrentState();
                 if (IsAborted()) return;
 
+                Thread.Sleep(5000);
                 State lastBackedupState = GetLastBackedUpState();
                 if (IsAborted()) return;
 
@@ -116,7 +120,7 @@ namespace BackyLogic
 
         private bool IsAborted()
         {
-            return _abort;
+            return _cancellationToken.IsCancellationRequested;
         }
 
         private FoldersDiff GetDiff(State currentState, State lastBackedupState)
@@ -124,13 +128,6 @@ namespace BackyLogic
             var ret = new FoldersDiff(_fileSystem, currentState, lastBackedupState);
             ret.Progress = this.Progress;
             return ret;
-        }
-
-        public void Abort()
-        {
-            _abort = true;
-            if (_diff != null)
-                _diff.Abort();
         }
 
         private void MarkAllRenamedFiles(string targetDir, FoldersDiff diff)
@@ -143,7 +140,7 @@ namespace BackyLogic
                 _fileSystem.CreateFile(renamedFilename);
                 foreach (var file in renamedFiles)
                 {
-                    if (_abort) break;
+                    if (IsAborted()) break;
                     string renameLine = new JObject(new JProperty("oldName", file.OldName), new JProperty("newName", file.NewName)).ToString(Newtonsoft.Json.Formatting.None);
                     _fileSystem.AppendLine(renamedFilename, renameLine);
                     this.Progress?.Increment();
@@ -161,7 +158,7 @@ namespace BackyLogic
                 _fileSystem.CreateFile(deletedFilename);
                 foreach (var file in deletedFiles)
                 {
-                    if (_abort) break;
+                    if (IsAborted()) break;
                     _fileSystem.AppendLine(deletedFilename, file.RelativeName);
                     this.Progress?.Increment();
                 }
@@ -176,7 +173,7 @@ namespace BackyLogic
                 this.Progress?.StartBoundedStep("Copy modified files", modifiedFiles.Count);
             foreach (BackyFile file in modifiedFiles)
             {
-                if (_abort) break;
+                if (IsAborted()) break;
                 try {
                     _fileSystem.Copy(file.PhysicalPath, System.IO.Path.Combine(targetDir, file.RelativeName));                    
                     this.Progress?.Increment();
@@ -196,7 +193,7 @@ namespace BackyLogic
                 this.Progress?.StartBoundedStep("Copy new files", newFiles.Count);
             foreach (BackyFile file in newFiles)
             {
-                if (_abort) break;
+                if (IsAborted()) break;
                 try {
                     _fileSystem.Copy(file.PhysicalPath, System.IO.Path.Combine(targetDir, file.RelativeName));
                     this.Progress?.Increment();

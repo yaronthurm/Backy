@@ -11,7 +11,7 @@ namespace BackyLogic
 {
     public class Settings
     {
-        public string[] Sources { get; set; } = new string[0];
+        public Source[] Sources { get; set; } = new Source[0];
         public string Target { get; set; } = "";
 
         private Settings() { }
@@ -47,7 +47,7 @@ namespace BackyLogic
             File.WriteAllText(GetSettingsFilePath(), txt);
         }
 
-        public void SetSources(string[] sources)
+        public void SetSources(Source[] sources)
         {
             this.Sources = sources;
         }
@@ -55,6 +55,14 @@ namespace BackyLogic
         public void SetTarget(string target)
         {
             this.Target = target;
+        }
+
+
+
+        public class Source
+        {
+            public string Path;
+            public bool Enabled;
         }
     }
 }

@@ -54,17 +54,17 @@ namespace Backy
                 return;
             }
 
-            this.AddNewSourceUIControl(selectedPath);
+            this.AddNewSourceUIControl(new BackyLogic.Settings.Source { Path = selectedPath, Enabled = true });
         }
 
-        public void AddSource(string source)
+        public void AddSource(BackyLogic.Settings.Source source)
         {
             this.AddNewSourceUIControl(source);
         }
 
-        public string[] GetSelectedSources()
+        public BackyLogic.Settings.Source[] GetSelectedSources()
         {
-            var ret = this.GetAllBackupSourceControls().Select(x => x.Path).ToArray();
+            var ret = this.GetAllBackupSourceControls().Select(x => new BackyLogic.Settings.Source { Path = x.Path, Enabled = x.IsActive }).ToArray();
             return ret;
         }
 
@@ -76,7 +76,7 @@ namespace Backy
                 var uiToRemove = GetUIControlByPath(directoryToRemvoe);
                 this.flowLayoutPanel1.Controls.Remove(uiToRemove);
             }
-            this.AddNewSourceUIControl(selectedPath);
+            this.AddNewSourceUIControl(new BackyLogic.Settings.Source { Path = selectedPath, Enabled = true });
         }
 
         private BackupSourceView GetUIControlByPath(string path)
@@ -148,11 +148,11 @@ namespace Backy
             return null;
         }
 
-        private void AddNewSourceUIControl(string selectedPath)
+        private void AddNewSourceUIControl(BackyLogic.Settings.Source source)
         {
             var sourceDirectoryControl = new BackupSourceView();
             sourceDirectoryControl.OnRemoveClick += SourceDirectoryControl_OnRemoveClick;
-            sourceDirectoryControl.SetDirectory(selectedPath);
+            sourceDirectoryControl.SetDirectory(source.Path, source.Enabled);
 
             this.flowLayoutPanel1.Controls.Remove(this.btnAdd);
             this.flowLayoutPanel1.Controls.Add(sourceDirectoryControl);

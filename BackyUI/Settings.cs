@@ -27,7 +27,7 @@ namespace Backy
         }
 
 
-        public string[] GetSelectedSources()
+        public BackyLogic.Settings.Source[] GetSelectedSources()
         {
             var ret = this.addSourcesPanel1.GetSelectedSources();
             return ret;
