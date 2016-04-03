@@ -38,7 +38,6 @@ namespace BackyLogic
                 State currentState = GetCurrentState();
                 if (IsAborted()) return;
 
-                Thread.Sleep(5000);
                 State lastBackedupState = GetLastBackedUpState();
                 if (IsAborted()) return;
 
