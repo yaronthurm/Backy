@@ -13,7 +13,7 @@ namespace TestBacky
     [TestClass]
     public class TestRealFileSystem
     {
-        [TestMethod]
+        //[TestMethod]
         public void UnmarkAsReadOnly()
         {
             UnmarkDirectoryAsReadOnlyRecursive(@"D:\TargetGuid");

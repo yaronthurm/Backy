@@ -37,6 +37,9 @@ namespace BackyLogic
 
             var txt = File.ReadAllText(settingsFile);
             var ret = JsonConvert.DeserializeObject<Settings>(txt);
+            ret.Sources = ret.Sources.Where(x => Directory.Exists(x.Path)).ToArray();
+            if (!Directory.Exists(ret.Target))
+                ret.Target = null;
             return ret;
         }
 
