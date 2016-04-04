@@ -60,7 +60,6 @@ namespace Backy
         public void NotifyNewBackup()
         {
             PopulateCombo();
-            this.SetDirectories();
         }
 
 
