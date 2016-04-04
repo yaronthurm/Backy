@@ -1,5 +1,6 @@
 ﻿using BackyLogic;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -16,13 +17,12 @@ namespace Backy
     public partial class View : Form
     {
         private bool _isLoaded;
-        private StateCalculator _state;
+        private StateCalculator _stateCalculator;
         private string _selectedSourceDirectory;
         private IFileSystem _fileSystem;
         private RestoreTo _restorToForm = new RestoreTo();
         private BackyLogic.Settings _setting;
-        private Dictionary<string, State> _statePerSource = new Dictionary<string, State>();
-
+        private ConcurrentDictionary<string, State> _statePerSource = new ConcurrentDictionary<string, State>();
 
         public View(IFileSystem fileSystem, BackyLogic.Settings setting)
         {
@@ -47,17 +47,19 @@ namespace Backy
 
             if (!_statePerSource.ContainsKey(_selectedSourceDirectory))
             {
-                _state = new StateCalculator(_fileSystem, _setting.Target, _selectedSourceDirectory);
-                _state.OnProgress += OnScanProgressHandler;
-                _statePerSource[_selectedSourceDirectory] = await Task.Run(() => _state.GetLastState());
+                var stateCalculator = new StateCalculator(_fileSystem, _setting.Target, _selectedSourceDirectory);
+                stateCalculator.OnProgress += OnScanProgressHandler;
+                _statePerSource[_selectedSourceDirectory] = await Task.Run(() => stateCalculator.GetLastState());
+
+                _stateCalculator = stateCalculator;
             }
 
             var backupState = _statePerSource[_selectedSourceDirectory];
             this.lblScanned.Visible = false;
-            this.lblCurrentVersion.Text = _state.MaxVersion.ToString();
+            this.lblCurrentVersion.Text = _stateCalculator.MaxVersion.ToString();
             this.SetFiles(backupState.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
 
-            this.btnPrev.Enabled = _state.MaxVersion > 1;
+            this.btnPrev.Enabled = _stateCalculator.MaxVersion > 1;
             this.btnNext.Enabled = false;
             this.btnRestoreTo.Enabled = true;
             this.filesPanel1.Enabled = true;
@@ -68,7 +70,7 @@ namespace Backy
         {
             if (_isLoaded)
             {
-                _statePerSource = new Dictionary<string, State>();
+                _statePerSource = new ConcurrentDictionary<string, State>();
                 PopulateCombo();
             }
         }
@@ -107,7 +109,7 @@ namespace Backy
             var currentVersion = int.Parse(this.lblCurrentVersion.Text);
             currentVersion--;
 
-            var backupState = _state.GetState(currentVersion);
+            var backupState = _stateCalculator.GetState(currentVersion);
             this.lblCurrentVersion.Text = currentVersion.ToString();
             this.SetFiles(backupState.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
 
@@ -122,11 +124,11 @@ namespace Backy
             var currentVersion = int.Parse(this.lblCurrentVersion.Text);
             currentVersion++;
 
-            var backupState = _state.GetState(currentVersion);
+            var backupState = _stateCalculator.GetState(currentVersion);
             this.lblCurrentVersion.Text = currentVersion.ToString();
             this.SetFiles(backupState.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
 
-            if (currentVersion == _state.MaxVersion)
+            if (currentVersion == _stateCalculator.MaxVersion)
                 this.btnNext.Enabled = false;
         }
 
