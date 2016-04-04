@@ -20,6 +20,7 @@ namespace Backy
         private IFileSystem _fileSystem;
         private RestoreTo _restorToForm = new RestoreTo();
         private BackyLogic.Settings _setting;
+        private Dictionary<string, State> _statePerSource = new Dictionary<string, State>();
 
 
         public View(IFileSystem fileSystem, BackyLogic.Settings setting)
@@ -37,15 +38,20 @@ namespace Backy
 
 
 
-        public async Task SetDirectories()
+        private async Task SetDirectories()
         {
             this.filesPanel1.Clear();
             this.lblCurrentVersion.Visible = false;
             this.ResetScanCount();
 
-            _state = new StateCalculator(_fileSystem, _setting.Target, _selectedSourceDirectory);
-            _state.OnProgress += OnScanProgressHandler;
-            var backupState = await Task.Run(() => _state.GetLastState());
+            if (!_statePerSource.ContainsKey(_selectedSourceDirectory))
+            {
+                _state = new StateCalculator(_fileSystem, _setting.Target, _selectedSourceDirectory);
+                _state.OnProgress += OnScanProgressHandler;
+                _statePerSource[_selectedSourceDirectory] = await Task.Run(() => _state.GetLastState());
+            }
+
+            var backupState = _statePerSource[_selectedSourceDirectory];
             this.lblScanned.Visible = false;
             this.lblCurrentVersion.Text = _state.MaxVersion.ToString();
             this.SetFiles(backupState.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
@@ -59,6 +65,7 @@ namespace Backy
 
         public void NotifyNewBackup()
         {
+            _statePerSource = new Dictionary<string, State>();
             PopulateCombo();
         }
 
@@ -156,9 +163,22 @@ namespace Backy
 
         private void PopulateCombo()
         {
+            // Reset the combo box.
+            // Try to set the last selected item (it may not be there any more).
+
+            var currentlySelectedItem = this.comboBox1.SelectedItem?.ToString();
             this.comboBox1.Items.Clear();
             this.comboBox1.Items.AddRange(_setting.Sources.Select(x => x.Path).ToArray());
-            this.comboBox1.SelectedIndex = 0;
+            for (int i = 0; i < this.comboBox1.Items.Count; i++)
+            {
+                if (this.comboBox1.Items[i].ToString() == currentlySelectedItem)
+                {
+                    this.comboBox1.SelectedIndex = i;
+                    break;
+                }
+            }
+            if (this.comboBox1.SelectedIndex == -1)
+                this.comboBox1.SelectedIndex = 0;
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)

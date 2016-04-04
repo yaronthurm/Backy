@@ -61,7 +61,7 @@
             // btnAbort
             // 
             this.btnAbort.Enabled = false;
-            this.btnAbort.Location = new System.Drawing.Point(315, 156);
+            this.btnAbort.Location = new System.Drawing.Point(315, 148);
             this.btnAbort.Name = "btnAbort";
             this.btnAbort.Size = new System.Drawing.Size(75, 23);
             this.btnAbort.TabIndex = 10;
@@ -71,7 +71,7 @@
             // 
             // btnView
             // 
-            this.btnView.Location = new System.Drawing.Point(315, 119);
+            this.btnView.Location = new System.Drawing.Point(315, 116);
             this.btnView.Name = "btnView";
             this.btnView.Size = new System.Drawing.Size(75, 23);
             this.btnView.TabIndex = 18;
