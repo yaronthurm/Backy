@@ -10,7 +10,6 @@ namespace BackyLogic
     public class State
     {
         private HierarchicalDictionary<string, BackyFile> _tree = new HierarchicalDictionary<string, BackyFile>();
-        public int Version;
 
         internal string GetNextDirectory(IFileSystem fileSystem, string targetDir)
         {

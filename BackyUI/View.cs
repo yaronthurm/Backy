@@ -15,6 +15,7 @@ namespace Backy
 {
     public partial class View : Form
     {
+        private bool _isLoaded;
         private StateCalculator _state;
         private string _selectedSourceDirectory;
         private IFileSystem _fileSystem;
@@ -65,8 +66,11 @@ namespace Backy
 
         public void NotifyNewBackup()
         {
-            _statePerSource = new Dictionary<string, State>();
-            PopulateCombo();
+            if (_isLoaded)
+            {
+                _statePerSource = new Dictionary<string, State>();
+                PopulateCombo();
+            }
         }
 
 
@@ -159,6 +163,7 @@ namespace Backy
         private void View_Load(object sender, EventArgs e)
         {
             PopulateCombo();
+            _isLoaded = true;
         }
 
         private void PopulateCombo()
