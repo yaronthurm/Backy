@@ -148,8 +148,8 @@ namespace Backy
 
         private void btnView_Click(object sender, EventArgs e)
         {
-            //_viewForm.SetDirectoriesAndShow(_settings.Target,  _settings.Sources);
             _viewForm.Show();
+            _viewForm.Focus();
         }
 
         private void btnStartStop_Click(object sender, EventArgs e)
