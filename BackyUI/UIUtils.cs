@@ -47,6 +47,13 @@ namespace Backy
             }
         }
 
+        public static string ChooseAnyFolder()
+        {
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            dialog.ShowNewFolderButton = true;
+            var ret = ChooseDirectoryConditionaly(dialog, x => true, "");
+            return ret;
+        }
 
         public static string ChooseEmptyFolder()
         {
