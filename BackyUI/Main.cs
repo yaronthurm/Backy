@@ -291,6 +291,7 @@ namespace Backy
             _settings.SetTarget(settingsForm.GetSelectedTarget());
             _settings.Save();
             PopulateSelectedDirectories();
+            _viewForm.NotifyNewBackup();
         }
     }
 
