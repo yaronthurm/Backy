@@ -12,6 +12,8 @@ namespace Backy
 {
     public partial class AddBackupSourcesPanel : UserControl
     {
+        private string _lastSelectedDirectory;
+
 
         public AddBackupSourcesPanel()
         {
@@ -142,7 +144,9 @@ namespace Backy
         {
             var folderBrowser = new FolderBrowserDialog();
             folderBrowser.ShowNewFolderButton = false;
+            folderBrowser.SelectedPath = _lastSelectedDirectory;
             var result = folderBrowser.ShowDialog();
+            _lastSelectedDirectory = folderBrowser.SelectedPath;
             if (result == DialogResult.OK)
                 return folderBrowser.SelectedPath;
             return null;
