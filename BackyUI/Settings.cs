@@ -20,7 +20,7 @@ namespace Backy
 
         private void btnBrowseFoldersTarget_Click(object sender, EventArgs e)
         {
-            var selectedTarget = UIUtils.ChooseEmptyFolder();
+            var selectedTarget = UIUtils.ChooseAnyFolder();
             if (selectedTarget == null) return;
 
             this.backupTargetView1.SetDirectory(selectedTarget);
