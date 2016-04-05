@@ -101,14 +101,14 @@
             this.addSourcesPanel1.BackColor = System.Drawing.Color.White;
             this.addSourcesPanel1.Location = new System.Drawing.Point(12, 36);
             this.addSourcesPanel1.Name = "addSourcesPanel1";
-            this.addSourcesPanel1.Size = new System.Drawing.Size(637, 243);
+            this.addSourcesPanel1.Size = new System.Drawing.Size(630, 237);
             this.addSourcesPanel1.TabIndex = 0;
             // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(661, 487);
+            this.ClientSize = new System.Drawing.Size(654, 481);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOK);
             this.Controls.Add(this.btnBrowseFoldersTarget);
@@ -116,6 +116,8 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.addSourcesPanel1);
+            this.MaximumSize = new System.Drawing.Size(670, 520);
+            this.MinimumSize = new System.Drawing.Size(670, 520);
             this.Name = "Settings";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Settings";
