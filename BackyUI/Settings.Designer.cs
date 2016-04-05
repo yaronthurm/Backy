@@ -51,13 +51,13 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(12, 302);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(245, 13);
+            this.label2.Size = new System.Drawing.Size(208, 13);
             this.label2.TabIndex = 2;
-            this.label2.Text = "Please select an empty directory as the destination";
+            this.label2.Text = "Please select a directory as the destination";
             // 
             // btnBrowseFoldersTarget
             // 
-            this.btnBrowseFoldersTarget.Location = new System.Drawing.Point(263, 302);
+            this.btnBrowseFoldersTarget.Location = new System.Drawing.Point(226, 297);
             this.btnBrowseFoldersTarget.Name = "btnBrowseFoldersTarget";
             this.btnBrowseFoldersTarget.Size = new System.Drawing.Size(25, 23);
             this.btnBrowseFoldersTarget.TabIndex = 22;
