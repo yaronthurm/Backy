@@ -128,7 +128,7 @@ namespace BackyLogic
         {
             var dir = new DirectoryInfo(dirName);
             var file = dir.GetFiles(fileName).FirstOrDefault();
-            return file.FullName;
+            return file?.FullName;
         }
     }
 
