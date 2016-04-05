@@ -37,13 +37,16 @@ namespace Backy
         }
 
 
-
-
-        private async Task SetDirectories()
+        private void ClearView()
         {
             this.filesPanel1.Clear();
             this.lblCurrentVersion.Visible = false;
             this.ResetScanCount();
+        }
+
+        private async Task SetDirectories()
+        {
+            this.ClearView();
 
             if (!_statePerSource.ContainsKey(_selectedSourceDirectory))
             {
@@ -189,7 +192,9 @@ namespace Backy
                     break;
                 }
             }
-            if (this.comboBox1.SelectedIndex == -1 && this.comboBox1.Items.Count > 0)
+            if (this.comboBox1.Items.Count == 0)
+                this.ClearView();
+            else if (this.comboBox1.SelectedIndex == -1)
                 this.comboBox1.SelectedIndex = 0;
         }
 
