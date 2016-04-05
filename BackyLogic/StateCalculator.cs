@@ -28,6 +28,15 @@ namespace BackyLogic
 
         private static string FindTargetForSource(string source, string target, IFileSystem fs)
         {
+            string sourceGuid = FindTargetForSourceOrNull(source, target, fs);
+            if (sourceGuid == null)
+               throw new ApplicationException("Could not find directory for source: " + source);
+            var ret = Path.Combine(target, sourceGuid);
+            return ret;
+        }
+
+        private static string FindTargetForSourceOrNull(string source, string target, IFileSystem fs)
+        {
             string sourceGuid = null;
             var targetDir = fs.GetDirectories(target);
             foreach (var innerDir in fs.GetDirectories(target))
@@ -44,9 +53,15 @@ namespace BackyLogic
                 }
             }
             if (sourceGuid == null)
-               throw new ApplicationException("Could not find directory for source: " + source);
+                return null;
             var ret = Path.Combine(target, sourceGuid);
             return ret;
+        }
+
+        public static bool IsTargetForSourceExist(string source, string target, IFileSystem fs)
+        {
+            string sourceGuid = FindTargetForSourceOrNull(source, target, fs);
+            return sourceGuid != null;
         }
 
         public int MaxVersion

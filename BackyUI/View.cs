@@ -175,7 +175,12 @@ namespace Backy
 
             var currentlySelectedItem = this.comboBox1.SelectedItem?.ToString();
             this.comboBox1.Items.Clear();
-            this.comboBox1.Items.AddRange(_setting.Sources.Select(x => x.Path).ToArray());
+            this.comboBox1.Items.AddRange(
+                _setting
+                .Sources
+                .Select(x => x.Path)
+                .Where(x => StateCalculator.IsTargetForSourceExist(x, _setting.Target, _fileSystem))
+                .ToArray());
             for (int i = 0; i < this.comboBox1.Items.Count; i++)
             {
                 if (this.comboBox1.Items[i].ToString() == currentlySelectedItem)
@@ -184,7 +189,7 @@ namespace Backy
                     break;
                 }
             }
-            if (this.comboBox1.SelectedIndex == -1)
+            if (this.comboBox1.SelectedIndex == -1 && this.comboBox1.Items.Count > 0)
                 this.comboBox1.SelectedIndex = 0;
         }
 
