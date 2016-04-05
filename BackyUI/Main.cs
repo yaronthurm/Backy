@@ -75,6 +75,7 @@ namespace Backy
             if (this.numSeconds.Value == 0)
             {
                 this.autoRunTimer.Enabled = false;
+                this.btnSettings.Enabled = false;
                 this.multiStepProgress1.Clear();
                 var backupTask = GetTaskForRunningBackupOnAllActiveSources();
                 Task.Run(() => backupTask.RunSynchronously()).ContinueWith(x => this.Invoke((Action)this.FinishAutoBackupCallback));
@@ -159,6 +160,7 @@ namespace Backy
                 this.radDetection.Enabled = false;
                 this.numSeconds.Enabled = false;
                 this.numSeconds.Minimum = 0;
+                this.numSeconds.Value = (int)this.numSeconds.Value;
                 this.numSeconds.Tag = this.numSeconds.Value;
                 this.autoRunTimer.Enabled = true;
                 this.btnStartStop.Text = "Cancel";
