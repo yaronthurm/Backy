@@ -56,8 +56,8 @@ namespace Backy
             {
                 var stateCalculator = new StateCalculator(_fileSystem, _setting.Target, _selectedSourceDirectory);
                 stateCalculator.OnProgress += OnScanProgressHandler;
-                await Task.Run(() => stateCalculator.GetLastState());
                 _stateCalculatorPerSource[_selectedSourceDirectory] = stateCalculator;
+                await Task.Run(() => stateCalculator.GetLastState());
             }
 
             var backupState = CurrentStateCalculator.GetLastState();
