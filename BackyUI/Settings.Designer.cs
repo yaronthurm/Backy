@@ -57,7 +57,7 @@
             // 
             // btnBrowseFoldersTarget
             // 
-            this.btnBrowseFoldersTarget.Location = new System.Drawing.Point(226, 297);
+            this.btnBrowseFoldersTarget.Location = new System.Drawing.Point(226, 293);
             this.btnBrowseFoldersTarget.Name = "btnBrowseFoldersTarget";
             this.btnBrowseFoldersTarget.Size = new System.Drawing.Size(25, 23);
             this.btnBrowseFoldersTarget.TabIndex = 22;
