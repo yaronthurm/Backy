@@ -18,11 +18,12 @@ namespace Backy
     {
         private bool _isLoaded;
         private StateCalculator _stateCalculator;
-        private string _selectedSourceDirectory;
+        private string _selectedSourceDirectory = "";
         private IFileSystem _fileSystem;
         private RestoreTo _restorToForm = new RestoreTo();
         private BackyLogic.Settings _setting;
-        private ConcurrentDictionary<string, State> _statePerSource = new ConcurrentDictionary<string, State>();
+        private ConcurrentDictionary<string, StateCalculator> _statePerSource = new ConcurrentDictionary<string, StateCalculator>();
+        private Dictionary<string, string> _currentDirectoryPerSource = new Dictionary<string, string>();
 
         public View(IFileSystem fileSystem, BackyLogic.Settings setting)
         {
@@ -50,14 +51,14 @@ namespace Backy
 
             if (!_statePerSource.ContainsKey(_selectedSourceDirectory))
             {
-                var stateCalculator = new StateCalculator(_fileSystem, _setting.Target, _selectedSourceDirectory);
-                stateCalculator.OnProgress += OnScanProgressHandler;
-                _statePerSource[_selectedSourceDirectory] = await Task.Run(() => stateCalculator.GetLastState());
-
-                _stateCalculator = stateCalculator;
+                _stateCalculator = new StateCalculator(_fileSystem, _setting.Target, _selectedSourceDirectory);
+                _stateCalculator.OnProgress += OnScanProgressHandler;
+                await Task.Run(() => _stateCalculator.GetLastState());
+                _statePerSource[_selectedSourceDirectory] = _stateCalculator;
             }
+            _stateCalculator = _statePerSource[_selectedSourceDirectory];
 
-            var backupState = _statePerSource[_selectedSourceDirectory];
+            var backupState = _stateCalculator.GetLastState();
             this.lblScanned.Visible = false;
             this.lblCurrentVersion.Text = _stateCalculator.MaxVersion.ToString();
             this.SetFiles(backupState.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
@@ -73,7 +74,7 @@ namespace Backy
         {
             if (_isLoaded)
             {
-                _statePerSource = new ConcurrentDictionary<string, State>();
+                _statePerSource = new ConcurrentDictionary<string, StateCalculator>();
                 PopulateCombo();
             }
         }
@@ -200,8 +201,15 @@ namespace Backy
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            _currentDirectoryPerSource[_selectedSourceDirectory] = this.filesPanel1.GetCurrentDirectory();
             _selectedSourceDirectory = this.comboBox1.SelectedItem.ToString();
+            string newSourceDirectory;
+            _currentDirectoryPerSource.TryGetValue(_selectedSourceDirectory, out newSourceDirectory);
+            this.filesPanel1.SetCurrentDirectoty(newSourceDirectory ?? "");
+
             this.SetDirectories();
         }
+
+
     }
 }

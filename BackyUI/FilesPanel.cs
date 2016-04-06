@@ -42,6 +42,16 @@ namespace Backy
             }
         }
 
+        public void SetCurrentDirectoty(string value)
+        {
+            _currentDirectory = value;
+        }
+
+        public string GetCurrentDirectory()
+        {
+            return _currentDirectory;
+        }
+
         public void PopulateFiles(IEnumerable<FileView> files, string rootDirectory)
         {
             _tree = new HierarchicalDictionary<string, FileView>();
@@ -56,7 +66,6 @@ namespace Backy
         public void Clear()
         {
             _currentPage = 1;
-            _currentDirectory = "";
             _pageNumberPerDirectory.Clear();
             this.flowLayoutPanel1.Controls.Clear();
         }
