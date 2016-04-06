@@ -67,7 +67,7 @@ namespace Backy
 
         private bool ThumbnailShouldBeMadeTransparent(string physicalPath)
         {
-            var dontMakeTransparentExtentions = new[] { ".jpg", ".mpeg", ".avi" };
+            var dontMakeTransparentExtentions = new[] { ".jpg", ".mpeg", ".avi", ".png" };
             var ext = Path.GetExtension(physicalPath).ToLower();
             var ret = !dontMakeTransparentExtentions.Contains(ext);
             return ret;
