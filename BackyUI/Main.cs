@@ -271,7 +271,8 @@ namespace Backy
                 this.richTextBox1.SelectionFont = new Font(this.Font, FontStyle.Bold | FontStyle.Underline);
                 this.richTextBox1.AppendText("Chosen directories:\n");
                 this.richTextBox1.SelectionFont = this.Font;
-                this.richTextBox1.AppendText(string.Join(";\n", _settings.Sources.Select(x => x.Path + (x.Enabled ? "" : " (Disabled)"))));
+                this.richTextBox1.AppendText(string.Join("", _settings.Sources.Where(x => !x.Enabled).Select(x => x.Path + " (Disabled)\n")));
+                this.richTextBox1.AppendText(string.Join("", _settings.Sources.Where(x => x.Enabled).Select(x => x.Path + "\n")));
                 this.richTextBox1.SelectionFont = new Font(this.Font, FontStyle.Bold | FontStyle.Underline);
                 this.richTextBox1.AppendText("\nTarget:\n");
                 this.richTextBox1.SelectionFont = this.Font;
