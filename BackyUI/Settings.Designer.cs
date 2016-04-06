@@ -42,22 +42,22 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(12, 20);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(290, 13);
+            this.label1.Size = new System.Drawing.Size(263, 13);
             this.label1.TabIndex = 1;
-            this.label1.Text = "Please select the directories you would like to be backed up";
+            this.label1.Text = "Please select the directories you would like to back up";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(12, 302);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(208, 13);
+            this.label2.Size = new System.Drawing.Size(247, 13);
             this.label2.TabIndex = 2;
-            this.label2.Text = "Please select a directory as the destination";
+            this.label2.Text = "Please select a directory as the backup destination";
             // 
             // btnBrowseFoldersTarget
             // 
-            this.btnBrowseFoldersTarget.Location = new System.Drawing.Point(226, 293);
+            this.btnBrowseFoldersTarget.Location = new System.Drawing.Point(267, 293);
             this.btnBrowseFoldersTarget.Name = "btnBrowseFoldersTarget";
             this.btnBrowseFoldersTarget.Size = new System.Drawing.Size(25, 23);
             this.btnBrowseFoldersTarget.TabIndex = 22;
