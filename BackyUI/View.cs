@@ -17,13 +17,12 @@ namespace Backy
     public partial class View : Form
     {
         private bool _isLoaded;
-        private StateCalculator _stateCalculator;
         private string _selectedSourceDirectory = "";
         private IFileSystem _fileSystem;
         private RestoreTo _restorToForm = new RestoreTo();
         private BackyLogic.Settings _setting;
-        private ConcurrentDictionary<string, StateCalculator> _statePerSource = new ConcurrentDictionary<string, StateCalculator>();
-        private Dictionary<string, string> _currentDirectoryPerSource = new Dictionary<string, string>();
+        private ConcurrentDictionary<string, StateCalculator> _stateCalculatorPerSource = new ConcurrentDictionary<string, StateCalculator>();
+        private ConcurrentDictionary<string, string> _currentDirectoryPerSource = new ConcurrentDictionary<string, string>();
 
         public View(IFileSystem fileSystem, BackyLogic.Settings setting)
         {
@@ -37,6 +36,10 @@ namespace Backy
             _setting = setting;
         }
 
+        private StateCalculator CurrentStateCalculator
+        {
+            get { return _stateCalculatorPerSource[_selectedSourceDirectory]; }
+        }
 
         private void ClearView()
         {
@@ -49,21 +52,20 @@ namespace Backy
         {
             this.ClearView();
 
-            if (!_statePerSource.ContainsKey(_selectedSourceDirectory))
+            if (!_stateCalculatorPerSource.ContainsKey(_selectedSourceDirectory))
             {
-                _stateCalculator = new StateCalculator(_fileSystem, _setting.Target, _selectedSourceDirectory);
-                _stateCalculator.OnProgress += OnScanProgressHandler;
-                await Task.Run(() => _stateCalculator.GetLastState());
-                _statePerSource[_selectedSourceDirectory] = _stateCalculator;
+                var stateCalculator = new StateCalculator(_fileSystem, _setting.Target, _selectedSourceDirectory);
+                stateCalculator.OnProgress += OnScanProgressHandler;
+                await Task.Run(() => stateCalculator.GetLastState());
+                _stateCalculatorPerSource[_selectedSourceDirectory] = stateCalculator;
             }
-            _stateCalculator = _statePerSource[_selectedSourceDirectory];
 
-            var backupState = _stateCalculator.GetLastState();
+            var backupState = CurrentStateCalculator.GetLastState();
             this.lblScanned.Visible = false;
-            this.lblCurrentVersion.Text = _stateCalculator.MaxVersion.ToString();
+            this.lblCurrentVersion.Text = CurrentStateCalculator.MaxVersion.ToString();
             this.SetFiles(backupState.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
 
-            this.btnPrev.Enabled = _stateCalculator.MaxVersion > 1;
+            this.btnPrev.Enabled = CurrentStateCalculator.MaxVersion > 1;
             this.btnNext.Enabled = false;
             this.btnRestoreTo.Enabled = true;
             this.filesPanel1.Enabled = true;
@@ -74,7 +76,7 @@ namespace Backy
         {
             if (_isLoaded)
             {
-                _statePerSource = new ConcurrentDictionary<string, StateCalculator>();
+                _stateCalculatorPerSource = new ConcurrentDictionary<string, StateCalculator>();
                 PopulateCombo();
             }
         }
@@ -113,7 +115,7 @@ namespace Backy
             var currentVersion = int.Parse(this.lblCurrentVersion.Text);
             currentVersion--;
 
-            var backupState = _stateCalculator.GetState(currentVersion);
+            var backupState = CurrentStateCalculator.GetState(currentVersion);
             this.lblCurrentVersion.Text = currentVersion.ToString();
             this.SetFiles(backupState.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
 
@@ -128,11 +130,11 @@ namespace Backy
             var currentVersion = int.Parse(this.lblCurrentVersion.Text);
             currentVersion++;
 
-            var backupState = _stateCalculator.GetState(currentVersion);
+            var backupState = CurrentStateCalculator.GetState(currentVersion);
             this.lblCurrentVersion.Text = currentVersion.ToString();
             this.SetFiles(backupState.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
 
-            if (currentVersion == _stateCalculator.MaxVersion)
+            if (currentVersion == CurrentStateCalculator.MaxVersion)
                 this.btnNext.Enabled = false;
         }
 
