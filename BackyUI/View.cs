@@ -54,10 +54,13 @@ namespace Backy
 
             if (!_stateCalculatorPerSource.ContainsKey(_selectedSourceDirectory))
             {
+                this.comboBox1.Enabled = false;
                 var stateCalculator = new StateCalculator(_fileSystem, _setting.Target, _selectedSourceDirectory);
                 stateCalculator.OnProgress += OnScanProgressHandler;
                 _stateCalculatorPerSource[_selectedSourceDirectory] = stateCalculator;
                 await Task.Run(() => stateCalculator.GetLastState());
+                this.comboBox1.Enabled = true;
+                this.comboBox1.Focus();
             }
 
             var backupState = CurrentStateCalculator.GetLastState();

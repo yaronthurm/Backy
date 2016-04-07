@@ -29,7 +29,7 @@ namespace Backy
             _cloneSource = cloneSource;
             _version = version;
             this.lblRestoreVersion.Text = $"Restore version: { _version }";
-            this.lblRestoreSource.Text = $"Restore source: { cloneSource.BackupPath }";
+            this.lblRestoreSource.Text = $"Restore from: { cloneSource.BackupPath } ({cloneSource.OriginalSourcePath})";
             this.txtRestoreTarget.Text = "";
             this.multiStepProgress1.Clear();
         }
