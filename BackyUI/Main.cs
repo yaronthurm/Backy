@@ -1,5 +1,6 @@
 ﻿using BackyLogic;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -16,15 +17,15 @@ namespace Backy
 {
     public partial class Main : Form
     {
-        private RunBackupCommand _backupCommand;
-        private FileSystemWatcher _watcher = new FileSystemWatcher();
-        private ManualResetEvent _detectChanges = new ManualResetEvent(false);
-        private CountdownCounter _onChangeDetectionCounter = new CountdownCounter(10);
-        private IFileSystem _fileSystem;
+        private Task _backupTask = Task.FromResult(0);
+        private IFileSystem _fileSystem = new OSFileSystem();
         private View _viewForm;
         private BackyLogic.Settings _settings = BackyLogic.Settings.Load();
         private CancellationTokenSource _cancelTokenSource;
-        
+        private Dictionary<string, ManualResetFileSystemWatcher> _watchers = new Dictionary<string, ManualResetFileSystemWatcher>();
+        private BlockingQueue<ManualResetFileSystemWatcher> _changesQueue = new BlockingQueue<ManualResetFileSystemWatcher>();
+        private bool _listenToChanges;
+        private Task _detectChangesTask = Task.FromResult(0);
 
         public Main()
         {
@@ -34,13 +35,6 @@ namespace Backy
             this.radScheduled.CheckedChanged += Radio_CheckedChanged;
             this.radDetection.CheckedChanged += Radio_CheckedChanged;
 
-            _watcher.Changed += (s1, e1) => _detectChanges.Set();
-            _watcher.Created += (s1, e1) => _detectChanges.Set();
-            _watcher.Deleted += (s1, e1) => _detectChanges.Set();
-            _watcher.Renamed += (s1, e1) => _detectChanges.Set();
-            _watcher.IncludeSubdirectories = true;
-
-            _fileSystem = new OSFileSystem();
             _viewForm = new View(_fileSystem, _settings);
 
             this.multiStepProgress1.BackColor = SystemColors.Control;
@@ -55,63 +49,19 @@ namespace Backy
             this.btnDetect.Enabled = this.radDetection.Checked;
         }
 
-        private void btnRun_Click(object sender, EventArgs e)
+        private async void btnRun_Click(object sender, EventArgs e)
         {
             this.multiStepProgress1.Clear();
-            var backupTask = GetTaskForRunningBackupOnAllActiveSources();
-            Task.Run(() => backupTask.RunSynchronously()).ContinueWith(x => this.Invoke((Action)this.FinishManualBackupCallback));
-
             this.btnAbort.Enabled = true;
             this.btnRun.Enabled = false;
             this.radScheduled.Enabled = false;
             this.radDetection.Enabled = false;
             this.btnView.Enabled = false;
             this.btnSettings.Enabled = false;
-        }
 
-        private void autoRunTimer_Tick(object sender, EventArgs e)
-        {
-            this.numSeconds.Value--;
-            if (this.numSeconds.Value == 0)
-            {
-                this.autoRunTimer.Enabled = false;
-                this.btnSettings.Enabled = false;
-                this.multiStepProgress1.Clear();
-                var backupTask = GetTaskForRunningBackupOnAllActiveSources();
-                Task.Run(() => backupTask.RunSynchronously()).ContinueWith(x => this.Invoke((Action)this.FinishAutoBackupCallback));
+            _backupTask = RunBackupOnAllActiveSources();
+            await _backupTask;
 
-                this.btnAbort.Enabled = true;
-                this.btnView.Enabled = false;
-                this.btnStartStop.Enabled = false;
-            }
-        }
-
-        private Task GetTaskForRunningBackupOnAllActiveSources()
-        {
-            _cancelTokenSource = new CancellationTokenSource();
-            var backupCommands = _settings
-                .Sources
-                .Where(x => x.Enabled)
-                .Select(x =>
-                new RunBackupCommand(_fileSystem, x.Path, _settings.Target, _cancelTokenSource.Token) { Progress = this.multiStepProgress1 });
-
-            if (!backupCommands.Any())
-                return new Task(() => this.multiStepProgress1.StartStepWithoutProgress("There are no active sources"));
-
-            var tasks = backupCommands.Select(x => new Task(x.Execute)).ToArray();
-            var ret = new Task(() =>
-            {
-                foreach (var task in tasks)
-                {
-                    task.Start();
-                    task.Wait();
-                }
-            });
-            return ret;
-        }
-
-        private void FinishManualBackupCallback()
-        {
             this.btnAbort.Enabled = false;
             this.btnRun.Enabled = true;
             this.radScheduled.Enabled = true;
@@ -121,27 +71,32 @@ namespace Backy
             this._viewForm.NotifyNewBackup();
         }
 
-        private void FinishAutoBackupCallback()
+        private Task RunBackupOnAllActiveSources()
         {
-            this.btnAbort.Enabled = false;
-            this.numSeconds.Value = (decimal)this.numSeconds.Tag;
-            this.autoRunTimer.Enabled = true;
-            this.btnView.Enabled = true;
-            this.btnStartStop.Enabled = true;
-            this.btnSettings.Enabled = true;
-            this._viewForm.NotifyNewBackup();
+            _cancelTokenSource = new CancellationTokenSource();
+            var backupCommands = _settings
+                .Sources
+                .Where(x => x.Enabled)
+                .Select(x =>
+                new RunBackupCommand(_fileSystem, x.Path, _settings.Target, _cancelTokenSource.Token) { Progress = this.multiStepProgress1 });
+
+            if (!backupCommands.Any())
+                return Task.Run(() => this.multiStepProgress1.StartStepWithoutProgress("There are no active sources"));
+
+            var tasks = backupCommands.Select(x => new Task(x.Execute)).ToArray();
+            var combinedTask = new Task(() =>
+            {
+                foreach (var task in tasks)
+                {
+                    task.Start();
+                    task.Wait();
+                }
+            });
+
+            var ret = Task.Run(() => combinedTask.RunSynchronously());
+            return ret;
         }
 
-        private void FinishDetectionBackupCallback()
-        {
-            this.btnAbort.Enabled = false;
-            this._onChangeDetectionCounter.Reset();
-            this.btnView.Enabled = true;
-            this.btnDetect.Enabled = true;
-            this.btnSettings.Enabled = true;
-            Task.Run(() => this.WaitForFileChanges());
-            this._viewForm.NotifyNewBackup();
-        }
 
         private void btnAbort_Click(object sender, EventArgs e)
         {
@@ -165,9 +120,8 @@ namespace Backy
                 this.numSeconds.Minimum = 0;
                 this.numSeconds.Value = (int)this.numSeconds.Value;
                 this.numSeconds.Tag = this.numSeconds.Value;
-                this.autoRunTimer.Enabled = true;
+                this.autoRunTimer.Start();
                 this.btnStartStop.Text = "Cancel";
-                Properties.Settings.Default.Save();
             }
             else
             {
@@ -176,91 +130,189 @@ namespace Backy
                 this.numSeconds.Enabled = true;
                 this.numSeconds.Minimum = 10;
                 this.numSeconds.Value = (decimal)this.numSeconds.Tag;
-                this.autoRunTimer.Enabled = false;
+                this.autoRunTimer.Stop();
                 this.btnStartStop.Text = "Start";
             }
         }
 
-        private void btnDetect_Click(object sender, EventArgs e)
+        private async void autoRunTimer_Tick(object sender, EventArgs e)
         {
-            if (this.btnDetect.Text == "Detect")
+            this.numSeconds.Value--;
+            if (this.numSeconds.Value == 0)
             {
-                if (!Directory.Exists(_settings.Sources[0].Path)) return;
+                this.autoRunTimer.Enabled = false;
+                this.btnSettings.Enabled = false;
+                this.multiStepProgress1.Clear();
+                this.btnAbort.Enabled = true;
+                this.btnView.Enabled = false;
+                this.btnStartStop.Enabled = false;
 
+                _backupTask = RunBackupOnAllActiveSources();
+                await _backupTask;
+
+                this.btnAbort.Enabled = false;
+                this.numSeconds.Value = (decimal)this.numSeconds.Tag;
+                this.autoRunTimer.Enabled = true;
+                this.btnView.Enabled = true;
+                this.btnStartStop.Enabled = true;
+                this.btnSettings.Enabled = true;
+                this._viewForm.NotifyNewBackup();
+            }
+        }
+
+        private async void btnDetect_Click(object sender, EventArgs e)
+        {
+            if (this.btnDetect.Text == "Run&&Detect")
+            {
+                this.multiStepProgress1.Clear();
+                if (!NoActiveSource())
+                {
+                    this.multiStepProgress1.StartStepWithoutProgress("There are no active sources");
+                    return;
+                }
+
+                this.btnAbort.Enabled = true;
+                this.btnDetect.Enabled = false;
                 this.radScheduled.Enabled = false;
+                this.btnView.Enabled = false;
+                this.btnSettings.Enabled = false;
                 this.radManual.Enabled = false;
                 this.btnDetect.Text = "Stop";
-                this.multiStepProgress1.Clear();
+                this.multiStepProgress1.StartStepWithoutProgress("Run full backup once");
 
-                _watcher.Path = _settings.Sources[0].Path;
-                _watcher.EnableRaisingEvents = true;
-                this.multiStepProgress1.StartUnboundedStep("Running in:");
-                this.multiStepProgress1.UpdateProgress(_onChangeDetectionCounter.CurrentValue);
-                this.changeDetectionTimer.Start();
+                StartListenToFileSystemEvents();
+
+                _backupTask = RunBackupOnAllActiveSources();
+                await _backupTask;
+
+                this.btnDetect.Enabled = true;
+                this.btnAbort.Enabled = false;
+                this.btnView.Enabled = true;
+                this._viewForm.NotifyNewBackup();
+
+                _listenToChanges = true;
+                _detectChangesTask = this.DetectChanges();
             }
             else
             {
-                _watcher.EnableRaisingEvents = false;
-                this.changeDetectionTimer.Stop();
+                this.btnDetect.Enabled = false;
+
+                await WaitForAllPendingTasks();
+                StopListenToFileSystemEvents();
+                _changesQueue.Clear();
                 this.multiStepProgress1.Clear();
-                this.btnDetect.Text = "Detect";
+                this.btnDetect.Text = "Run&&Detect";
                 this.radScheduled.Enabled = true;
                 this.radManual.Enabled = true;
+                this.btnDetect.Enabled = true;
+                this.btnSettings.Enabled = true;
             }
         }
 
-        private void WaitForFileChanges()
+        private async Task DetectChanges()
         {
-            this.Invoke((Action)(() =>
-                this.multiStepProgress1.StartUnboundedStep("Listening to changes:", count => TimeSpan.FromSeconds(count).ToString())
-            ));
+            this.multiStepProgress1.StartUnboundedStep("\nListening to changes:", count => TimeSpan.FromSeconds(count).ToString());
+            while (_listenToChanges)
+            {
+                var getChangeOrTimeout = await _changesQueue.DequeueAsync(1000);
+                if (getChangeOrTimeout.Timedout)
+                {
+                    this.multiStepProgress1.Increment();
+                    continue;
+                }
+                var watcher = getChangeOrTimeout.Value;
+                if (!_listenToChanges) return;
 
-            while (_watcher.EnableRaisingEvents)
-            {
-                bool isSignaled = _detectChanges.WaitOne(1000);
-                if (isSignaled)
-                    break;
-                else
-                    this.Invoke((Action)(() => this.multiStepProgress1.Increment()));
-            }
-            if (_watcher.EnableRaisingEvents == false)
-            {
-                this.Invoke((Action)(() => this.multiStepProgress1.StartStepWithoutProgress("Stoped listening")));
-                return;
-            }
-            
-            this.Invoke((Action)(() =>
-            {
-                this.multiStepProgress1.StartUnboundedStep("Change was detected. Running backup in:");
-                this.changeDetectionTimer.Enabled = true;
-            }));
-        }
+                await WaitUntilChangeCanBeProcessed(watcher);
 
-        private void changeDetectionTimer_Tick(object sender, EventArgs e)
-        {
-            this._onChangeDetectionCounter.Countdown();
-            this.multiStepProgress1.UpdateProgress(_onChangeDetectionCounter.CurrentValue);
-            if (this._onChangeDetectionCounter.CurrentValue == 0)
-            {
-                this.changeDetectionTimer.Stop();
-                _backupCommand = new RunBackupCommand(new OSFileSystem(), _settings.Sources[0].Path, _settings.Target);
-                _backupCommand.Progress = this.multiStepProgress1;
-                _detectChanges.Reset();
-
+                if (!_listenToChanges) return;
 
                 this.btnAbort.Enabled = true;
                 this.btnView.Enabled = false;
                 this.btnDetect.Enabled = false;
+                this.btnSettings.Enabled = false;
 
-                Task.Run(() => _backupCommand.Execute()).ContinueWith(x => this.Invoke((Action)this.FinishDetectionBackupCallback));
+                watcher.StartListen();
+
+                var backupCommand = new RunBackupCommand(_fileSystem, watcher.Path, _settings.Target, _cancelTokenSource.Token) { Progress = this.multiStepProgress1 };
+                _backupTask = Task.Run(() => backupCommand.Execute());
+                await _backupTask;
+
+                this.btnAbort.Enabled = false;
+                this.btnView.Enabled = true;
+                this.btnDetect.Enabled = true;
+                this._viewForm.NotifyNewBackup();
+
+                this.multiStepProgress1.StartUnboundedStep("\n\nListening to changes:", count => TimeSpan.FromSeconds(count).ToString());
             }
         }
+
+        private async Task WaitUntilChangeCanBeProcessed(ManualResetFileSystemWatcher watcher)
+        {
+            if (watcher.Age < 10)
+            {
+                var timeToWait = 10 - watcher.Age;
+                this.multiStepProgress1.StartUnboundedStep($"Change was detected in '{watcher.Path}'. Running backup in:");
+                while (timeToWait > 0)
+                {
+                    if (!_listenToChanges) return;
+                    this.multiStepProgress1.UpdateProgress(timeToWait);
+                    await Task.Delay(1000);
+                    timeToWait--;
+                }
+                this.multiStepProgress1.UpdateProgress(0);
+            }
+        }
+
+        private void StopListenToFileSystemEvents()
+        {
+            foreach (var source in _settings.Sources)
+                _watchers[source.Path].StopListen();
+        }
+
+        private async Task WaitForAllPendingTasks()
+        {
+            _listenToChanges = false;
+            await Task.WhenAll(_detectChangesTask, _backupTask);
+        }
+
+        private void StartListenToFileSystemEvents()
+        {
+            foreach (var source in _settings.Sources.Where(x => x.Enabled))
+                _watchers[source.Path].StartListen();
+        }
+
+        private bool NoActiveSource()
+        {
+            return _settings.Sources.Any(x => x.Enabled);
+        }
+
+        
+
 
 
         private void Main_Load(object sender, EventArgs e)
         {
             PopulateSelectedDirectories();
             Radio_CheckedChanged(null, null);
+            PopulateFileSystemWatchers();            
+        }
+
+        private void PopulateFileSystemWatchers()
+        {
+            foreach (var source in _settings.Sources)
+            {
+                if (_watchers.ContainsKey(source.Path)) continue;
+
+                var watcher = new ManualResetFileSystemWatcher(source.Path);
+                watcher.ChangeDetected += Watcher_ChangeDetected;
+                _watchers[source.Path] = watcher;
+            }
+        }
+
+        private void Watcher_ChangeDetected(ManualResetFileSystemWatcher source)
+        {
+            _changesQueue.Add(source);
         }
 
         private void PopulateSelectedDirectories()
@@ -300,33 +352,9 @@ namespace Backy
             _settings.SetSources(settingsForm.GetSelectedSources());
             _settings.SetTarget(settingsForm.GetSelectedTarget());
             _settings.Save();
+            PopulateFileSystemWatchers();
             PopulateSelectedDirectories();
             _viewForm.NotifyNewBackup();
-        }
-    }
-
-
-
-
-    public class CountdownCounter
-    {
-        public int InitialValue { get; private set; }
-        public int CurrentValue { get; private set; }
-
-        public CountdownCounter(int initialValue)
-        {
-            this.InitialValue = initialValue;
-            this.CurrentValue = initialValue;
-        }
-
-        public void Countdown()
-        {
-            this.CurrentValue--;
-        }
-
-        public void Reset()
-        {
-            this.CurrentValue = this.InitialValue;
         }
     }
 }

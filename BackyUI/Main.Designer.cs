@@ -40,7 +40,6 @@
             this.btnDetect = new System.Windows.Forms.Button();
             this.radDetection = new System.Windows.Forms.RadioButton();
             this.numSeconds = new System.Windows.Forms.NumericUpDown();
-            this.changeDetectionTimer = new System.Windows.Forms.Timer(this.components);
             this.btnSettings = new System.Windows.Forms.Button();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
             this.multiStepProgress1 = new Backy.MultiStepProgress();
@@ -135,9 +134,8 @@
             this.btnDetect.Size = new System.Drawing.Size(75, 23);
             this.btnDetect.TabIndex = 28;
             this.btnDetect.Tag = "1";
-            this.btnDetect.Text = "Detect";
+            this.btnDetect.Text = "Run&&Detect";
             this.btnDetect.UseVisualStyleBackColor = true;
-            this.btnDetect.Visible = false;
             this.btnDetect.Click += new System.EventHandler(this.btnDetect_Click);
             // 
             // radDetection
@@ -149,7 +147,6 @@
             this.radDetection.TabIndex = 27;
             this.radDetection.Text = "On change";
             this.radDetection.UseVisualStyleBackColor = true;
-            this.radDetection.Visible = false;
             // 
             // numSeconds
             // 
@@ -171,11 +168,6 @@
             this.numSeconds.TabIndex = 25;
             this.numSeconds.Value = global::Backy.Properties.Settings.Default.autoBackupInterval;
             // 
-            // changeDetectionTimer
-            // 
-            this.changeDetectionTimer.Interval = 1000;
-            this.changeDetectionTimer.Tick += new System.EventHandler(this.changeDetectionTimer_Tick);
-            // 
             // btnSettings
             // 
             this.btnSettings.Location = new System.Drawing.Point(315, 12);
@@ -195,6 +187,7 @@
             this.richTextBox1.ReadOnly = true;
             this.richTextBox1.Size = new System.Drawing.Size(294, 91);
             this.richTextBox1.TabIndex = 37;
+            this.richTextBox1.TabStop = false;
             this.richTextBox1.Text = "";
             // 
             // multiStepProgress1
@@ -205,6 +198,7 @@
             this.multiStepProgress1.Name = "multiStepProgress1";
             this.multiStepProgress1.Size = new System.Drawing.Size(440, 277);
             this.multiStepProgress1.TabIndex = 19;
+            this.multiStepProgress1.TabStop = false;
             // 
             // Main
             // 
@@ -249,7 +243,6 @@
         private System.Windows.Forms.Timer autoRunTimer;
         private System.Windows.Forms.Button btnDetect;
         private System.Windows.Forms.RadioButton radDetection;
-        private System.Windows.Forms.Timer changeDetectionTimer;
         private System.Windows.Forms.Button btnSettings;
         private System.Windows.Forms.RichTextBox richTextBox1;
     }
