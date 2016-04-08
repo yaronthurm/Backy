@@ -110,9 +110,9 @@ namespace Backy
             _viewForm.Focus();
         }
 
-        private void btnStartStop_Click(object sender, EventArgs e)
+        private void btnStartStop_CheckedChanged(object sender, EventArgs e)
         {
-            if (this.btnStartStop.Text == "Start")
+            if (this.btnStartStop.Checked)
             {
                 this.radManual.Enabled = false;
                 this.radDetection.Enabled = false;
@@ -160,9 +160,9 @@ namespace Backy
             }
         }
 
-        private async void btnDetect_Click(object sender, EventArgs e)
+        private async void btnDetect_CheckedChanged(object sender, EventArgs e)
         {
-            if (this.btnDetect.Text == "Run&&Detect")
+            if (this.btnDetect.Checked)
             {
                 this.multiStepProgress1.Clear();
                 if (!NoActiveSource())

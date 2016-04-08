@@ -34,15 +34,15 @@
             this.btnView = new System.Windows.Forms.Button();
             this.radManual = new System.Windows.Forms.RadioButton();
             this.radScheduled = new System.Windows.Forms.RadioButton();
-            this.btnStartStop = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.autoRunTimer = new System.Windows.Forms.Timer(this.components);
-            this.btnDetect = new System.Windows.Forms.Button();
             this.radDetection = new System.Windows.Forms.RadioButton();
             this.numSeconds = new System.Windows.Forms.NumericUpDown();
             this.btnSettings = new System.Windows.Forms.Button();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
+            this.btnStartStop = new System.Windows.Forms.CheckBox();
             this.multiStepProgress1 = new Backy.MultiStepProgress();
+            this.btnDetect = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.numSeconds)).BeginInit();
             this.SuspendLayout();
             // 
@@ -100,18 +100,6 @@
             this.radScheduled.Text = "Scheduled";
             this.radScheduled.UseVisualStyleBackColor = true;
             // 
-            // btnStartStop
-            // 
-            this.btnStartStop.Enabled = false;
-            this.btnStartStop.Location = new System.Drawing.Point(98, 148);
-            this.btnStartStop.Name = "btnStartStop";
-            this.btnStartStop.Size = new System.Drawing.Size(75, 23);
-            this.btnStartStop.TabIndex = 24;
-            this.btnStartStop.Tag = "1";
-            this.btnStartStop.Text = "Start";
-            this.btnStartStop.UseVisualStyleBackColor = true;
-            this.btnStartStop.Click += new System.EventHandler(this.btnStartStop_Click);
-            // 
             // label3
             // 
             this.label3.AutoSize = true;
@@ -125,18 +113,6 @@
             // 
             this.autoRunTimer.Interval = 1000;
             this.autoRunTimer.Tick += new System.EventHandler(this.autoRunTimer_Tick);
-            // 
-            // btnDetect
-            // 
-            this.btnDetect.Enabled = false;
-            this.btnDetect.Location = new System.Drawing.Point(98, 177);
-            this.btnDetect.Name = "btnDetect";
-            this.btnDetect.Size = new System.Drawing.Size(75, 23);
-            this.btnDetect.TabIndex = 28;
-            this.btnDetect.Tag = "1";
-            this.btnDetect.Text = "Run&&Detect";
-            this.btnDetect.UseVisualStyleBackColor = true;
-            this.btnDetect.Click += new System.EventHandler(this.btnDetect_Click);
             // 
             // radDetection
             // 
@@ -190,6 +166,18 @@
             this.richTextBox1.TabStop = false;
             this.richTextBox1.Text = "";
             // 
+            // btnStartStop
+            // 
+            this.btnStartStop.Appearance = System.Windows.Forms.Appearance.Button;
+            this.btnStartStop.Location = new System.Drawing.Point(98, 148);
+            this.btnStartStop.Name = "btnStartStop";
+            this.btnStartStop.Size = new System.Drawing.Size(75, 23);
+            this.btnStartStop.TabIndex = 38;
+            this.btnStartStop.Text = "Start";
+            this.btnStartStop.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.btnStartStop.UseVisualStyleBackColor = true;
+            this.btnStartStop.CheckedChanged += new System.EventHandler(this.btnStartStop_CheckedChanged);
+            // 
             // multiStepProgress1
             // 
             this.multiStepProgress1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
@@ -200,18 +188,30 @@
             this.multiStepProgress1.TabIndex = 19;
             this.multiStepProgress1.TabStop = false;
             // 
+            // btnDetect
+            // 
+            this.btnDetect.Appearance = System.Windows.Forms.Appearance.Button;
+            this.btnDetect.Location = new System.Drawing.Point(98, 177);
+            this.btnDetect.Name = "btnDetect";
+            this.btnDetect.Size = new System.Drawing.Size(75, 23);
+            this.btnDetect.TabIndex = 39;
+            this.btnDetect.Text = "Run&&Detect";
+            this.btnDetect.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.btnDetect.UseVisualStyleBackColor = true;
+            this.btnDetect.CheckedChanged += new System.EventHandler(this.btnDetect_CheckedChanged);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(440, 493);
+            this.Controls.Add(this.btnDetect);
+            this.Controls.Add(this.btnStartStop);
             this.Controls.Add(this.richTextBox1);
             this.Controls.Add(this.btnSettings);
-            this.Controls.Add(this.btnDetect);
             this.Controls.Add(this.radDetection);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.numSeconds);
-            this.Controls.Add(this.btnStartStop);
             this.Controls.Add(this.radScheduled);
             this.Controls.Add(this.radManual);
             this.Controls.Add(this.multiStepProgress1);
@@ -237,14 +237,14 @@
         private MultiStepProgress multiStepProgress1;
         private System.Windows.Forms.RadioButton radManual;
         private System.Windows.Forms.RadioButton radScheduled;
-        private System.Windows.Forms.Button btnStartStop;
         private System.Windows.Forms.NumericUpDown numSeconds;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Timer autoRunTimer;
-        private System.Windows.Forms.Button btnDetect;
         private System.Windows.Forms.RadioButton radDetection;
         private System.Windows.Forms.Button btnSettings;
         private System.Windows.Forms.RichTextBox richTextBox1;
+        private System.Windows.Forms.CheckBox btnStartStop;
+        private System.Windows.Forms.CheckBox btnDetect;
     }
 }
 
