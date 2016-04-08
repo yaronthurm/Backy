@@ -22,7 +22,7 @@ namespace TestBacky
             var item = queue.Dequeue(1000);
             sw.Stop();
             item.Timedout.ShouldBe(true);
-            sw.ElapsedMilliseconds.ShouldBeInRange(1000, 1100);
+            sw.ElapsedMilliseconds.ShouldBeInRange(1000, 1020);
         }
 
         [TestMethod]
@@ -53,7 +53,7 @@ namespace TestBacky
             
             item.Timedout.ShouldBe(false);
             item.Value.ShouldBe(2);
-            sw.ElapsedMilliseconds.ShouldBeInRange(50, 100);
+            sw.ElapsedMilliseconds.ShouldBeInRange(50, 70);
         }
 
         [TestMethod]
@@ -62,7 +62,7 @@ namespace TestBacky
             var queue = new BlockingQueue<int>();
             Task.Run(() =>
             {
-                Thread.Sleep(50);
+                Thread.Sleep(250);
                 queue.Add(2);
             });
 
@@ -93,8 +93,8 @@ namespace TestBacky
             returnedRes.Timedout.ShouldBe(false);
             returnedRes.Value.ShouldBe(2);
             timedoutRes.Timedout.ShouldBe(true);
-            sw1.ElapsedMilliseconds.ShouldBeInRange(50, 100);
-            sw2.ElapsedMilliseconds.ShouldBeInRange(1000, 1100);
+            sw1.ElapsedMilliseconds.ShouldBeInRange(250, 270);
+            sw2.ElapsedMilliseconds.ShouldBeInRange(1000, 1020);
         }
     }
 }
