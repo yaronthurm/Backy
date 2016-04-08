@@ -46,7 +46,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BackyFile.cs" />
-    <Compile Include="BlockingQueueWithTimeout.cs" />
+    <Compile Include="BlockingQueue.cs" />
     <Compile Include="FoldersDiff.cs" />
     <Compile Include="HierarchicalDictionary.cs" />
     <Compile Include="CloneBackupCommand.cs" />

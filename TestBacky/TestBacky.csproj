@@ -60,6 +60,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="FileSystemEmulator.cs" />
+    <Compile Include="TestBlockingQueue.cs" />
     <Compile Include="TestRealFileSystem.cs" />
     <Compile Include="TestHierarchicalDictionary.cs" />
     <Compile Include="TestCloneBackupCommand.cs" />

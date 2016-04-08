@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -28,8 +29,14 @@ namespace BackyLogic
         {
             lock (_locker)
             {
-                if (_queue.Count == 0)
-                    Monitor.Wait(_locker, milliseconds);
+                var sw = Stopwatch.StartNew();
+                int timeTillTimeout = (int)(milliseconds - sw.ElapsedMilliseconds);
+                while (_queue.Count == 0 && timeTillTimeout > 0)
+                {
+                    Monitor.Wait(_locker, timeTillTimeout);
+                    timeTillTimeout = (int)(milliseconds - sw.ElapsedMilliseconds);
+                }
+                sw.Stop();
 
                 if (_queue.Count == 0) // Woke up due to timeout
                 {
