@@ -33,7 +33,7 @@ namespace BackyLogic
             if (IsAborted()) return;
             var sw = Stopwatch.StartNew();
             try {
-                this.Progress?.StartStepWithoutProgress($"Started backing up '{_source}' at: { DateTime.Now }");
+                this.Progress?.StartStepWithoutProgress($"\nStarted backing up '{_source}' at: { DateTime.Now }");
 
                 State currentState = GetCurrentState();
                 if (IsAborted()) return;
@@ -67,7 +67,7 @@ namespace BackyLogic
             finally
             {
                 sw.Stop();
-                this.Progress?.StartStepWithoutProgress("Finished: " + DateTime.Now);
+                this.Progress?.StartStepWithoutProgress($"Finished backing up '{_source}' at: { DateTime.Now }");
                 this.Progress?.StartStepWithoutProgress("Total time: " + sw.Elapsed);
             }
         }
