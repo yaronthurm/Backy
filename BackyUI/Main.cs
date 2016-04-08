@@ -199,7 +199,6 @@ namespace Backy
 
                 await WaitForAllPendingTasks();
                 StopListenToFileSystemEvents();
-                _changesQueue.Clear();
                 this.multiStepProgress1.Clear();
                 this.btnDetect.Text = "Run&&Detect";
                 this.radScheduled.Enabled = true;
@@ -268,6 +267,7 @@ namespace Backy
         {
             foreach (var source in _settings.Sources)
                 _watchers[source.Path].StopListen();
+            _changesQueue.Clear();
         }
 
         private async Task WaitForAllPendingTasks()
@@ -280,6 +280,7 @@ namespace Backy
         {
             foreach (var source in _settings.Sources.Where(x => x.Enabled))
                 _watchers[source.Path].StartListen();
+            _changesQueue.Clear();
         }
 
         private bool NoActiveSource()
