@@ -26,7 +26,7 @@ namespace TestBacky
         }
 
         [TestMethod]
-        public void BlockingQueue_02_When_items_was_added_Should_retun_it()
+        public void BlockingQueue_02_When_item_exists_Should_retun_it()
         {
             var queue = new BlockingQueue<int>();
             queue.Add(1);
@@ -57,7 +57,7 @@ namespace TestBacky
         }
 
         [TestMethod]
-        public void BlockingQueue_04_When_two_waits_and_only_one_items_is_added_One_should_get_and_other_should_timeout()
+        public void BlockingQueue_04_When_two_waits_and_only_one_items_is_added_One_should_get_it_and_other_should_timeout()
         {
             var queue = new BlockingQueue<int>();
             Task.Run(() =>
