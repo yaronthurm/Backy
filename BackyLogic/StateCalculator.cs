@@ -110,6 +110,22 @@ namespace BackyLogic
             return ret;
         }
 
+        public State GetDiff(int version)
+        {
+            if (version > this.MaxVersion)
+                throw new ApplicationException("max version exeeded");
+
+            // Get all files in backup directory
+            var ret = new State();
+            var rootPath = Path.Combine(_target, version.ToString());
+            foreach (var file in _fileSystem.EnumerateFiles(rootPath)) 
+            {
+                var backyFile = BackyFile.FromTargetFileName(_fileSystem, file, rootPath);
+                ret.AddFile(backyFile);
+            }
+            return ret;
+        }
+
 
         private List<BackyFolder> GetFolders()
         {

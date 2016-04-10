@@ -17,6 +17,10 @@ namespace Backy
         private string _currentDirectory = "";
         private int _currentViewTotalItems;
         private Dictionary<string, int> _pageNumberPerDirectory = new Dictionary<string, int>();
+        private List<ContextMenuItem> _contextMenuItems = new List<ContextMenuItem>();
+
+        public bool EnableContextMenu { get; set; } = true;
+
 
         public FilesPanel()
         {
@@ -69,12 +73,6 @@ namespace Backy
             _pageNumberPerDirectory.Clear();
             this.flowLayoutPanel1.Controls.Clear();
         }
-
-        public class ContextMenuItem {
-            public string Text;
-            public Action<FileView> OnClick;
-        }
-        private List<ContextMenuItem> _contextMenuItems = new List<ContextMenuItem>();
 
         public void AddContextMenuItem(string text, Action<FileView> onClick)
         {
@@ -164,6 +162,8 @@ namespace Backy
         private ContextMenuStrip GetContextMenuForFileView(FileView file)
         {
             var ret = new ContextMenuStrip();
+            if (!this.EnableContextMenu)
+                return ret;
             foreach (var item in _contextMenuItems)
             {
                 var stripItem = new ToolStripMenuItem(item.Text);
@@ -219,5 +219,12 @@ namespace Backy
         {
             return LogicalPath;
         }
+    }
+
+
+    public class ContextMenuItem
+    {
+        public string Text;
+        public Action<FileView> OnClick;
     }
 }

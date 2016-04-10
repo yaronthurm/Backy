@@ -34,6 +34,8 @@
             this.lblScanned = new System.Windows.Forms.Label();
             this.btnRestoreTo = new System.Windows.Forms.Button();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.radDiff = new System.Windows.Forms.RadioButton();
+            this.radState = new System.Windows.Forms.RadioButton();
             this.filesPanel1 = new Backy.FilesPanel();
             this.SuspendLayout();
             // 
@@ -102,6 +104,28 @@
             this.comboBox1.TabIndex = 6;
             this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
+            // radDiff
+            // 
+            this.radDiff.AutoSize = true;
+            this.radDiff.Location = new System.Drawing.Point(509, 12);
+            this.radDiff.Name = "radDiff";
+            this.radDiff.Size = new System.Drawing.Size(41, 17);
+            this.radDiff.TabIndex = 7;
+            this.radDiff.Text = "Diff";
+            this.radDiff.UseVisualStyleBackColor = true;
+            // 
+            // radState
+            // 
+            this.radState.AutoSize = true;
+            this.radState.Checked = true;
+            this.radState.Location = new System.Drawing.Point(556, 12);
+            this.radState.Name = "radState";
+            this.radState.Size = new System.Drawing.Size(50, 17);
+            this.radState.TabIndex = 8;
+            this.radState.TabStop = true;
+            this.radState.Text = "State";
+            this.radState.UseVisualStyleBackColor = true;
+            // 
             // filesPanel1
             // 
             this.filesPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -120,6 +144,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(724, 507);
+            this.Controls.Add(this.radState);
+            this.Controls.Add(this.radDiff);
             this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.btnRestoreTo);
             this.Controls.Add(this.lblScanned);
@@ -134,6 +160,7 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.View_FormClosing);
             this.Load += new System.EventHandler(this.View_Load);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -146,5 +173,7 @@
         private System.Windows.Forms.Label lblScanned;
         private System.Windows.Forms.Button btnRestoreTo;
         private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.RadioButton radDiff;
+        private System.Windows.Forms.RadioButton radState;
     }
 }

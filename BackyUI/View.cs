@@ -34,12 +34,38 @@ namespace Backy
             this.filesPanel1.AddContextMenuItem("Restore", x => RestoreFile(x, _selectedSourceDirectory));
 
             _setting = setting;
+
+            this.radState.CheckedChanged += Rad_CheckedChanged;
+            this.radDiff.CheckedChanged += Rad_CheckedChanged;
+        }
+
+        private async void Rad_CheckedChanged(object sender, EventArgs e)
+        {
+            if (this.radDiff.Checked)
+                this.filesPanel1.EnableContextMenu = false;
+            else
+                this.filesPanel1.EnableContextMenu = true;
+
+            this.filesPanel1.SetCurrentDirectoty("");
+            var state = GetStateOrDiff(int.Parse(this.lblCurrentVersion.Text));
+            this.SetFiles(state.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
         }
 
         private StateCalculator CurrentStateCalculator
         {
             get { return _stateCalculatorPerSource[_selectedSourceDirectory]; }
         }
+
+        private State GetStateOrDiff(int? version)
+        {
+            if (version == null)
+                version = CurrentStateCalculator.MaxVersion;
+            if (this.radState.Checked)
+                return CurrentStateCalculator.GetState(version.Value);
+            else
+                return CurrentStateCalculator.GetDiff(version.Value);
+        }
+
 
         private void ClearView()
         {
@@ -63,7 +89,7 @@ namespace Backy
                 this.comboBox1.Focus();
             }
 
-            var backupState = CurrentStateCalculator.GetLastState();
+            var backupState = GetStateOrDiff(null);
             this.lblScanned.Visible = false;
             this.lblCurrentVersion.Text = CurrentStateCalculator.MaxVersion.ToString();
             this.SetFiles(backupState.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
@@ -118,7 +144,7 @@ namespace Backy
             var currentVersion = int.Parse(this.lblCurrentVersion.Text);
             currentVersion--;
 
-            var backupState = CurrentStateCalculator.GetState(currentVersion);
+            var backupState = GetStateOrDiff(currentVersion);
             this.lblCurrentVersion.Text = currentVersion.ToString();
             this.SetFiles(backupState.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
 
@@ -133,7 +159,7 @@ namespace Backy
             var currentVersion = int.Parse(this.lblCurrentVersion.Text);
             currentVersion++;
 
-            var backupState = CurrentStateCalculator.GetState(currentVersion);
+            var backupState = GetStateOrDiff(currentVersion);
             this.lblCurrentVersion.Text = currentVersion.ToString();
             this.SetFiles(backupState.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
 
@@ -204,7 +230,7 @@ namespace Backy
                 this.comboBox1.SelectedIndex = 0;
         }
 
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        private async void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             _currentDirectoryPerSource[_selectedSourceDirectory] = this.filesPanel1.GetCurrentDirectory();
             _selectedSourceDirectory = this.comboBox1.SelectedItem.ToString();
@@ -212,7 +238,7 @@ namespace Backy
             _currentDirectoryPerSource.TryGetValue(_selectedSourceDirectory, out newSourceDirectory);
             this.filesPanel1.SetCurrentDirectoty(newSourceDirectory ?? "");
 
-            this.SetDirectories();
+            await this.SetDirectories();
         }
 
 

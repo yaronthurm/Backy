@@ -39,14 +39,7 @@ namespace BackyLogic
             return ret;
         }
 
-        /// <summary>
-        /// This method takes into account the directories structure of Backy.
-        /// So that if you backup to d:\target, the 
-        /// </summary>
-        /// <param name="fileSystem"></param>
-        /// <param name="fullname"></param>
-        /// <param name="sourceDirectory"></param>
-        /// <returns></returns>
+
         public static BackyFile FromTargetFileName(IFileSystem fileSystem, string fullname, string targetParentDirectory)
         {
             var ret = new BackyFile();
