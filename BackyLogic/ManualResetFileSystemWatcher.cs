@@ -33,6 +33,7 @@ namespace BackyLogic
             _watcher.Created += (s, e) => OnChange();
             _watcher.Deleted += (s, e) => OnChange();
             _watcher.Renamed += (s, e) => OnChange();
+            _watcher.Error += (s, e) => OnChange();
             _watcher.IncludeSubdirectories = true;
             _watcher.Path = watchedDirectory;
             _watcher.EnableRaisingEvents = true;
