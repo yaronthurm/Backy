@@ -62,8 +62,10 @@ namespace Backy
                 version = CurrentStateCalculator.MaxVersion;
             if (this.radState.Checked)
                 return CurrentStateCalculator.GetState(version.Value);
-            else
+            else if (version > 0)
                 return CurrentStateCalculator.GetDiff(version.Value);
+            else
+                return new State();
         }
 
 

@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using BackyLogic;
+using System.IO;
 
 namespace Backy
 {
@@ -42,9 +43,10 @@ namespace Backy
         {
             foreach (var source in settings.Sources)
             {
-                this.addSourcesPanel1.AddSource(source);
+                if (Directory.Exists(source.Path))
+                    this.addSourcesPanel1.AddSource(source);
             }
-            if (!string.IsNullOrEmpty(settings.Target))
+            if (!string.IsNullOrEmpty(settings.Target) && Directory.Exists(settings.Target))
                 this.backupTargetView1.SetDirectory(settings.Target);
         }
 

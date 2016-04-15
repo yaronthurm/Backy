@@ -50,9 +50,9 @@ namespace BackyLogic
             File.WriteAllText(GetSettingsFilePath(), txt);
         }
 
-        public void SetSources(Source[] sources)
+        public void SetSources(IEnumerable<Source> sources)
         {
-            this.Sources = sources;
+            this.Sources = sources.ToArray();
         }
 
         public void SetTarget(string target)

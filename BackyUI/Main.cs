@@ -73,10 +73,25 @@ namespace Backy
 
         private Task RunBackupOnAllActiveSources()
         {
+            if (!Directory.Exists(_settings.Target))
+            {
+                MessageBox.Show($"Target directory '{_settings.Target}' does not exist. Please select a different target.");
+                return Task.FromResult(0);
+            }
+            var activeSources = _settings.Sources.Where(x => x.Enabled).ToArray();
+            foreach (var source in activeSources)
+            {
+                if (!Directory.Exists(source.Path))
+                {
+                    MessageBox.Show($"Source directory '{source.Path}' does not exist and was removed from sources list.");
+                    _settings.SetSources(_settings.Sources.Where(x => x.Path != source.Path));
+                    SaveSettingsAndRefreshView();
+                    return Task.FromResult(0);
+                }
+            }
+
             _cancelTokenSource = new CancellationTokenSource();
-            var backupCommands = _settings
-                .Sources
-                .Where(x => x.Enabled)
+            var backupCommands = activeSources
                 .Select(x =>
                 new RunBackupCommand(_fileSystem, x.Path, _settings.Target, _cancelTokenSource.Token) { Progress = this.multiStepProgress1 });
 
@@ -96,7 +111,6 @@ namespace Backy
             var ret = Task.Run(() => combinedTask.RunSynchronously());
             return ret;
         }
-
 
         private void btnAbort_Click(object sender, EventArgs e)
         {
@@ -164,6 +178,12 @@ namespace Backy
         {
             if (this.btnDetect.Checked)
             {
+                if (!Directory.Exists(_settings.Target))
+                {
+                    MessageBox.Show($"Target directory '{_settings.Target}' does not exist. Please select a different target.");
+                    return;
+                }
+
                 this.multiStepProgress1.Clear();
                 if (!NoActiveSource())
                 {
@@ -233,9 +253,20 @@ namespace Backy
 
                 watcher.StartListen();
 
-                var backupCommand = new RunBackupCommand(_fileSystem, watcher.Path, _settings.Target, _cancelTokenSource.Token) { Progress = this.multiStepProgress1 };
-                _backupTask = Task.Run(() => backupCommand.Execute());
-                await _backupTask;
+                if (Directory.Exists(_settings.Target) && Directory.Exists(watcher.Path))
+                {
+                    var backupCommand = new RunBackupCommand(_fileSystem, watcher.Path, _settings.Target, _cancelTokenSource.Token) { Progress = this.multiStepProgress1 };
+                    _backupTask = Task.Run(() => backupCommand.Execute());
+                    await _backupTask;
+                }
+                else if (!Directory.Exists(watcher.Path))
+                {
+                    MessageBox.Show($"Source directory '{watcher.Path}' does not exist");
+                }
+                else if (!Directory.Exists(_settings.Target))
+                {
+                    MessageBox.Show($"Target directory '{_settings.Target}' does not exist. Please select a different target.");
+                }
 
                 this.btnAbort.Enabled = false;
                 this.btnView.Enabled = true;
@@ -352,6 +383,11 @@ namespace Backy
             
             _settings.SetSources(settingsForm.GetSelectedSources());
             _settings.SetTarget(settingsForm.GetSelectedTarget());
+            SaveSettingsAndRefreshView();
+        }
+
+        private void SaveSettingsAndRefreshView()
+        {
             _settings.Save();
             PopulateFileSystemWatchers();
             PopulateSelectedDirectories();
