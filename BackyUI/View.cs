@@ -207,6 +207,9 @@ namespace Backy
 
         private void PopulateCombo()
         {
+            if (!Directory.Exists(_setting.Target))            
+                return;
+
             // Reset the combo box.
             // Try to set the last selected item (it may not be there any more).
 
