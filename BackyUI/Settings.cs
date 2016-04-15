@@ -50,7 +50,7 @@ namespace Backy
 
         private void btnOK_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty( this.backupTargetView1.Path))
+            if (string.IsNullOrEmpty(this.backupTargetView1.Path))
             {
                 MessageBox.Show("Please select a target directory");
                 return;
@@ -62,7 +62,29 @@ namespace Backy
                 return;
             }
 
+            if (TargetIsContainedInAnyOfTheSource())
+            {
+                MessageBox.Show($"Target directory '{this.backupTargetView1.Path}' is contained within source directory '{GetAllSourcesThatContainsTarget().First()}'\nPlease select another target");
+                return;
+            }
+
             this.DialogResult = DialogResult.OK;
+        }
+
+        private bool TargetIsContainedInAnyOfTheSource()
+        {
+            var containedIn = GetAllSourcesThatContainsTarget();
+            return containedIn.Any();
+        }
+
+        private IEnumerable<string> GetAllSourcesThatContainsTarget()
+        {
+            var ret = new List<string>();
+            foreach (var source in this.addSourcesPanel1.GetSelectedSources())
+            {
+                if (this.backupTargetView1.Path.StartsWith(source.Path, StringComparison.OrdinalIgnoreCase))
+                    yield return source.Path;
+            }
         }
     }
 }
