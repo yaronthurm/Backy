@@ -118,7 +118,7 @@ namespace TestBacky
 
         public string FindFile(string dirName, string fileName)
         {
-            var ret = _files.FirstOrDefault(x => Path.Combine(dirName, fileName) == x.Name);
+            var ret = _files.FirstOrDefault(x => Path.Combine(dirName, fileName).Equals(x.Name, StringComparison.OrdinalIgnoreCase));
             return ret?.Name;
         }
     }

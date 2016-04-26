@@ -218,23 +218,19 @@ namespace BackyLogic
             var targetDir = fs.GetTopLevelDirectories(target);
             foreach (var innerDir in fs.GetTopLevelDirectories(target))
             {
-                var iniFile = fs.FindFile(innerDir, "backy.ini");
-                if (iniFile == null) continue;
-                var iniLines = fs.ReadLines(iniFile).ToArray();
-                var sourceFromIniFile = iniLines.First();
-                var guid = iniLines.Skip(1).First();
-                if (sourceFromIniFile == source)
+                if (!BackupDirectory.IsBackupDirectory(innerDir, fs)) continue;
+                var backupDir = BackupDirectory.FromPath(innerDir, fs);
+                
+                if (backupDir.OriginalSource == source)
                 {
-                    sourceGuid = guid;
+                    sourceGuid = backupDir.Guid;
                     break;
                 }
             }
             if (sourceGuid == null)
             {
                 sourceGuid = Guid.NewGuid().ToString("N");
-                fs.CreateFile(Path.Combine(target, sourceGuid, "backy.ini"));
-                fs.AppendLine(Path.Combine(target, sourceGuid, "backy.ini"), source);
-                fs.AppendLine(Path.Combine(target, sourceGuid, "backy.ini"), sourceGuid);
+                BackupDirectory.CreateIniFile(sourceGuid, target, source, fs);
             }
 
             var ret = Path.Combine(target, sourceGuid);
