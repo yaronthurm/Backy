@@ -11,6 +11,12 @@ namespace Backy
 {
     internal static class UIUtils
     {
+        public static string ToCommaDelimited(this IEnumerable<string> source)
+        {
+            var ret = string.Join(",", source);
+            return ret;
+        }
+
         public static void ScrollToBottom(Control control)
         {
             SendMessage(control.Handle, WmVscroll, SbBottom, 0x0);
