@@ -80,6 +80,60 @@ namespace TestBacky
             }
         }
 
+        [TestMethod]
+        public void RealFileSystem_03_Run_backup_the_backup()
+        {
+            var backupSource1 = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
+            var backupSource2 = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
+            var backupSource3 = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
+            var backupTarget = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
+            var backupTheBackupTarget = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
+            
+
+            Directory.CreateDirectory(backupSource1);
+            Directory.CreateDirectory(backupSource2);
+            Directory.CreateDirectory(backupSource3);
+            Directory.CreateDirectory(backupTarget);
+            Directory.CreateDirectory(backupTheBackupTarget);
+
+
+            try
+            {
+                var fs = new OSFileSystem();
+                SimulateRunningBackups(backupSource1, backupTarget, fs);
+                SimulateRunningBackups(backupSource2, backupTarget, fs);
+
+                // Backup the backup
+                var btbCommand = new BackupTheBackupCommand(fs, backupTarget, backupTheBackupTarget);
+                btbCommand.Execute();
+
+                // Running another backup with a new source and then backup the backup again
+                SimulateRunningBackups(backupSource3, backupTarget, fs);
+                btbCommand.Execute();
+
+                // Run regular backup on one of the source
+                WriteFile(backupSource1, "file1234.txt", "hello1234", DateTime.Now);
+                var backupCmd = new RunBackupCommand(fs, backupSource1, backupTarget);
+                backupCmd.Execute();
+
+                btbCommand.Execute();
+
+                var expected = fs.EnumerateFiles(backupTarget).Select(x => EmulatorFile.FromlFileName(x, x.Replace(backupTarget + "\\", ""), fs)).ToArray();
+                var actual = fs.EnumerateFiles(backupTheBackupTarget).Select(x => EmulatorFile.FromlFileName(x, x.Replace(backupTheBackupTarget + "\\", ""), fs)).ToArray();
+                TestsUtils.AssertEmulatorFiles(fs, expected, actual, "");
+            }
+            finally
+            {
+                UnmarkDirectoryAsReadOnlyRecursive(backupTarget);
+                UnmarkDirectoryAsReadOnlyRecursive(backupTheBackupTarget);
+                Directory.Delete(backupSource1, true);
+                Directory.Delete(backupSource2, true);
+                Directory.Delete(backupSource3, true);
+                Directory.Delete(backupTarget, true);
+                Directory.Delete(backupTheBackupTarget, true);
+            }
+        }
+
 
 
 
