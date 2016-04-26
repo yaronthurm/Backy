@@ -215,8 +215,8 @@ namespace BackyLogic
         private static string FindOrCreateTargetForSource(string source, string target, IFileSystem fs)
         {
             string sourceGuid = null;
-            var targetDir = fs.GetDirectories(target);
-            foreach (var innerDir in fs.GetDirectories(target))
+            var targetDir = fs.GetTopLevelDirectories(target);
+            foreach (var innerDir in fs.GetTopLevelDirectories(target))
             {
                 var iniFile = fs.FindFile(innerDir, "backy.ini");
                 if (iniFile == null) continue;

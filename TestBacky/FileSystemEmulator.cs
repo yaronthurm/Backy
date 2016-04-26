@@ -51,7 +51,7 @@ namespace TestBacky
             return ret;
         }
 
-        public IEnumerable<string> GetDirectories(string directory)
+        public IEnumerable<string> GetTopLevelDirectories(string directory)
         {
             var files = this.EnumerateFiles(directory);
             var directories = files.Select(x => Path.GetDirectoryName(x));

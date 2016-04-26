@@ -13,7 +13,7 @@ namespace BackyLogic
 
         string FindFile(string dirName, string fileName);
 
-        IEnumerable<string> GetDirectories(string dirName);
+        IEnumerable<string> GetTopLevelDirectories(string dirName);
 
         DateTime GetLastWriteTime(string fullname);
 

@@ -37,7 +37,7 @@ namespace BackyLogic
             return Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories);
         }
 
-        public IEnumerable<string> GetDirectories(string target)
+        public IEnumerable<string> GetTopLevelDirectories(string target)
         {
             return Directory.GetDirectories(target);
         }

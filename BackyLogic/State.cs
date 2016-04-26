@@ -23,7 +23,7 @@ namespace BackyLogic
         public static IEnumerable<string> GetFirstLevelDirectories(IFileSystem fileSystem, string targetDir)
         {
             // Get all directories in target
-            var dirs = fileSystem.GetDirectories(targetDir);
+            var dirs = fileSystem.GetTopLevelDirectories(targetDir);
 
             // Get just first level directories
             if (!targetDir.EndsWith("\\")) targetDir += "\\";

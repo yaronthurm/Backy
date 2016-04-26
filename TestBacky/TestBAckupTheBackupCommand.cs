@@ -50,25 +50,8 @@ namespace TestBacky
             var btbCommand = new BackupTheBackupCommand(fs, backupTarget, backupOfTheBackupTarget);
             btbCommand.Execute();
 
-            var expected = new[]
-            {
-                new EmulatorFile(@"file1"),
-                new EmulatorFile(@"file2"),
-                new EmulatorFile(@"file3"),
-                new EmulatorFile(@"dir1\file1"),
-                new EmulatorFile(@"dir1\file2"),
-                new EmulatorFile(@"dir1\file3"),
-                new EmulatorFile(@"dir1\dir1\file1"),
-                new EmulatorFile(@"dir1\dir1\file2"),
-                new EmulatorFile(@"dir1\dir2\file1"),
-                new EmulatorFile(@"dir2\file1"),
-                new EmulatorFile(@"dir2\file2"),
-                new EmulatorFile(@"dir3\file1"),
-                new EmulatorFile(@"dir3\file2"),
-                new EmulatorFile(@"dir3\file3") };
-
-            var actual = fs.EnumerateFiles(backupOfTheBackupTarget)
-                .Select(x => EmulatorFile.FromlFileName(x, x.Replace(backupOfTheBackupTarget + "\\", ""), fs));
+            var expected = fs.EnumerateFiles(backupTarget).Select(x => EmulatorFile.FromlFileName(x, x.Replace(backupTarget + "\\", ""), fs)).ToArray();
+            var actual = fs.EnumerateFiles(backupOfTheBackupTarget).Select(x => EmulatorFile.FromlFileName(x, x.Replace(backupOfTheBackupTarget + "\\", ""), fs)).ToArray();
             TestsUtils.AssertEmulatorFiles(fs, expected, actual, "");
         }
     }
