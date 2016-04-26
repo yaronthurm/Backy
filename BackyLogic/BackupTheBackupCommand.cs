@@ -34,7 +34,10 @@ namespace BackyLogic
                 this.Progress?.StartStepWithoutProgress($"\nStarted backing up the backup at: { DateTime.Now }");
 
                 var missingSources = FindMissingSources();
+                var existingSources = FindExistingSources();
+
                 CopyEntireSources(missingSources);
+                CopyMissingContentForExistingSources(existingSources);
             }
             finally
             {
@@ -42,6 +45,28 @@ namespace BackyLogic
                 this.Progress?.StartStepWithoutProgress($"Finished backing up the backup'{_source}' at: { DateTime.Now }");
                 this.Progress?.StartStepWithoutProgress("Total time: " + sw.Elapsed);
             }
+        }
+
+        private void CopyMissingContentForExistingSources(IEnumerable<string> existingSources)
+        {
+            foreach (var existingSource in existingSources)
+            {
+                var missingDirectories = FindMissingDirectories(Path.Combine(_source, existingSource), Path.Combine(_target, existingSource), _fileSystem);
+                foreach (var missingDir in missingDirectories)
+                {
+                    var dirToCopy = Path.Combine(_source, existingSource, missingDir);
+                    var destination = Path.Combine(_target, existingSource, missingDir);
+                    CopyEntireDirectory(dirToCopy, destination);
+                }
+            }
+        }
+
+        private IEnumerable<string> FindExistingSources()
+        {
+            var sourcesInSource = _fileSystem.GetTopLevelDirectories(_source).Select(x => Path.GetFileName(x));
+            var sourcesInTarget = _fileSystem.GetTopLevelDirectories(_target).Select(x => Path.GetFileName(x));
+            var ret = sourcesInSource.Intersect(sourcesInTarget);
+            return ret;
         }
 
         private void CopyEntireSources(IEnumerable<string> missingSources)
@@ -53,6 +78,8 @@ namespace BackyLogic
                 CopyEntireDirectory(dirToCopy, destination);
             }
         }
+
+        
 
         private void CopyEntireDirectory(string dirToCopy, string destination)
         {
@@ -66,9 +93,15 @@ namespace BackyLogic
 
         private IEnumerable<string> FindMissingSources()
         {
-            var sourcesInSource = _fileSystem.GetTopLevelDirectories(_source).Select(x => Path.GetFileName(x));
-            var sourcesInTarget = _fileSystem.GetTopLevelDirectories(_target).Select(x => Path.GetFileName(x));
-            var ret = sourcesInSource.Except(sourcesInTarget);
+            var ret = FindMissingDirectories(_source, _target, _fileSystem);
+            return ret;
+        }
+
+        private static IEnumerable<string> FindMissingDirectories(string sourceDirectory, string targetDirectory, IFileSystem fs)
+        {
+            var dirsInSource = fs.GetTopLevelDirectories(sourceDirectory).Select(x => Path.GetFileName(x));
+            var dirsInTarget = fs.GetTopLevelDirectories(targetDirectory).Select(x => Path.GetFileName(x));
+            var ret = dirsInSource.Except(dirsInTarget);
             return ret;
         }
     }
