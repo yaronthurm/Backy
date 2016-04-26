@@ -33,11 +33,10 @@ namespace BackyLogic
             try {
                 this.Progress?.StartStepWithoutProgress($"\nStarted backing up the backup at: { DateTime.Now }");
 
-                var missingSources = FindMissingSources();
-                var existingSources = FindExistingSources();
+                var diff = BackupTheBackupDiff.Calculate(_source, _target, _fileSystem);
 
-                CopyEntireSources(missingSources);
-                CopyMissingContentForExistingSources(existingSources);
+                CopyMissingSources(diff.Missing);
+                CopyMissingDirectoriesForExistingSources(diff.Existing);
             }
             finally
             {
@@ -48,43 +47,27 @@ namespace BackyLogic
         }
 
 
-        private void CopyMissingContentForExistingSources(IEnumerable<string> existingSources)
+        private void CopyMissingDirectoriesForExistingSources(IEnumerable<BackupTheBackupDiff.BackupDiff> existingSources)
         {
-            foreach (var existingSource in existingSources)
+            foreach (var existingSource in existingSources.Where(x => x.MissingDirectories.Any()))
             {
-                var missingDirectories = FindMissingDirectories(Path.Combine(_source, existingSource), Path.Combine(_target, existingSource));
+                var missingDirectories = existingSource.MissingDirectories;
                 foreach (var missingDir in missingDirectories)
                 {
-                    var dirToCopy = Path.Combine(_source, existingSource, missingDir);
-                    var destination = Path.Combine(_target, existingSource, missingDir);
+                    var dirToCopy = Path.Combine(_source, existingSource.Directory.Guid, missingDir);
+                    var destination = Path.Combine(_target, existingSource.Directory.Guid, missingDir);
                     CopyEntireDirectory(dirToCopy, destination);
                     MakeReadOnly(destination);
                 }
             }
         }
 
-        private IEnumerable<string> FindMissingDirectories(string sourceDirectory, string targetDirectory)
-        {
-            var dirsInSource = _fileSystem.GetTopLevelDirectories(sourceDirectory).Select(x => Path.GetFileName(x));
-            var dirsInTarget = _fileSystem.GetTopLevelDirectories(targetDirectory).Select(x => Path.GetFileName(x));
-            var ret = dirsInSource.Except(dirsInTarget);
-            return ret;
-        }
-
-        private IEnumerable<string> FindExistingSources()
-        {
-            var sourcesInSource = FindSources(_source).Select(x => x.Guid);
-            var sourcesInTarget = FindSources(_target).Select(x => x.Guid);
-            var ret = sourcesInSource.Intersect(sourcesInTarget);
-            return ret;
-        }
-
-        private void CopyEntireSources(IEnumerable<string> missingSources)
+        private void CopyMissingSources(IEnumerable<BackupDirectory> missingSources)
         {
             foreach (var missingSource in missingSources)
             {
-                var dirToCopy = Path.Combine(_source, missingSource);
-                var destination = Path.Combine(_target, missingSource);
+                var dirToCopy = Path.Combine(_source, missingSource.Guid);
+                var destination = Path.Combine(_target, missingSource.Guid);
                 CopyEntireDirectory(dirToCopy, destination);
                 foreach (var innerDirectory in _fileSystem.GetTopLevelDirectories(destination))
                     MakeReadOnly(innerDirectory);
@@ -94,27 +77,14 @@ namespace BackyLogic
         private void CopyEntireDirectory(string dirToCopy, string destination)
         {
             var filesToCopy = _fileSystem.EnumerateFiles(dirToCopy).ToArray();
+            if (filesToCopy.Any())
+                this.Progress?.StartBoundedStep($"Copy files from {dirToCopy}", filesToCopy.Length);
             foreach (var file in filesToCopy)
             {
                 var destinationFileName = Path.Combine(destination, file.Replace(dirToCopy + "\\", ""));
                 _fileSystem.Copy(file, destinationFileName);
+                this.Progress?.Increment();
             }
-        }
-
-        private IEnumerable<BackupDirectory> FindSources(string path)
-        {
-            var ret = _fileSystem.GetTopLevelDirectories(path)
-                .Where(x => BackupDirectory.IsBackupDirectory(x, _fileSystem))
-                .Select(x => BackupDirectory.FromPath(x, _fileSystem));
-            return ret;
-        }
-
-        private IEnumerable<string> FindMissingSources()
-        {
-            var dirsInSource = FindSources(_source).Select(x => x.Guid);
-            var dirsInTarget = FindSources(_target).Select(x => x.Guid);
-            var ret = dirsInSource.Except(dirsInTarget);
-            return ret;
         }
 
         private void MakeReadOnly(string targetDir)
@@ -122,6 +92,70 @@ namespace BackyLogic
             _fileSystem.MakeDirectoryReadOnly(targetDir);
         }
     }
+
+    public class BackupTheBackupDiff
+    {
+        public List<BackupDirectory> Missing;
+        public List<BackupDiff> Existing;
+
+        public class BackupDiff
+        {
+            public BackupDirectory Directory;
+            public List<string> MissingDirectories;
+        }
+
+        public static BackupTheBackupDiff Calculate(string source, string target, IFileSystem fs)
+        {
+            var ret = new BackupTheBackupDiff();
+            ret.Missing = FindMissingSources(source, target, fs).ToList();
+            ret.Existing = FindExistingSources(source, target, fs).ToList();
+            return ret;
+        }
+        
+
+        private static IEnumerable<BackupDiff> FindExistingSources(string source, string target, IFileSystem fs)
+        {
+            var sourcesInSource = FindSources(source, fs);
+            var sourcesInTarget = FindSources(target, fs);
+            var existingSources = sourcesInSource.Intersect(sourcesInTarget, new GenericEqualityComparer<BackupDirectory>(x => x.Guid));
+
+            foreach (var existingSource in existingSources)
+            {
+                var sourcePath = Path.Combine(source, existingSource.Guid);
+                var targeyPath = Path.Combine(target, existingSource.Guid);
+                var missingDontent = FindMissingDirectories(sourcePath, targeyPath, fs);
+                var ret = new BackupDiff();
+                ret.Directory = existingSource;
+                ret.MissingDirectories = missingDontent.ToList();
+                yield return ret;                
+            }
+        }
+
+        private static IEnumerable<BackupDirectory> FindSources(string path, IFileSystem fs)
+        {
+            var ret = fs.GetTopLevelDirectories(path)
+                .Where(x => BackupDirectory.IsBackupDirectory(x, fs))
+                .Select(x => BackupDirectory.FromPath(x, fs));
+            return ret;
+        }
+
+        private static IEnumerable<string> FindMissingDirectories(string source, string target, IFileSystem fs)
+        {
+            var dirsInSource = fs.GetTopLevelDirectories(source).Select(x => Path.GetFileName(x));
+            var dirsInTarget = fs.GetTopLevelDirectories(target).Select(x => Path.GetFileName(x));
+            var ret = dirsInSource.Except(dirsInTarget);
+            return ret;
+        }
+
+        private static IEnumerable<BackupDirectory> FindMissingSources(string source, string target, IFileSystem fs)
+        {
+            var dirsInSource = FindSources(source, fs);
+            var dirsInTarget = FindSources(target, fs);
+            var ret = dirsInSource.Except(dirsInTarget, new GenericEqualityComparer<BackupDirectory>(x => x.Guid));
+            return ret;
+        }
+    }    
+
 
     public class BackupDirectory
     {
@@ -147,11 +181,36 @@ namespace BackyLogic
             return ret;
         }
 
-        internal static void CreateIniFile(string sourceGuid, string target, string source, IFileSystem fs)
+        public static void CreateIniFile(string sourceGuid, string target, string source, IFileSystem fs)
         {
             fs.CreateFile(Path.Combine(target, sourceGuid, "backy.ini"));
             fs.AppendLine(Path.Combine(target, sourceGuid, "backy.ini"), source);
             fs.AppendLine(Path.Combine(target, sourceGuid, "backy.ini"), sourceGuid);
+        }
+    }
+
+
+    public class GenericEqualityComparer<T> : IEqualityComparer<T>
+    {
+        private Func<T, IComparable> _comparableExtractor;
+
+        public GenericEqualityComparer(Func<T, string> comparableExtractor)
+        {
+            _comparableExtractor = comparableExtractor;
+        }
+
+        public bool Equals(T x, T y)
+        {
+            var xComparable = _comparableExtractor(x);
+            var yComparable = _comparableExtractor(y);
+            var ret = xComparable.Equals(yComparable);
+            return ret;
+        }
+
+        public int GetHashCode(T obj)
+        {
+            var objComparable = _comparableExtractor(obj);
+            return objComparable.GetHashCode();
         }
     }
 }
