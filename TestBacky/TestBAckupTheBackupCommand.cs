@@ -11,7 +11,7 @@ using System.Security.AccessControl;
 namespace TestBacky
 {
     [TestClass]
-    public class TestBAckupTheBackupCommand
+    public class TestBackupTheBackupCommand
     {
         [TestMethod]
         public void BackupTheBackup_01_Running_on_a_single_source_for_the_first_time()
