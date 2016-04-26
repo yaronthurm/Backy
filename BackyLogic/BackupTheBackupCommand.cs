@@ -47,6 +47,7 @@ namespace BackyLogic
             }
         }
 
+
         private void CopyMissingContentForExistingSources(IEnumerable<string> existingSources)
         {
             foreach (var existingSource in existingSources)
@@ -57,6 +58,7 @@ namespace BackyLogic
                     var dirToCopy = Path.Combine(_source, existingSource, missingDir);
                     var destination = Path.Combine(_target, existingSource, missingDir);
                     CopyEntireDirectory(dirToCopy, destination);
+                    MakeReadOnly(destination);
                 }
             }
         }
@@ -76,11 +78,11 @@ namespace BackyLogic
                 var dirToCopy = Path.Combine(_source, missingSource);
                 var destination = Path.Combine(_target, missingSource);
                 CopyEntireDirectory(dirToCopy, destination);
+                foreach (var innerDirectory in _fileSystem.GetTopLevelDirectories(destination))
+                    MakeReadOnly(innerDirectory);
             }
         }
-
         
-
         private void CopyEntireDirectory(string dirToCopy, string destination)
         {
             var filesToCopy = _fileSystem.EnumerateFiles(dirToCopy).ToArray();
@@ -103,6 +105,11 @@ namespace BackyLogic
             var dirsInTarget = fs.GetTopLevelDirectories(targetDirectory).Select(x => Path.GetFileName(x));
             var ret = dirsInSource.Except(dirsInTarget);
             return ret;
+        }
+
+        private void MakeReadOnly(string targetDir)
+        {
+            _fileSystem.MakeDirectoryReadOnly(targetDir);
         }
     }
 }
