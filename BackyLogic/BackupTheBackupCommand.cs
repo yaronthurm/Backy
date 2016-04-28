@@ -162,6 +162,7 @@ namespace BackyLogic
         public string FullPath;
         public string Guid;
         public string OriginalSource;
+        public string MachineID;
 
         public static BackupDirectory FromPath(string path, IFileSystem fs)
         {
@@ -171,6 +172,7 @@ namespace BackyLogic
             ret.FullPath = path;
             ret.OriginalSource = iniLines.First();
             ret.Guid = iniLines.Skip(1).First();
+            ret.MachineID = iniLines.Skip(2).First();
             return ret;
         }
 
@@ -181,11 +183,12 @@ namespace BackyLogic
             return ret;
         }
 
-        public static void CreateIniFile(string sourceGuid, string target, string source, IFileSystem fs)
+        public static void CreateIniFile(string sourceGuid, string target, string source, IFileSystem fs, string machineID)
         {
             fs.CreateFile(Path.Combine(target, sourceGuid, "backy.ini"));
             fs.AppendLine(Path.Combine(target, sourceGuid, "backy.ini"), source);
             fs.AppendLine(Path.Combine(target, sourceGuid, "backy.ini"), sourceGuid);
+            fs.AppendLine(Path.Combine(target, sourceGuid, "backy.ini"), machineID);
         }
     }
 

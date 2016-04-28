@@ -32,8 +32,8 @@ namespace BackyLogic
         {
             _fileSystem = fileSystem;
             _source = source;
-            _targetForSource = FindOrCreateTargetForSource(source, target, fileSystem);
             _machineID = machineID;
+            _targetForSource = FindOrCreateTargetForSource(source, target, fileSystem, _machineID.Value);            
             _cancellationToken = cancellationToken;
         }
 
@@ -222,7 +222,7 @@ namespace BackyLogic
             return ret;
         }
 
-        private static string FindOrCreateTargetForSource(string source, string target, IFileSystem fs)
+        private static string FindOrCreateTargetForSource(string source, string target, IFileSystem fs, string machineID)
         {
             string sourceGuid = null;
             var targetDir = fs.GetTopLevelDirectories(target);
@@ -231,7 +231,7 @@ namespace BackyLogic
                 if (!BackupDirectory.IsBackupDirectory(innerDir, fs)) continue;
                 var backupDir = BackupDirectory.FromPath(innerDir, fs);
                 
-                if (backupDir.OriginalSource == source)
+                if (backupDir.OriginalSource.Equals(source, StringComparison.OrdinalIgnoreCase) && backupDir.MachineID == machineID)
                 {
                     sourceGuid = backupDir.Guid;
                     break;
@@ -240,7 +240,7 @@ namespace BackyLogic
             if (sourceGuid == null)
             {
                 sourceGuid = Guid.NewGuid().ToString("N");
-                BackupDirectory.CreateIniFile(sourceGuid, target, source, fs);
+                BackupDirectory.CreateIniFile(sourceGuid, target, source, fs, machineID);
             }
 
             var ret = Path.Combine(target, sourceGuid);

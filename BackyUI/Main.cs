@@ -27,6 +27,7 @@ namespace Backy
         private BlockingQueue<ManualResetFileSystemWatcher> _changesQueue = new BlockingQueue<ManualResetFileSystemWatcher>();
         private bool _listenToChanges;
         private Task _detectChangesTask = Task.FromResult(0);
+        private MachineID CurrentMachineID => new MachineID { Value = _settings.MachineID };
 
         public Main()
         {
@@ -94,7 +95,7 @@ namespace Backy
             _cancelTokenSource = new CancellationTokenSource();
             var backupCommands = activeSources
                 .Select(x =>
-                new RunBackupCommand(_fileSystem, x.Path, _settings.Target, MachineID.One, _cancelTokenSource.Token) { Progress = this.multiStepProgress1 });
+                new RunBackupCommand(_fileSystem, x.Path, _settings.Target, CurrentMachineID, _cancelTokenSource.Token) { Progress = this.multiStepProgress1 });
 
             if (!backupCommands.Any())
                 return Task.Run(() => this.multiStepProgress1.StartStepWithoutProgress("There are no active sources"));
@@ -256,7 +257,7 @@ namespace Backy
 
                 if (Directory.Exists(_settings.Target) && Directory.Exists(watcher.Path))
                 {
-                    var backupCommand = new RunBackupCommand(_fileSystem, watcher.Path, _settings.Target, MachineID.One, _cancelTokenSource.Token) { Progress = this.multiStepProgress1 };
+                    var backupCommand = new RunBackupCommand(_fileSystem, watcher.Path, _settings.Target, CurrentMachineID, _cancelTokenSource.Token) { Progress = this.multiStepProgress1 };
                     _backupTask = Task.Run(() => backupCommand.Execute());
                     await _backupTask;
                 }
