@@ -21,7 +21,7 @@ namespace BackyLogic
     public class RunBackupCommand
     {
         private string _source;
-        private string _target;
+        private string _targetForSource;
         private IFileSystem _fileSystem;
         private FoldersDiff _diff;
         public IMultiStepProgress Progress;
@@ -32,7 +32,7 @@ namespace BackyLogic
         {
             _fileSystem = fileSystem;
             _source = source;
-            _target = FindOrCreateTargetForSource(source, target, fileSystem);
+            _targetForSource = FindOrCreateTargetForSource(source, target, fileSystem);
             _machineID = machineID;
             _cancellationToken = cancellationToken;
         }
@@ -100,7 +100,7 @@ namespace BackyLogic
         {
             int count = 0;
             this.Progress?.StartUnboundedStep("Scanning backup files. Files scanned:");
-            State lastBackedupState = State.GetLastBackedUpState(_fileSystem, _target, () =>
+            State lastBackedupState = State.GetLastBackedUpState(_fileSystem, _targetForSource, () =>
             {
                 count++;
                 if (count % 100 == 0) this.Progress?.UpdateProgress(count);
@@ -217,8 +217,8 @@ namespace BackyLogic
 
         private string GetTargetDirectory(State lastBackedupState)
         {
-            var version = lastBackedupState.GetNextDirectory(_fileSystem, _target);
-            var ret = Path.Combine(_target, version);
+            var version = lastBackedupState.GetNextDirectory(_fileSystem, _targetForSource);
+            var ret = Path.Combine(_targetForSource, version);
             return ret;
         }
 
@@ -263,7 +263,7 @@ namespace BackyLogic
         private bool IsFirstTime()
         {
             // We expect to see folders in the target directory. If we don't see we assume it's the first time
-            var dirs = State.GetFirstLevelDirectories(_fileSystem, _target);
+            var dirs = State.GetFirstLevelDirectories(_fileSystem, _targetForSource);
             var ret = dirs.Any() == false;
             return ret;
         }
