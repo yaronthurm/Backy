@@ -100,7 +100,7 @@ namespace BackyLogic
         {
             int count = 0;
             this.Progress?.StartUnboundedStep("Scanning backup files. Files scanned:");
-            State lastBackedupState = State.GetLastBackedUpState(_fileSystem, _targetForSource, () =>
+            State lastBackedupState = State.GetLastBackedUpState(_fileSystem, _targetForSource, _machineID.Value, () =>
             {
                 count++;
                 if (count % 100 == 0) this.Progress?.UpdateProgress(count);
@@ -224,19 +224,7 @@ namespace BackyLogic
 
         private static string FindOrCreateTargetForSource(string source, string target, IFileSystem fs, string machineID)
         {
-            string sourceGuid = null;
-            var targetDir = fs.GetTopLevelDirectories(target);
-            foreach (var innerDir in fs.GetTopLevelDirectories(target))
-            {
-                if (!BackupDirectory.IsBackupDirectory(innerDir, fs)) continue;
-                var backupDir = BackupDirectory.FromPath(innerDir, fs);
-                
-                if (backupDir.OriginalSource.Equals(source, StringComparison.OrdinalIgnoreCase) && backupDir.MachineID == machineID)
-                {
-                    sourceGuid = backupDir.Guid;
-                    break;
-                }
-            }
+            string sourceGuid = StateCalculator.FindTargetForSourceOrNull(source, target, fs, machineID);
             if (sourceGuid == null)
             {
                 sourceGuid = Guid.NewGuid().ToString("N");

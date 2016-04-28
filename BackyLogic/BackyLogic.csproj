@@ -51,7 +51,6 @@
     <Compile Include="HierarchicalDictionary.cs" />
     <Compile Include="CloneBackupCommand.cs" />
     <Compile Include="ManualResetFileSystemWatcher.cs" />
-    <Compile Include="OSMachineIDProvider.cs" />
     <Compile Include="OSFileSystem.cs" />
     <Compile Include="IMachineIDProvider.cs" />
     <Compile Include="IMultiStepProgress.cs" />

@@ -22,7 +22,7 @@ namespace TestBacky
 
         public static void AssertState(IFileSystem fs, string target, string source, params IEnumerable<EmulatorFile>[] expectedFilesByVersion)
         {
-            var stateCalculator = new StateCalculator(fs, target, source);
+            var stateCalculator = new StateCalculator(fs, target, source, MachineID.One.Value);
             stateCalculator.MaxVersion.ShouldBe(expectedFilesByVersion.Length);
             for (int i = 0; i < expectedFilesByVersion.Length; i++)
             {

@@ -179,7 +179,7 @@ namespace BackyLogic
         public static bool IsBackupDirectory(string path, IFileSystem fs)
         {
             // Should contain a Backy.ini file
-            var ret = fs.FindFile(path, "Backy.ini") != null;
+            var ret = fs.FindFile(path, "backy.ini") != null;
             return ret;
         }
 

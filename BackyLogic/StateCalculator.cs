@@ -16,39 +16,37 @@ namespace BackyLogic
         private string _target;
         private Lazy<List<BackyFolder>> _backyFolders;
 
-        public StateCalculator(IFileSystem fileSystem, string target, string source = null)
+        public StateCalculator(IFileSystem fileSystem, string target, string source, string machineID)
         {
             _fileSystem = fileSystem;
             if (source == null)
                 _target = target;
             else
-                _target = FindTargetForSource(source, target, fileSystem);
+                _target = FindTargetForSource(source, target, fileSystem, machineID);
             _backyFolders = new Lazy<List<BackyFolder>>(this.GetFolders);
         }
 
-        private static string FindTargetForSource(string source, string target, IFileSystem fs)
+        private static string FindTargetForSource(string source, string target, IFileSystem fs, string machineID)
         {
-            string sourceGuid = FindTargetForSourceOrNull(source, target, fs);
+            string sourceGuid = FindTargetForSourceOrNull(source, target, fs, machineID);
             if (sourceGuid == null)
                throw new ApplicationException("Could not find directory for source: " + source);
             var ret = Path.Combine(target, sourceGuid);
             return ret;
         }
 
-        private static string FindTargetForSourceOrNull(string source, string target, IFileSystem fs)
+        public static string FindTargetForSourceOrNull(string source, string target, IFileSystem fs, string machineID)
         {
             string sourceGuid = null;
             var targetDir = fs.GetTopLevelDirectories(target);
             foreach (var innerDir in fs.GetTopLevelDirectories(target))
             {
-                var iniFile = fs.FindFile(innerDir, "backy.ini");
-                if (iniFile == null) continue;
-                var iniLines = fs.ReadLines(iniFile).ToArray();
-                var sourceFromIniFile = iniLines.First();
-                var guid = iniLines.Skip(1).First();
-                if (sourceFromIniFile == source)
+                if (!BackupDirectory.IsBackupDirectory(innerDir, fs)) continue;
+                var backupDir = BackupDirectory.FromPath(innerDir, fs);
+
+                if (backupDir.OriginalSource.Equals(source, StringComparison.OrdinalIgnoreCase) && backupDir.MachineID == machineID)
                 {
-                    sourceGuid = guid;
+                    sourceGuid = backupDir.Guid;
                     break;
                 }
             }
@@ -58,9 +56,9 @@ namespace BackyLogic
             return ret;
         }
 
-        public static bool IsTargetForSourceExist(string source, string target, IFileSystem fs)
+        public static bool IsTargetForSourceExist(string source, string target, IFileSystem fs, string machineID)
         {
-            string sourceGuid = FindTargetForSourceOrNull(source, target, fs);
+            string sourceGuid = FindTargetForSourceOrNull(source, target, fs, machineID);
             return sourceGuid != null;
         }
 

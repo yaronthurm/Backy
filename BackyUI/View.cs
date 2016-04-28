@@ -85,7 +85,7 @@ namespace Backy
                 this.comboBox1.Enabled = false;
                 this.radState.Enabled = false;
                 this.radDiff.Enabled = false;
-                var stateCalculator = new StateCalculator(_fileSystem, _setting.Target, _selectedSourceDirectory);
+                var stateCalculator = new StateCalculator(_fileSystem, _setting.Target, _selectedSourceDirectory, _setting.MachineID);
                 stateCalculator.OnProgress += OnScanProgressHandler;
                 _stateCalculatorPerSource[_selectedSourceDirectory] = stateCalculator;
                 await Task.Run(() => stateCalculator.GetLastState());
@@ -223,7 +223,7 @@ namespace Backy
                 _setting
                 .Sources
                 .Select(x => x.Path)
-                .Where(x => StateCalculator.IsTargetForSourceExist(x, _setting.Target, _fileSystem))
+                .Where(x => StateCalculator.IsTargetForSourceExist(x, _setting.Target, _fileSystem, _setting.MachineID))
                 .ToArray());
             for (int i = 0; i < this.comboBox1.Items.Count; i++)
             {

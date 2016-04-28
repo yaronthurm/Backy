@@ -32,9 +32,9 @@ namespace BackyLogic
             return ret;
         }
 
-        public static State GetLastBackedUpState(IFileSystem fileSystem, string target, Action fileEnumaretedCallback)
+        public static State GetLastBackedUpState(IFileSystem fileSystem, string target, string machineID, Action fileEnumaretedCallback)
         {
-            var stateCalculator = new StateCalculator(fileSystem, target);
+            var stateCalculator = new StateCalculator(fileSystem, target, null, machineID);
             stateCalculator.OnProgress += fileEnumaretedCallback;
             var ret = stateCalculator.GetLastState();
             return ret;

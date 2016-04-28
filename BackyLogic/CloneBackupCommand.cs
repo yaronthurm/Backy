@@ -30,7 +30,7 @@ namespace BackyLogic
             try
             {
                 this.Progress?.StartStepWithoutProgress("Started: " + DateTime.Now);
-                var stateCalculator = new StateCalculator(_fileSystem, _cloneSource.BackupPath, _cloneSource.OriginalSourcePath);
+                var stateCalculator = new StateCalculator(_fileSystem, _cloneSource.BackupPath, _cloneSource.OriginalSourcePath, MachineID.One.Value);
                 if (stateCalculator.MaxVersion < _version)
                     throw new ApplicationException("Invalid veriosn. max is " + stateCalculator.MaxVersion);
 
