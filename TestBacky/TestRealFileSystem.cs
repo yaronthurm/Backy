@@ -113,7 +113,7 @@ namespace TestBacky
 
                 // Run regular backup on one of the source
                 WriteFile(backupSource1, "file1234.txt", "hello1234", DateTime.Now);
-                var backupCmd = new RunBackupCommand(fs, backupSource1, backupTarget);
+                var backupCmd = new RunBackupCommand(fs, backupSource1, backupTarget, MachineID.One);
                 backupCmd.Execute();
 
                 btbCommand.Execute();
@@ -139,7 +139,7 @@ namespace TestBacky
 
         private IEnumerable<EmulatorFile>[] SimulateRunningBackups(string source, string target, IFileSystem fs)
         {
-            var cmd = new RunBackupCommand(fs, source, target);
+            var cmd = new RunBackupCommand(fs, source, target, MachineID.One);
 
             var now = new DateTime(2010, 1, 1);
 

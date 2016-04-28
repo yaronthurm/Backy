@@ -13,6 +13,7 @@ namespace BackyLogic
     {
         public Source[] Sources { get; set; } = new Source[0];
         public string Target { get; set; } = "";
+        public string MachineID { get; set; } = Guid.NewGuid().ToString("N");
 
         private Settings() { }
 
@@ -44,7 +45,7 @@ namespace BackyLogic
 
         public void Save()
         {
-            var txt = JsonConvert.SerializeObject(this);
+            var txt = JsonConvert.SerializeObject(this, Formatting.Indented);
             File.WriteAllText(GetSettingsFilePath(), txt);
         }
 

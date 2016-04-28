@@ -28,7 +28,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file2.txt", content: "2"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt", content: "3") };
             var fs = new FileSystemEmulator(files);
-            var cmd = new RunBackupCommand(fs, source, target);
+            var cmd = new RunBackupCommand(fs, source, target, MachineID.One);
             cmd.Execute();
 
             // Expected that all files will show up under version 1
@@ -56,10 +56,10 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file2.txt", content: "2"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt", content: "3") };
             var fs = new FileSystemEmulator(files);
-            var cmd = new RunBackupCommand(fs, source, target);
+            var cmd = new RunBackupCommand(fs, source, target, MachineID.One);
             cmd.Execute(); // Running once
 
-            cmd = new RunBackupCommand(fs, source, target);
+            cmd = new RunBackupCommand(fs, source, target, MachineID.One);
             cmd.Execute(); // Running twice
 
             // Expected that all files will show up under version 1
@@ -87,7 +87,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file2.txt", content: "2"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt", content: "3") };
             var fs = new FileSystemEmulator(files);
-            var cmd = new RunBackupCommand(fs, source, target);
+            var cmd = new RunBackupCommand(fs, source, target, MachineID.One);
             cmd.Execute(); // Running once
             cmd.Execute(); // Running twice
 
@@ -117,7 +117,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file2.txt"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt") };
             var fs = new FileSystemEmulator(files);
-            var cmd = new RunBackupCommand(fs, source, target);
+            var cmd = new RunBackupCommand(fs, source, target, MachineID.One);
 
             // First run
             cmd.Execute();
@@ -163,7 +163,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file2.txt"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt") };
             var fs = new FileSystemEmulator(files);
-            var cmd = new RunBackupCommand(fs, source, target);
+            var cmd = new RunBackupCommand(fs, source, target, MachineID.One);
 
             // First run
             cmd.Execute();
@@ -201,7 +201,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file2.txt"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt") };
             var fs = new FileSystemEmulator(files);
-            var cmd = new RunBackupCommand(fs, source, target);
+            var cmd = new RunBackupCommand(fs, source, target, MachineID.One);
 
             // First run
             cmd.Execute();
@@ -245,7 +245,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file2.txt", new DateTime(2010, 1, 1), "2"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1), "3")};
             var fs = new FileSystemEmulator(files);
-            var cmd = new RunBackupCommand(fs, source, target);
+            var cmd = new RunBackupCommand(fs, source, target, MachineID.One);
 
             // First run
             cmd.Execute();
@@ -284,7 +284,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file2.txt", new DateTime(2010, 1, 1), "2"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1), "3")};
             var fs = new FileSystemEmulator(files);
-            var cmd = new RunBackupCommand(fs, source, target);
+            var cmd = new RunBackupCommand(fs, source, target, MachineID.One);
 
             // First run
             cmd.Execute();
@@ -330,7 +330,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file2.txt", new DateTime(2010, 1, 1), "2"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1), "3")};
             var fs = new FileSystemEmulator(files);
-            var cmd = new RunBackupCommand(fs, source, target);
+            var cmd = new RunBackupCommand(fs, source, target, MachineID.One);
 
             // First run
             cmd.Execute();
@@ -374,7 +374,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file2.txt", new DateTime(2010, 1, 1), "2"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1), "3")};
             var fs = new FileSystemEmulator(files);
-            var cmd = new RunBackupCommand(fs, source, target);
+            var cmd = new RunBackupCommand(fs, source, target, MachineID.One);
 
             // First run
             cmd.Execute();

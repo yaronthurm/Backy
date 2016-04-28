@@ -39,7 +39,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\dir2\file2") };
 
             var fs = new FileSystemEmulator(files);
-            var cmd = new RunBackupCommand(fs, backupSource, backupTarget);
+            var cmd = new RunBackupCommand(fs, backupSource, backupTarget, MachineID.One);
             cmd.Execute();
 
             fs.AddFiles(new[] {
@@ -101,7 +101,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\dir2\file2") };
 
             var fs = new FileSystemEmulator(files);
-            var cmd = new RunBackupCommand(fs, backupSource, backupTarget);
+            var cmd = new RunBackupCommand(fs, backupSource, backupTarget, MachineID.One);
             cmd.Execute();
 
             fs.AddFiles(new[] {

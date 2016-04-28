@@ -36,7 +36,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\dir2\file2") };
 
             var fs = new FileSystemEmulator(files);
-            var cmd = new RunBackupCommand(fs, backupSource, backupTarget);
+            var cmd = new RunBackupCommand(fs, backupSource, backupTarget, MachineID.One);
             cmd.Execute();
 
             fs.AddFiles(new[] {
@@ -79,7 +79,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\dir2\file2") };
 
             var fs = new FileSystemEmulator(files);
-            var cmd = new RunBackupCommand(fs, backupSource, backupTarget);
+            var cmd = new RunBackupCommand(fs, backupSource, backupTarget, MachineID.One);
             cmd.Execute();
 
             fs.AddFiles(new[] {
@@ -140,8 +140,8 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source2\dir2\file2") };
 
             var fs = new FileSystemEmulator(files);
-            var cmd1 = new RunBackupCommand(fs, backupSource1, backupTarget);
-            var cmd2 = new RunBackupCommand(fs, backupSource2, backupTarget);
+            var cmd1 = new RunBackupCommand(fs, backupSource1, backupTarget, MachineID.One);
+            var cmd2 = new RunBackupCommand(fs, backupSource2, backupTarget, MachineID.One);
             cmd1.Execute();
             cmd2.Execute();
 
@@ -188,8 +188,8 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source2\dir2\file2") };
 
             var fs = new FileSystemEmulator(files);
-            var cmd1 = new RunBackupCommand(fs, backupSource1, backupTarget);
-            var cmd2 = new RunBackupCommand(fs, backupSource2, backupTarget);
+            var cmd1 = new RunBackupCommand(fs, backupSource1, backupTarget, MachineID.One);
+            var cmd2 = new RunBackupCommand(fs, backupSource2, backupTarget, MachineID.One);
             cmd1.Execute();
             cmd2.Execute();
 

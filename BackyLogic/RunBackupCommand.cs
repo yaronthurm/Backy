@@ -10,6 +10,14 @@ using System.Threading.Tasks;
 
 namespace BackyLogic
 {
+    public class MachineID
+    {
+        public static MachineID One = new MachineID { Value = "1" };
+        public string Value;
+
+
+    }
+
     public class RunBackupCommand
     {
         private string _source;
@@ -18,12 +26,14 @@ namespace BackyLogic
         private FoldersDiff _diff;
         public IMultiStepProgress Progress;
         private CancellationToken _cancellationToken;
+        private MachineID _machineID;
 
-        public RunBackupCommand(IFileSystem fileSystem, string source, string target, CancellationToken cancellationToken = new CancellationToken())
+        public RunBackupCommand(IFileSystem fileSystem, string source, string target, MachineID machineID, CancellationToken cancellationToken = new CancellationToken())
         {
             _fileSystem = fileSystem;
             _source = source;
             _target = FindOrCreateTargetForSource(source, target, fileSystem);
+            _machineID = machineID;
             _cancellationToken = cancellationToken;
         }
 
