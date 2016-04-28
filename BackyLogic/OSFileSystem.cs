@@ -76,6 +76,8 @@ namespace BackyLogic
 
         public void MakeDirectoryReadOnly(string dirName)
         {
+            if (!Directory.Exists(dirName)) return;
+
             DirectoryInfo dInfo = new DirectoryInfo(dirName);
             DirectorySecurity dSecurity = dInfo.GetAccessControl();
             dSecurity.SetAccessRuleProtection(true, false); // Disable inheritance

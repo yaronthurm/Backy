@@ -32,6 +32,7 @@ namespace BackyLogic
         {
             if (IsAborted()) return;
             var sw = Stopwatch.StartNew();
+            string targetDir = null;
             try {
                 this.Progress?.StartStepWithoutProgress($"\nStarted backing up '{_source}' at: { DateTime.Now }");
 
@@ -48,7 +49,7 @@ namespace BackyLogic
                     return;
                 }
 
-                var targetDir = GetTargetDirectory(lastBackedupState);
+                targetDir = GetTargetDirectory(lastBackedupState);
 
                 CopyAllNewFiles(targetDir, _diff);
                 if (IsAborted()) return;
@@ -61,11 +62,10 @@ namespace BackyLogic
 
                 MarkAllRenamedFiles(targetDir, _diff);
                 if (IsAborted()) return;
-
-                MakeReadOnly(targetDir);
             }
             finally
             {
+                MakeReadOnly(targetDir);
                 sw.Stop();
                 this.Progress?.StartStepWithoutProgress($"Finished backing up '{_source}' at: { DateTime.Now }");
                 this.Progress?.StartStepWithoutProgress("Total time: " + sw.Elapsed);
