@@ -127,7 +127,6 @@
             // 
             // numSeconds
             // 
-            this.numSeconds.DataBindings.Add(new System.Windows.Forms.Binding("Value", global::Backy.Properties.Settings.Default, "autoBackupInterval", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.numSeconds.Enabled = false;
             this.numSeconds.Location = new System.Drawing.Point(180, 150);
             this.numSeconds.Maximum = new decimal(new int[] {
@@ -143,7 +142,6 @@
             this.numSeconds.Name = "numSeconds";
             this.numSeconds.Size = new System.Drawing.Size(51, 20);
             this.numSeconds.TabIndex = 25;
-            this.numSeconds.Value = global::Backy.Properties.Settings.Default.autoBackupInterval;
             // 
             // btnSettings
             // 
