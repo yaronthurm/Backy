@@ -24,6 +24,9 @@ namespace Backy
             this.richTextBox1.BackColor = SystemColors.Control;
         }
 
+        private string BackupTarget => BackyLogic.Settings.Load().Target;
+
+
         private void btnBrowseFoldersTarget_Click(object sender, EventArgs e)
         {
             var selectedTarget = UIUtils.ChooseAnyFolder();
@@ -31,48 +34,45 @@ namespace Backy
 
             this.backupTargetView1.SetDirectory(selectedTarget);
 
-            var settings = BackyLogic.Settings.Load();
-
-            if (!Directory.Exists(settings.Target))
+            if (!Directory.Exists(BackupTarget))
             {
                 this.richTextBox1.Clear();
-                this.richTextBox1.AppendText($"Cannot calculate diff since source directoty '{settings.Target}' does not exist");
+                this.richTextBox1.AppendText($"Cannot calculate diff since source directoty '{BackupTarget}' does not exist");
                 return;
             }
 
-            var diff = BackupTheBackupDiff.Calculate(settings.Target, selectedTarget, _fileSystem);
+            CalculateDiffAndPopulateStatus();
+            this.linkRefresh.Visible = true;
+            this.btnRunBackupTheBackup.Enabled = true;
+        }
+
+        private void CalculateDiffAndPopulateStatus()
+        {
+            string selectedTarget = this.backupTargetView1.Path;
+            var diff = BackupTheBackupDiff.Calculate(BackupTarget, selectedTarget, _fileSystem);
 
             this.richTextBox1.Clear();
-            if (diff.Missing.Any())
+            this.richTextBox1.SelectionFont = new Font(this.Font, FontStyle.Bold | FontStyle.Underline);
+            this.richTextBox1.AppendText("Directories status:\n");
+
+            foreach (var missing in diff.Missing)
             {
-                foreach (var missing in diff.Missing)
+                this.richTextBox1.SelectionColor = Color.Red;
+                this.richTextBox1.AppendText($"{missing.OriginalSource} is missing\n");
+            }
+            foreach (var existing in diff.Existing)
+            {
+                if (existing.MissingDirectories.Any())
                 {
-                    this.richTextBox1.SelectionColor = Color.Red;
-                    this.richTextBox1.AppendText($"{missing.OriginalSource} is missing\n");
+                    this.richTextBox1.SelectionColor = Color.DarkOrange;
+                    this.richTextBox1.AppendText($"{existing.Directory.OriginalSource} is missing some versions: {existing.MissingDirectories.ToCommaDelimited()} \n");
+                }
+                else
+                {
+                    this.richTextBox1.SelectionColor = Color.Green;
+                    this.richTextBox1.AppendText($"{existing.Directory.OriginalSource} is up to date\n");
                 }
             }
-
-            if (diff.Existing.Any())
-            {                
-                this.richTextBox1.SelectionFont = new Font(this.Font, FontStyle.Bold | FontStyle.Underline);
-                this.richTextBox1.AppendText("Existing directories:\n");
-                this.richTextBox1.SelectionFont = this.Font;
-                foreach (var existing in diff.Existing)
-                {
-                    if (existing.MissingDirectories.Any())
-                    {
-                        this.richTextBox1.SelectionColor = Color.DarkOrange;
-                        this.richTextBox1.AppendText($"{existing.Directory.OriginalSource} is missing some versions: {existing.MissingDirectories.ToCommaDelimited()} \n");
-                    }
-                    else
-                    {
-                        this.richTextBox1.SelectionColor = Color.Green;
-                        this.richTextBox1.AppendText($"{existing.Directory.OriginalSource} is up to date\n");
-                    }
-                }                
-            }
-
-            this.btnRunBackupTheBackup.Enabled = true;
         }
 
         private void MoreOptions_FormClosing(object sender, FormClosingEventArgs e)
@@ -100,8 +100,16 @@ namespace Backy
 
 
             var cmd = new BackupTheBackupCommand(_fileSystem, settings.Target, this.backupTargetView1.Path);
+            this.multiStepProgress1.Clear();
             cmd.Progress = this.multiStepProgress1;
             await Task.Run(() => cmd.Execute());            
         }
+
+        private void linkRefresh_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            CalculateDiffAndPopulateStatus();
+        }
+
+
     }
 }

@@ -32,9 +32,10 @@
             this.label2 = new System.Windows.Forms.Label();
             this.btnBrowseFoldersTarget = new System.Windows.Forms.Button();
             this.richTextBox1 = new System.Windows.Forms.RichTextBox();
-            this.backupTargetView1 = new Backy.BackupTargetView();
             this.btnRunBackupTheBackup = new System.Windows.Forms.Button();
+            this.linkRefresh = new System.Windows.Forms.LinkLabel();
             this.multiStepProgress1 = new Backy.MultiStepProgress();
+            this.backupTargetView1 = new Backy.BackupTargetView();
             this.SuspendLayout();
             // 
             // label1
@@ -68,11 +69,46 @@
             // 
             // richTextBox1
             // 
+            this.richTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.richTextBox1.Location = new System.Drawing.Point(285, 35);
             this.richTextBox1.Name = "richTextBox1";
+            this.richTextBox1.ReadOnly = true;
             this.richTextBox1.Size = new System.Drawing.Size(257, 108);
             this.richTextBox1.TabIndex = 24;
             this.richTextBox1.Text = "";
+            // 
+            // btnRunBackupTheBackup
+            // 
+            this.btnRunBackupTheBackup.Enabled = false;
+            this.btnRunBackupTheBackup.Location = new System.Drawing.Point(204, 35);
+            this.btnRunBackupTheBackup.Name = "btnRunBackupTheBackup";
+            this.btnRunBackupTheBackup.Size = new System.Drawing.Size(75, 23);
+            this.btnRunBackupTheBackup.TabIndex = 25;
+            this.btnRunBackupTheBackup.Text = "Run";
+            this.btnRunBackupTheBackup.UseVisualStyleBackColor = true;
+            this.btnRunBackupTheBackup.Click += new System.EventHandler(this.btnRunBackupTheBackup_Click);
+            // 
+            // linkRefresh
+            // 
+            this.linkRefresh.AutoSize = true;
+            this.linkRefresh.Location = new System.Drawing.Point(282, 146);
+            this.linkRefresh.Name = "linkRefresh";
+            this.linkRefresh.Size = new System.Drawing.Size(44, 13);
+            this.linkRefresh.TabIndex = 27;
+            this.linkRefresh.TabStop = true;
+            this.linkRefresh.Text = "Refresh";
+            this.linkRefresh.Visible = false;
+            this.linkRefresh.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkRefresh_LinkClicked);
+            // 
+            // multiStepProgress1
+            // 
+            this.multiStepProgress1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
+            this.multiStepProgress1.BackColor = System.Drawing.SystemColors.ControlDark;
+            this.multiStepProgress1.Location = new System.Drawing.Point(12, 162);
+            this.multiStepProgress1.Name = "multiStepProgress1";
+            this.multiStepProgress1.Size = new System.Drawing.Size(530, 174);
+            this.multiStepProgress1.TabIndex = 26;
+            this.multiStepProgress1.TabStop = false;
             // 
             // backupTargetView1
             // 
@@ -82,32 +118,12 @@
             this.backupTargetView1.Size = new System.Drawing.Size(248, 82);
             this.backupTargetView1.TabIndex = 4;
             // 
-            // btnRunBackupTheBackup
-            // 
-            this.btnRunBackupTheBackup.Enabled = false;
-            this.btnRunBackupTheBackup.Location = new System.Drawing.Point(25, 149);
-            this.btnRunBackupTheBackup.Name = "btnRunBackupTheBackup";
-            this.btnRunBackupTheBackup.Size = new System.Drawing.Size(75, 23);
-            this.btnRunBackupTheBackup.TabIndex = 25;
-            this.btnRunBackupTheBackup.Text = "Run";
-            this.btnRunBackupTheBackup.UseVisualStyleBackColor = true;
-            this.btnRunBackupTheBackup.Click += new System.EventHandler(this.btnRunBackupTheBackup_Click);
-            // 
-            // multiStepProgress1
-            // 
-            this.multiStepProgress1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
-            this.multiStepProgress1.BackColor = System.Drawing.SystemColors.ControlDark;
-            this.multiStepProgress1.Location = new System.Drawing.Point(12, 178);
-            this.multiStepProgress1.Name = "multiStepProgress1";
-            this.multiStepProgress1.Size = new System.Drawing.Size(530, 222);
-            this.multiStepProgress1.TabIndex = 26;
-            this.multiStepProgress1.TabStop = false;
-            // 
             // MoreOptions
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(554, 412);
+            this.ClientSize = new System.Drawing.Size(554, 348);
+            this.Controls.Add(this.linkRefresh);
             this.Controls.Add(this.multiStepProgress1);
             this.Controls.Add(this.btnRunBackupTheBackup);
             this.Controls.Add(this.richTextBox1);
@@ -133,5 +149,6 @@
         private System.Windows.Forms.RichTextBox richTextBox1;
         private System.Windows.Forms.Button btnRunBackupTheBackup;
         private MultiStepProgress multiStepProgress1;
+        private System.Windows.Forms.LinkLabel linkRefresh;
     }
 }
