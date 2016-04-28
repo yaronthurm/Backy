@@ -159,6 +159,8 @@ namespace BackyLogic
 
     public class BackupDirectory
     {
+        private const string IniFileName = "backy.ini";
+
         public string FullPath;
         public string Guid;
         public string OriginalSource;
@@ -167,7 +169,7 @@ namespace BackyLogic
         public static BackupDirectory FromPath(string path, IFileSystem fs)
         {
             var ret = new BackupDirectory();
-            var iniFile = fs.FindFile(path, "Backy.ini");
+            var iniFile = fs.FindFile(path, IniFileName);
             var iniLines = fs.ReadLines(iniFile).ToArray();
             ret.FullPath = path;
             ret.OriginalSource = iniLines.First();
@@ -179,16 +181,16 @@ namespace BackyLogic
         public static bool IsBackupDirectory(string path, IFileSystem fs)
         {
             // Should contain a Backy.ini file
-            var ret = fs.FindFile(path, "backy.ini") != null;
+            var ret = fs.FindFile(path, IniFileName) != null;
             return ret;
         }
 
         public static void CreateIniFile(string sourceGuid, string target, string source, IFileSystem fs, string machineID)
         {
-            fs.CreateFile(Path.Combine(target, sourceGuid, "backy.ini"));
-            fs.AppendLine(Path.Combine(target, sourceGuid, "backy.ini"), source);
-            fs.AppendLine(Path.Combine(target, sourceGuid, "backy.ini"), sourceGuid);
-            fs.AppendLine(Path.Combine(target, sourceGuid, "backy.ini"), machineID);
+            fs.CreateFile(Path.Combine(target, sourceGuid, IniFileName));
+            fs.AppendLine(Path.Combine(target, sourceGuid, IniFileName), source);
+            fs.AppendLine(Path.Combine(target, sourceGuid, IniFileName), sourceGuid);
+            fs.AppendLine(Path.Combine(target, sourceGuid, IniFileName), machineID);
         }
     }
 
