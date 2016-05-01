@@ -100,12 +100,13 @@
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Location = new System.Drawing.Point(7, 8);
             this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(385, 21);
+            this.comboBox1.Size = new System.Drawing.Size(443, 21);
             this.comboBox1.TabIndex = 6;
             this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // radDiff
             // 
+            this.radDiff.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.radDiff.AutoSize = true;
             this.radDiff.Location = new System.Drawing.Point(509, 12);
             this.radDiff.Name = "radDiff";
@@ -116,6 +117,7 @@
             // 
             // radState
             // 
+            this.radState.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.radState.AutoSize = true;
             this.radState.Checked = true;
             this.radState.Location = new System.Drawing.Point(556, 12);
@@ -132,6 +134,7 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.filesPanel1.BackColor = System.Drawing.Color.Transparent;
+            this.filesPanel1.EnableContextMenu = true;
             this.filesPanel1.Enabled = false;
             this.filesPanel1.Location = new System.Drawing.Point(0, 66);
             this.filesPanel1.Name = "filesPanel1";
