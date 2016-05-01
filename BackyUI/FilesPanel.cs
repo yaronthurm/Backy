@@ -25,6 +25,8 @@ namespace Backy
         public FilesPanel()
         {
             InitializeComponent();
+
+            this.lblCount.Text = null;
         }
 
         private int PageSize
