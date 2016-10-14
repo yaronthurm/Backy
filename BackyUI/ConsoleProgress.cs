@@ -37,7 +37,7 @@ namespace Backy
         public void UpdateProgress(int currentValue)
         {
             Console.Write($"\r{_lastText}".PadRight(Console.BufferWidth, ' '));
-            Console.Write($"\r{_lastText}: {currentValue}");
+            Console.Write($"\r{_lastText} {currentValue}");
         }
     }
 }
