@@ -21,9 +21,10 @@ namespace Backy
         [STAThread]
         static void Main(string[] args)
         {
-            if (ShouldOpenAsConsoloeApp(args))
+            var mode = GetUIMode(args);
+            if (ShouldOpenAsConsoloeApp(mode))
             {
-                RunAsConsoleApp();
+                RunAsConsoleApp(mode);
                 return;
             }
 
@@ -38,9 +39,26 @@ namespace Backy
             }
         }
 
-        private static void RunAsConsoleApp()
+        private static UIModes GetUIMode(string[] args)
+        {
+            if (args != null && args.Length == 1)
+            {
+                if (args[0] == "-console")
+                    return UIModes.Console;
+                if (args[0] == "-hiden")
+                    return UIModes.Hiden;
+            }
+            return UIModes.WinForm;
+        }
+
+        public enum UIModes {WinForm, Console, Hiden }
+
+        private static void RunAsConsoleApp(UIModes mode)
         {
             AllocConsole();
+            if (mode == UIModes.Hiden)
+                HideConsole();
+
             BackyLogic.Settings _settings = BackyLogic.Settings.Load();
             IFileSystem fileSystem = new OSFileSystem();
 
@@ -70,9 +88,15 @@ namespace Backy
             }
         }
 
-        private static bool ShouldOpenAsConsoloeApp(string[] args)
+        private static void HideConsole()
         {
-            var ret = args != null && args.Length == 1 && args[0] == "-console";
+            var handle = GetConsoleWindow();
+            ShowWindow(handle, SW_HIDE);
+        }
+
+        private static bool ShouldOpenAsConsoloeApp(UIModes mode)
+        {
+            var ret = mode == UIModes.Console || mode == UIModes.Hiden;
             return ret;
         }
 
@@ -96,5 +120,14 @@ namespace Backy
         [DllImport("kernel32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         static extern bool AllocConsole();
+
+        [DllImport("kernel32.dll")]
+        static extern IntPtr GetConsoleWindow();
+
+        [DllImport("user32.dll")]
+        static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
+
+        const int SW_HIDE = 0;
+        const int SW_SHOW = 5;
     }
 }
