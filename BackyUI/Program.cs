@@ -45,18 +45,18 @@ namespace Backy
             {
                 if (args[0] == "-console")
                     return UIModes.Console;
-                if (args[0] == "-hiden")
-                    return UIModes.Hiden;
+                if (args[0] == "-hidden")
+                    return UIModes.Hidden;
             }
             return UIModes.WinForm;
         }
 
-        public enum UIModes {WinForm, Console, Hiden }
+        public enum UIModes {WinForm, Console, Hidden }
 
         private static void RunAsConsoleApp(UIModes mode)
         {
             AllocConsole();
-            if (mode == UIModes.Hiden)
+            if (mode == UIModes.Hidden)
                 HideConsole();
 
             BackyLogic.Settings _settings = BackyLogic.Settings.Load();
@@ -96,7 +96,7 @@ namespace Backy
 
         private static bool ShouldOpenAsConsoloeApp(UIModes mode)
         {
-            var ret = mode == UIModes.Console || mode == UIModes.Hiden;
+            var ret = mode == UIModes.Console || mode == UIModes.Hidden;
             return ret;
         }
 
