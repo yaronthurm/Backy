@@ -47,17 +47,24 @@ namespace Backy
                     return UIModes.Console;
                 if (args[0] == "-hidden")
                     return UIModes.Hidden;
+                return UIModes.Undefined;
             }
             return UIModes.WinForm;
         }
 
-        public enum UIModes {WinForm, Console, Hidden }
+        public enum UIModes {WinForm, Console, Hidden, Undefined }
 
         private static void RunAsConsoleApp(UIModes mode)
         {
             AllocConsole();
             if (mode == UIModes.Hidden)
                 HideConsole();
+            if (mode == UIModes.Undefined)
+            {
+                Console.WriteLine("Unsupported UI mode, either -console or -hidden are supported");
+                Environment.Exit(1);
+                return;
+            }
 
             BackyLogic.Settings _settings = BackyLogic.Settings.Load();
             IFileSystem fileSystem = new OSFileSystem();
@@ -96,7 +103,7 @@ namespace Backy
 
         private static bool ShouldOpenAsConsoloeApp(UIModes mode)
         {
-            var ret = mode == UIModes.Console || mode == UIModes.Hidden;
+            var ret = mode == UIModes.Console || mode == UIModes.Hidden || mode == UIModes.Undefined;
             return ret;
         }
 
