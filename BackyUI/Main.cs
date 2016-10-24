@@ -28,6 +28,7 @@ namespace Backy
         private bool _listenToChanges;
         private Task _detectChangesTask = Task.FromResult(0);
         private MachineID CurrentMachineID => new MachineID { Value = _settings.MachineID };
+        private DriveWatcher _driveWatcher = new DriveWatcher();
 
         public Main()
         {
@@ -37,10 +38,35 @@ namespace Backy
             this.radScheduled.CheckedChanged += Radio_CheckedChanged;
             this.radDetection.CheckedChanged += Radio_CheckedChanged;
 
+            _driveWatcher.NewDrivesAdded += (newDrives) =>
+            {
+                foreach (var drive in newDrives)
+                    TestForBackyDriveAndStartBackup(drive);
+            };
+            _driveWatcher.Start();
+
             _viewForm = new View(_fileSystem, _settings);
 
             this.multiStepProgress1.BackColor = SystemColors.Control;
             this.richTextBox1.BackColor = SystemColors.Control;
+        }
+
+        private void TestForBackyDriveAndStartBackup(DriveInfo drive)
+        {
+            if (this.InvokeRequired)
+            {
+                this.BeginInvoke((Action<DriveInfo>)this.TestForBackyDriveAndStartBackup, drive);
+                return;
+            }
+
+            var backyFile = new FileInfo(Path.Combine(drive.RootDirectory.FullName, "backy_drive.ini"));
+            if (!backyFile.Exists)
+                return;
+            var pathToBackyFolder = Path.Combine(drive.RootDirectory.FullName, File.ReadAllText(backyFile.FullName));
+            if (!Directory.Exists(pathToBackyFolder))
+                return;
+
+            _moreOptionsForm.ShowAndRun(pathToBackyFolder);
         }
 
         private void Radio_CheckedChanged(object sender, EventArgs e)
@@ -399,6 +425,38 @@ namespace Backy
         private void linkMoreOptions_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
             _moreOptionsForm.Show();
+        }
+    }
+
+    public class DriveWatcher
+    {
+        public event Action<IEnumerable<DriveInfo>> NewDrivesAdded;
+
+        public void Start()
+        {
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    CheckForChanges();
+                    await Task.Delay(2000);
+                }
+            });
+        }
+
+
+        private List<string> _lastDrivesList = DriveInfo.GetDrives().Where(x => x.IsReady).Select(x => x.Name).ToList();
+
+        private void CheckForChanges()
+        {            
+            var currentDrives = DriveInfo.GetDrives().Where(x => x.IsReady).Select(x => x.Name).ToList();
+            var addedDrives = currentDrives.Except(_lastDrivesList).ToList();
+            if (addedDrives.Any())
+            {
+                Task.Run(() => this.NewDrivesAdded?.Invoke(addedDrives.Select(x => new DriveInfo(x))));
+            }
+            _lastDrivesList = currentDrives;
+            
         }
     }
 }

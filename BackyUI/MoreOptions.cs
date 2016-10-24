@@ -32,6 +32,12 @@ namespace Backy
             var selectedTarget = UIUtils.ChooseAnyFolder();
             if (selectedTarget == null) return;
 
+            this.SetDirectoty(selectedTarget);
+            
+        }
+
+        private void SetDirectoty(string selectedTarget)
+        {
             this.backupTargetView1.SetDirectory(selectedTarget);
 
             if (!Directory.Exists(BackupTarget))
@@ -44,6 +50,18 @@ namespace Backy
             CalculateDiffAndPopulateStatus();
             this.linkRefresh.Visible = true;
             this.btnRunBackupTheBackup.Enabled = true;
+        }
+
+
+        public async void ShowAndRun(string selectedTargetPath)
+        {
+            this.Show();
+            this.multiStepProgress1.Clear();
+            this.SetDirectoty(selectedTargetPath);
+            await Task.Delay(2000);
+            btnRunBackupTheBackup_Click(this, null);
+            await (Task.Delay(2000));
+            this.Hide();
         }
 
         private void CalculateDiffAndPopulateStatus()
