@@ -61,6 +61,8 @@ namespace Backy
             await Task.Delay(2000);
             btnRunBackupTheBackup_Click(this, null);
             await (Task.Delay(2000));
+            linkRefresh_LinkClicked(this, null);
+            await (Task.Delay(2000));
             this.Hide();
         }
 
@@ -78,18 +80,15 @@ namespace Backy
                 this.richTextBox1.SelectionColor = Color.Red;
                 this.richTextBox1.AppendText($"{missing.OriginalSource} is missing\n");
             }
-            foreach (var existing in diff.Existing)
+            foreach (var existing in diff.Existing.Where(x => x.MissingDirectories.Any()))
             {
-                if (existing.MissingDirectories.Any())
-                {
-                    this.richTextBox1.SelectionColor = Color.DarkOrange;
-                    this.richTextBox1.AppendText($"{existing.Directory.OriginalSource} is missing some versions: {existing.MissingDirectories.ToCommaDelimited()} \n");
-                }
-                else
-                {
-                    this.richTextBox1.SelectionColor = Color.Green;
-                    this.richTextBox1.AppendText($"{existing.Directory.OriginalSource} is up to date\n");
-                }
+                this.richTextBox1.SelectionColor = Color.DarkOrange;
+                this.richTextBox1.AppendText($"{existing.Directory.OriginalSource} is missing some versions: {existing.MissingDirectories.ToCommaDelimited()} \n");
+            }
+            foreach (var existing in diff.Existing.Where(x => !x.MissingDirectories.Any()))
+            {
+                this.richTextBox1.SelectionColor = Color.Green;
+                this.richTextBox1.AppendText($"{existing.Directory.OriginalSource} is up to date\n");
             }
         }
 
