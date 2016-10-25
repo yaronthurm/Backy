@@ -20,7 +20,7 @@ namespace Backy
         private Task _backupTask = Task.FromResult(0);
         private IFileSystem _fileSystem = new OSFileSystem();
         private View _viewForm;
-        private MoreOptions _moreOptionsForm = new MoreOptions();
+        private BackupTheBackup _backupTheBackupForm = new BackupTheBackup();
         private BackyLogic.Settings _settings = BackyLogic.Settings.Load();
         private CancellationTokenSource _cancelTokenSource;
         private Dictionary<string, ManualResetFileSystemWatcher> _watchers = new Dictionary<string, ManualResetFileSystemWatcher>();
@@ -66,7 +66,7 @@ namespace Backy
             if (!Directory.Exists(pathToBackyFolder))
                 return;
 
-            _moreOptionsForm.ShowAndRun(pathToBackyFolder);
+            _backupTheBackupForm.ShowAndRun(pathToBackyFolder);
         }
 
         private void Radio_CheckedChanged(object sender, EventArgs e)
@@ -422,9 +422,9 @@ namespace Backy
             _viewForm.NotifyNewBackup();
         }
 
-        private void linkMoreOptions_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void linkBackupTheBackup_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            _moreOptionsForm.Show();
+            _backupTheBackupForm.Show();
         }
     }
 

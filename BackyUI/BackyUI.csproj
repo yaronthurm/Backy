@@ -85,11 +85,11 @@
     <Compile Include="Main.Designer.cs">
       <DependentUpon>Main.cs</DependentUpon>
     </Compile>
-    <Compile Include="MoreOptions.cs">
+    <Compile Include="BackupTheBackup.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MoreOptions.Designer.cs">
-      <DependentUpon>MoreOptions.cs</DependentUpon>
+    <Compile Include="BackupTheBackup.Designer.cs">
+      <DependentUpon>BackupTheBackup.cs</DependentUpon>
     </Compile>
     <Compile Include="MultiStepProgress.cs">
       <SubType>UserControl</SubType>
@@ -142,8 +142,8 @@
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MoreOptions.resx">
-      <DependentUpon>MoreOptions.cs</DependentUpon>
+    <EmbeddedResource Include="BackupTheBackup.resx">
+      <DependentUpon>BackupTheBackup.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MultiStepProgress.resx">
       <DependentUpon>MultiStepProgress.cs</DependentUpon>

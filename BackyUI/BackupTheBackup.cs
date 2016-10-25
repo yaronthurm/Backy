@@ -12,11 +12,11 @@ using System.Windows.Forms;
 
 namespace Backy
 {
-    public partial class MoreOptions : Form
+    public partial class BackupTheBackup : Form
     {
         private OSFileSystem _fileSystem = new OSFileSystem();
 
-        public MoreOptions()
+        public BackupTheBackup()
         {
             InitializeComponent();
 
@@ -93,7 +93,7 @@ namespace Backy
             }
         }
 
-        private void MoreOptions_FormClosing(object sender, FormClosingEventArgs e)
+        private void BakcupTheBackup_FormClosing(object sender, FormClosingEventArgs e)
         {
             if (e.CloseReason == CloseReason.UserClosing)
             {

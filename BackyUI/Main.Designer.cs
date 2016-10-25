@@ -43,7 +43,7 @@
             this.btnStartStop = new System.Windows.Forms.CheckBox();
             this.multiStepProgress1 = new Backy.MultiStepProgress();
             this.btnDetect = new System.Windows.Forms.CheckBox();
-            this.linkMoreOptions = new System.Windows.Forms.LinkLabel();
+            this.linkBackupTheBackup = new System.Windows.Forms.LinkLabel();
             ((System.ComponentModel.ISupportInitialize)(this.numSeconds)).BeginInit();
             this.SuspendLayout();
             // 
@@ -142,6 +142,11 @@
             this.numSeconds.Name = "numSeconds";
             this.numSeconds.Size = new System.Drawing.Size(51, 20);
             this.numSeconds.TabIndex = 25;
+            this.numSeconds.Value = new decimal(new int[] {
+            10,
+            0,
+            0,
+            0});
             // 
             // btnSettings
             // 
@@ -199,23 +204,23 @@
             this.btnDetect.UseVisualStyleBackColor = true;
             this.btnDetect.CheckedChanged += new System.EventHandler(this.btnDetect_CheckedChanged);
             // 
-            // linkMoreOptions
+            // linkBackupTheBackup
             // 
-            this.linkMoreOptions.AutoSize = true;
-            this.linkMoreOptions.Location = new System.Drawing.Point(315, 55);
-            this.linkMoreOptions.Name = "linkMoreOptions";
-            this.linkMoreOptions.Size = new System.Drawing.Size(68, 13);
-            this.linkMoreOptions.TabIndex = 40;
-            this.linkMoreOptions.TabStop = true;
-            this.linkMoreOptions.Text = "More options";
-            this.linkMoreOptions.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkMoreOptions_LinkClicked);
+            this.linkBackupTheBackup.AutoSize = true;
+            this.linkBackupTheBackup.Location = new System.Drawing.Point(315, 55);
+            this.linkBackupTheBackup.Name = "linkBackupTheBackup";
+            this.linkBackupTheBackup.Size = new System.Drawing.Size(102, 13);
+            this.linkBackupTheBackup.TabIndex = 40;
+            this.linkBackupTheBackup.TabStop = true;
+            this.linkBackupTheBackup.Text = "Backup the Backup";
+            this.linkBackupTheBackup.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkBackupTheBackup_LinkClicked);
             // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(440, 493);
-            this.Controls.Add(this.linkMoreOptions);
+            this.Controls.Add(this.linkBackupTheBackup);
             this.Controls.Add(this.btnDetect);
             this.Controls.Add(this.btnStartStop);
             this.Controls.Add(this.richTextBox1);
@@ -256,7 +261,7 @@
         private System.Windows.Forms.RichTextBox richTextBox1;
         private System.Windows.Forms.CheckBox btnStartStop;
         private System.Windows.Forms.CheckBox btnDetect;
-        private System.Windows.Forms.LinkLabel linkMoreOptions;
+        private System.Windows.Forms.LinkLabel linkBackupTheBackup;
     }
 }
 
