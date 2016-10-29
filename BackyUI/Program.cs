@@ -56,11 +56,15 @@ namespace Backy
 
         private static void RunAsConsoleApp(UIModes mode)
         {
-            AllocConsole();
-            if (mode == UIModes.Hidden)
-                HideConsole();
-            if (mode == UIModes.Undefined)
+            IMultiStepProgress progress = null;
+            if (mode == UIModes.Console)
             {
+                AllocConsole();
+                progress = new ConsoleProgress();
+            }
+            else if (mode == UIModes.Undefined)
+            {
+                AllocConsole();
                 Console.WriteLine("Unsupported UI mode, either -console or -hidden are supported");
                 Environment.Exit(1);
                 return;
@@ -82,7 +86,7 @@ namespace Backy
                 .Select(x =>
                 new RunBackupCommand(fileSystem, x.Path, _settings.Target, new MachineID { Value = _settings.MachineID },
                 _cancelTokenSource.Token) {
-                    Progress = new ConsoleProgress() });
+                    Progress = progress });
 
             if (!backupCommands.Any()) {
                 new ConsoleProgress().StartStepWithoutProgress("There are no active sources");
