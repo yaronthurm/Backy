@@ -21,15 +21,16 @@ namespace Backy
         [STAThread]
         static void Main(string[] args)
         {
-            var mode = GetUIMode(args);
-            if (ShouldOpenAsConsoloeApp(mode))
-            {
-                RunAsConsoleApp(mode);
-                return;
-            }
-
             if (singleInstanceMutex.WaitOne(TimeSpan.Zero, true))
             {
+                var mode = GetUIMode(args);
+                if (ShouldOpenAsConsoloeApp(mode))
+                {                    
+                    RunAsConsoleApp(mode);
+                    return;
+                }
+
+
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 Application.Run(new Main());
@@ -69,7 +70,7 @@ namespace Backy
                 Environment.Exit(1);
                 return;
             }
-
+            
             BackyLogic.Settings _settings = BackyLogic.Settings.Load();
             IFileSystem fileSystem = new OSFileSystem();
 
