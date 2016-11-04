@@ -14,30 +14,32 @@ namespace Backy
     static class Program
     {
         static Mutex singleInstanceMutex = new Mutex(true, "{2FA0A600-7B60-4E7B-9C58-8FA0D3D575B0}");
-
-        /// <summary>
-        /// The main entry point for the application.
-        /// </summary>
+        
         [STAThread]
         static void Main(string[] args)
         {
-            if (singleInstanceMutex.WaitOne(TimeSpan.Zero, true))
+            if (NoOtherInstanceExists())
             {
-                var mode = GetUIMode(args);
-                if (ShouldOpenAsConsoloeApp(mode))
-                {                    
-                    RunAsConsoleApp(mode);
-                    return;
-                }
-
-
-                Application.EnableVisualStyles();
-                Application.SetCompatibleTextRenderingDefault(false);
-                Application.Run(new Main());
+                if (ShouldOpenAsConsoloeApp(args))
+                    RunAsConsoleApp(args);
+                else
+                    RunAsWinFormsApp();
             }
             else {
                 FocusOnActiveInstance();
             }
+        }
+
+        private static bool NoOtherInstanceExists()
+        {
+            return singleInstanceMutex.WaitOne(TimeSpan.Zero, true);
+        }
+
+        private static void RunAsWinFormsApp()
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            Application.Run(new Main());
         }
 
         private static UIModes GetUIMode(string[] args)
@@ -55,9 +57,10 @@ namespace Backy
 
         public enum UIModes {WinForm, Console, Hidden, Undefined }
 
-        private static void RunAsConsoleApp(UIModes mode)
+        private static void RunAsConsoleApp(string[] args)
         {
             IMultiStepProgress progress = null;
+            var mode = GetUIMode(args);            
             if (mode == UIModes.Console)
             {
                 AllocConsole();
@@ -106,8 +109,9 @@ namespace Backy
             ShowWindow(handle, SW_HIDE);
         }
 
-        private static bool ShouldOpenAsConsoloeApp(UIModes mode)
+        private static bool ShouldOpenAsConsoloeApp(string[] args)
         {
+            var mode = GetUIMode(args);
             var ret = mode == UIModes.Console || mode == UIModes.Hidden || mode == UIModes.Undefined;
             return ret;
         }
