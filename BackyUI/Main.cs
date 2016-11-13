@@ -126,18 +126,15 @@ namespace Backy
             if (!backupCommands.Any())
                 return Task.Run(() => this.multiStepProgress1.StartStepWithoutProgress("There are no active sources"));
 
-            var tasks = backupCommands.Select(x => new Task(x.Execute)).ToArray();
-            var combinedTask = new Task(() =>
+            return Task.Run(() =>
             {
-                foreach (var task in tasks)
+                foreach (var x in backupCommands)
                 {
-                    task.Start();
-                    task.Wait();
+                    x.Execute();
+                    if (x.Failures.Any())
+                        MessageBox.Show(x.FailuresPretty, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             });
-
-            var ret = Task.Run(() => combinedTask.RunSynchronously());
-            return ret;
         }
 
         private void btnAbort_Click(object sender, EventArgs e)
