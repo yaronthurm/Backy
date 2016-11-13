@@ -28,6 +28,21 @@ namespace BackyLogic
         private CancellationToken _cancellationToken;
         private MachineID _machineID;
 
+        public List<BackupFailure> Failures { get; private set; } = new List<BackupFailure>();
+        public string FailuresPretty
+        {
+            get
+            {
+                var ret = string.Join(
+                    "\n",
+                    Failures
+                    .Take(20)
+                    . Select(x => $"{x.ErrorMessage} (Error Details: {x.ErrorDetails})").ToArray());
+                return ret;
+            }
+        }
+
+
         public RunBackupCommand(IFileSystem fileSystem, string source, string target, MachineID machineID, CancellationToken cancellationToken = new CancellationToken())
         {
             _fileSystem = fileSystem;
@@ -187,8 +202,15 @@ namespace BackyLogic
                     _fileSystem.Copy(file.PhysicalPath, System.IO.Path.Combine(targetDir, file.RelativeName));                    
                     this.Progress?.Increment();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    this.Failures.Add(new BackupFailure
+                    {
+                        FileName = file.PhysicalPath,
+                        ErrorMessage = "Could not copy modified file: " + file.RelativeName,
+                        ErrorDetails = ex.Message
+                    });
+
                     //_progress.Failed.Add(file.RelativeName);
                 }
             }
@@ -207,8 +229,14 @@ namespace BackyLogic
                     _fileSystem.Copy(file.PhysicalPath, System.IO.Path.Combine(targetDir, file.RelativeName));
                     this.Progress?.Increment();
                 }
-                catch
+                catch (Exception ex)
                 {
+                    this.Failures.Add(new BackupFailure
+                    {
+                        FileName = file.PhysicalPath,
+                        ErrorMessage = "Could not copy new file: " + file.RelativeName,
+                        ErrorDetails = ex.Message
+                    });
                     //_progress.Failed.Add(file.RelativeName);
                     //RaiseOnProgress();
                 }
@@ -255,5 +283,12 @@ namespace BackyLogic
             var ret = dirs.Any() == false;
             return ret;
         }
+    }
+
+    public class BackupFailure
+    {
+        public string FileName;
+        public string ErrorMessage;
+        internal string ErrorDetails;
     }
 }
