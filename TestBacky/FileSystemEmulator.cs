@@ -121,6 +121,11 @@ namespace TestBacky
             var ret = _files.FirstOrDefault(x => Path.Combine(dirName, fileName).Equals(x.Name, StringComparison.OrdinalIgnoreCase));
             return ret?.Name;
         }
+
+        public DateTime GetCreateTime(string rootDir)
+        {
+            return DateTime.MinValue;
+        }
     }
 
     public class EmulatorFile

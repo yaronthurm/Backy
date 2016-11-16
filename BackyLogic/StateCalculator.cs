@@ -148,5 +148,11 @@ namespace BackyLogic
             }
             return ret;
         }
+
+        public DateTime GetDateByVersion(int currentVersion)
+        {
+            var backyFolder = _backyFolders.Value.First(x => x.SerialNumber == currentVersion);
+            return backyFolder.DateCreated;
+        }
     }
 }

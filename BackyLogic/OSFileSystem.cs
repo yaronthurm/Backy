@@ -132,6 +132,12 @@ namespace BackyLogic
             var file = dir.GetFiles(fileName).FirstOrDefault();
             return file?.FullName;
         }
+
+        public DateTime GetCreateTime(string rootDir)
+        {
+            var ret = Directory.GetCreationTimeUtc(rootDir);
+            return ret;
+        }
     }
 
 

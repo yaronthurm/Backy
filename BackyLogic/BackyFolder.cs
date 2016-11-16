@@ -15,6 +15,7 @@ namespace BackyLogic
         public List<BackyFile> Modified;
         public List<string> Deleted;
         public List<RenameInfo> Renamed;
+        public DateTime DateCreated;
 
 
         /// <summary>
@@ -39,7 +40,7 @@ namespace BackyLogic
             // rootDir is expected to be in the format d:\target\1
             var ret = new BackyFolder();
             ret.SerialNumber = int.Parse(System.IO.Path.GetFileName(rootDir));
-
+            ret.DateCreated = fileSystem.GetCreateTime(rootDir);
             ret.New = fileNames
                 .Where(x => x.StartsWith(System.IO.Path.Combine(rootDir, "new")))
                 .Select(x => BackyFile.FromTargetFileName(fileSystem, x, rootDir + "\\new")).ToList();

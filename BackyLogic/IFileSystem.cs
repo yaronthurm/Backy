@@ -24,6 +24,8 @@ namespace BackyLogic
         bool AreEqualFiles(string pathToFile1, string pathToFile2);
 
         void MakeDirectoryReadOnly(string dirName);
+
+        DateTime GetCreateTime(string rootDir);
     }
 
 }

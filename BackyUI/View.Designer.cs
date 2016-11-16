@@ -36,6 +36,7 @@
             this.comboBox1 = new System.Windows.Forms.ComboBox();
             this.radDiff = new System.Windows.Forms.RadioButton();
             this.radState = new System.Windows.Forms.RadioButton();
+            this.lblDateTime = new System.Windows.Forms.Label();
             this.filesPanel1 = new Backy.FilesPanel();
             this.SuspendLayout();
             // 
@@ -69,14 +70,15 @@
             this.lblCurrentVersion.TabIndex = 3;
             this.lblCurrentVersion.Text = "label1";
             this.lblCurrentVersion.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblCurrentVersion.TextChanged += new System.EventHandler(this.lblCurrentVersion_TextChanged);
             // 
             // lblScanned
             // 
             this.lblScanned.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
             this.lblScanned.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
-            this.lblScanned.Location = new System.Drawing.Point(0, 95);
+            this.lblScanned.Location = new System.Drawing.Point(0, 127);
             this.lblScanned.Name = "lblScanned";
-            this.lblScanned.Size = new System.Drawing.Size(724, 342);
+            this.lblScanned.Size = new System.Drawing.Size(724, 310);
             this.lblScanned.TabIndex = 4;
             this.lblScanned.Text = "Scanned: 0";
             this.lblScanned.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -128,6 +130,17 @@
             this.radState.Text = "State";
             this.radState.UseVisualStyleBackColor = true;
             // 
+            // lblDateTime
+            // 
+            this.lblDateTime.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.lblDateTime.Location = new System.Drawing.Point(86, 66);
+            this.lblDateTime.Name = "lblDateTime";
+            this.lblDateTime.Size = new System.Drawing.Size(293, 23);
+            this.lblDateTime.TabIndex = 9;
+            this.lblDateTime.Text = "label1";
+            this.lblDateTime.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lblDateTime.Visible = false;
+            // 
             // filesPanel1
             // 
             this.filesPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -136,9 +149,9 @@
             this.filesPanel1.BackColor = System.Drawing.Color.Transparent;
             this.filesPanel1.EnableContextMenu = true;
             this.filesPanel1.Enabled = false;
-            this.filesPanel1.Location = new System.Drawing.Point(0, 66);
+            this.filesPanel1.Location = new System.Drawing.Point(0, 92);
             this.filesPanel1.Name = "filesPanel1";
-            this.filesPanel1.Size = new System.Drawing.Size(724, 441);
+            this.filesPanel1.Size = new System.Drawing.Size(724, 415);
             this.filesPanel1.TabIndex = 0;
             // 
             // View
@@ -147,6 +160,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(724, 507);
+            this.Controls.Add(this.lblDateTime);
             this.Controls.Add(this.radState);
             this.Controls.Add(this.radDiff);
             this.Controls.Add(this.comboBox1);
@@ -178,5 +192,6 @@
         private System.Windows.Forms.ComboBox comboBox1;
         private System.Windows.Forms.RadioButton radDiff;
         private System.Windows.Forms.RadioButton radState;
+        private System.Windows.Forms.Label lblDateTime;
     }
 }

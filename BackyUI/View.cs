@@ -105,6 +105,7 @@ namespace Backy
             this.btnRestoreTo.Enabled = true;
             this.filesPanel1.Enabled = true;
             this.lblCurrentVersion.Visible = true;
+            this.lblDateTime.Visible = true;
         }
 
         public void NotifyNewBackup()
@@ -250,6 +251,10 @@ namespace Backy
             await this.SetDirectories();
         }
 
-
+        private void lblCurrentVersion_TextChanged(object sender, EventArgs e)
+        {
+            var time = CurrentStateCalculator.GetDateByVersion(int.Parse(lblCurrentVersion.Text)).ToLocalTime();
+            this.lblDateTime.Text = $"{time.ToShortTimeString()}   {time.ToLongDateString()}";
+        }
     }
 }
