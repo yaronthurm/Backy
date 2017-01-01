@@ -57,9 +57,15 @@ namespace BackyLogic
                     var dirToCopy = Path.Combine(_source, existingSource.Directory.Guid, missingDir);
                     var destination = Path.Combine(_target, existingSource.Directory.Guid, missingDir);
                     CopyEntireDirectory(dirToCopy, destination);
+                    AdjustCreateTime(dirToCopy, destination);
                     MakeReadOnly(destination);
                 }
             }
+        }
+
+        private void AdjustCreateTime(string dirToCopy, string destination)
+        {
+            _fileSystem.SetCreateTime(destination, _fileSystem.GetCreateTime(dirToCopy));
         }
 
         private void CopyMissingSources(IEnumerable<BackupDirectory> missingSources)
@@ -70,7 +76,7 @@ namespace BackyLogic
                 var destination = Path.Combine(_target, missingSource.Guid);
                 CopyEntireDirectory(dirToCopy, destination);
                 foreach (var innerDirectory in _fileSystem.GetTopLevelDirectories(destination))
-                    MakeReadOnly(innerDirectory);
+                    MakeReadOnly(innerDirectory);                
             }
         }
         

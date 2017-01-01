@@ -26,6 +26,8 @@ namespace BackyLogic
         void MakeDirectoryReadOnly(string dirName);
 
         DateTime GetCreateTime(string rootDir);
+
+        void SetCreateTime(string destination, DateTime dateTime);
     }
 
 }

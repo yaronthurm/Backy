@@ -126,6 +126,11 @@ namespace TestBacky
         {
             return DateTime.MinValue;
         }
+
+        public void SetCreateTime(string destination, DateTime dateTime)
+        {
+            // TODO: add logic when test are written for this functionality.
+        }
     }
 
     public class EmulatorFile

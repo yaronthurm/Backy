@@ -138,6 +138,11 @@ namespace BackyLogic
             var ret = Directory.GetCreationTimeUtc(rootDir);
             return ret;
         }
+
+        public void SetCreateTime(string destination, DateTime dateTime)
+        {
+            Directory.SetCreationTimeUtc(destination, dateTime);
+        }
     }
 
 
