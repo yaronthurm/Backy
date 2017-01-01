@@ -7,6 +7,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using System.Security.AccessControl;
+using System.Diagnostics;
 
 namespace TestBacky
 {
@@ -16,7 +17,8 @@ namespace TestBacky
         //[TestMethod]
         public void UnmarkAsReadOnly()
         {
-            UnmarkDirectoryAsReadOnlyRecursive(@"D:\TargetGuid");
+            //UpdateCreateTimeIfNeeded();
+            //MarkDirectoryAsReadOnly(@"G:\Backy\3f744ba5e8424cfc9da55e2\2");
         }
 
         [TestMethod]
@@ -264,6 +266,49 @@ namespace TestBacky
                     InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit,
                     PropagationFlags.None, AccessControlType.Allow));
             dInfo.SetAccessControl(dSecurity);
+        }
+
+        private void MarkDirectoryAsReadOnlyRecursive(string dirName)
+        {
+            foreach (var dir in Directory.GetDirectories(dirName, "*", SearchOption.AllDirectories))
+                MarkDirectoryAsReadOnly(dir);            
+        }
+
+        private void MarkDirectoryAsReadOnly(string dirName)
+        {
+            DirectoryInfo dInfo = new DirectoryInfo(dirName);
+            DirectorySecurity dSecurity = dInfo.GetAccessControl();
+            dSecurity.SetAccessRuleProtection(true, false); // Disable inheritance
+            dSecurity.AddAccessRule(
+                new FileSystemAccessRule(
+                    "Everyone",
+                    FileSystemRights.ReadAndExecute | FileSystemRights.Traverse,
+                    InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit,
+                    PropagationFlags.None, AccessControlType.Allow));
+            dInfo.SetAccessControl(dSecurity);
+        }
+
+        private void UpdateCreateTimeIfNeeded()
+        {
+            var source = "d:\\backy";
+            var destination = "g:\\backy";
+            foreach (var sourceDirectory in Directory.GetDirectories(source, "*", SearchOption.TopDirectoryOnly))
+            {
+                foreach (var versionDirectory in Directory.GetDirectories(sourceDirectory, "*", SearchOption.TopDirectoryOnly))
+                {
+                    var destinationDirectory = Path.Combine(destination, Path.GetFileName(sourceDirectory), Path.GetFileName(versionDirectory));
+                    if (!Directory.Exists(destinationDirectory)) continue;
+
+                    var destTime = Directory.GetCreationTime(destinationDirectory);
+                    var sourceTime = Directory.GetCreationTime(versionDirectory);
+                    if (destTime == sourceTime) continue;
+                    Trace.WriteLine(destinationDirectory);
+                    UnmarkDirectoryAsReadOnly(destinationDirectory);
+                    Directory.SetCreationTime(destinationDirectory, sourceTime);
+                    MarkDirectoryAsReadOnly(destinationDirectory);
+                }
+
+            }
         }
 
         private static void WriteFile(string dir, string name, string content, DateTime date)
