@@ -59,7 +59,7 @@ namespace Backy
             this.multiStepProgress1.Clear();
             this.SetDirectoty(selectedTargetPath);
             await Task.Delay(2000);
-            btnRunBackupTheBackup_Click(this, null);
+            await RunBackupTheBackup();
             await (Task.Delay(2000));
             linkRefresh_LinkClicked(this, null);
             await (Task.Delay(2000));
@@ -103,6 +103,11 @@ namespace Backy
 
         private async void btnRunBackupTheBackup_Click(object sender, EventArgs e)
         {
+            await RunBackupTheBackup();
+        }
+
+        private async Task RunBackupTheBackup()
+        {
             var settings = BackyLogic.Settings.Load();
             if (!Directory.Exists(settings.Target))
             {
@@ -119,8 +124,10 @@ namespace Backy
             var cmd = new BackupTheBackupCommand(_fileSystem, settings.Target, this.backupTargetView1.Path);
             this.multiStepProgress1.Clear();
             cmd.Progress = this.multiStepProgress1;
-            await Task.Run(() => cmd.Execute());            
+            await Task.Run(() => cmd.Execute());
         }
+
+
 
         private void linkRefresh_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
