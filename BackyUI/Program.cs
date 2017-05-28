@@ -39,6 +39,7 @@ namespace Backy
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
+            //Application.Run(new PanelTest());
             Application.Run(new Main());
         }
 

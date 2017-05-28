@@ -6,6 +6,7 @@ using Microsoft.WindowsAPICodePack.Shell;
 using System.IO;
 using System.Diagnostics;
 using BackyLogic;
+using System.Threading.Tasks;
 
 namespace Backy
 {
@@ -130,10 +131,10 @@ namespace Backy
             var firstLevelFiles = GetFirstLevelFiles().ToArray();
 
             var directoeiresControls = GetDirectoriesControls(firstLevelDirectories); // This is heavy job so 
-            var filesControls = GetFilesControls(firstLevelFiles);                    // we do differ execution
+            var filesControls = GetFilesControls_ParllelWithDifferedLoading(firstLevelFiles);                    // we do differ execution
 
             int start = (_currentPage - 1) * PageSize + 1;
-
+            
             var pageControls = directoeiresControls.Union(filesControls)
                 .Skip(start - 1).Take(PageSize).ToArray();
 
@@ -145,7 +146,7 @@ namespace Backy
             EnableDisabledNavigationButtons();
         }
 
-        private IEnumerable<LargeFileView> GetFilesControls(IEnumerable<FileView> firstLevelFiles)
+        private LargeFileView[] GetFilesControls_Serial(IEnumerable<FileView> firstLevelFiles)
         {
             var ret = firstLevelFiles
                 .Select(x =>
@@ -158,6 +159,55 @@ namespace Backy
                     item.DoubleClick += fileView => Process.Start(fileView.PhysicalPath);
                     return item;
                 });
+            return ret.ToArray();
+        }
+
+        private LargeFileView[] GetFilesControls_Parllel(IEnumerable<FileView> firstLevelFiles)
+        {
+            var source = firstLevelFiles.Select((x, i) => new { seqNum = i, value = x }).ToArray();
+            var ret = new LargeFileView[source.Length];
+            Parallel.ForEach(source, x =>
+            {
+                var item = new LargeFileView();
+                var shellFile = ShellFolder.FromParsingName(x.value.PhysicalPath);
+                shellFile.Thumbnail.FormatOption = ShellThumbnailFormatOption.Default;
+                item.SetData(shellFile.Thumbnail.MediumBitmap, x.value);
+                item.ContextMenuStrip = this.GetContextMenuForFileView(x.value);
+                item.DoubleClick += fileView => Process.Start(fileView.PhysicalPath);
+                ret[x.seqNum] = item;
+            });
+            return ret;
+        }
+
+        private LargeFileView[] GetFilesControls_ParllelWithDifferedLoading(IEnumerable<FileView> firstLevelFiles)
+        {
+            var source = firstLevelFiles.Select((x, i) => new { seqNum = i, value = x }).ToArray();
+            var ret = new LargeFileView[source.Length];
+            Parallel.ForEach(source, x =>
+            {
+                var item = new LargeFileView();
+                item.ContextMenuStrip = this.GetContextMenuForFileView(x.value);
+                item.DoubleClick += fileView => Process.Start(fileView.PhysicalPath);
+                item.Tag = x.value;
+                ret[x.seqNum] = item;
+            });
+
+            Task.Run(() =>
+            {
+                Parallel.ForEach(ret, x =>
+                {
+                    FileView itemSource = (FileView)x.Tag;
+                    var shellFile = ShellFolder.FromParsingName(itemSource.PhysicalPath);
+                    shellFile.Thumbnail.FormatOption = ShellThumbnailFormatOption.Default;
+                    var bitmap = shellFile.Thumbnail.MediumBitmap;
+
+                    if (this.InvokeRequired)
+                        this.Invoke((Action)(() => x.SetData(bitmap, itemSource)));
+                    else
+                        x.SetData(bitmap, itemSource);
+                });
+            });
+
             return ret;
         }
 
