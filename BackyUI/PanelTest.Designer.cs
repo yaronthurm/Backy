@@ -35,6 +35,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.lblTime = new System.Windows.Forms.Label();
             this.flowPanelTest1 = new Backy.FlowPanelTest();
+            this.btnLoadPictures = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numItems)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.loadTime)).BeginInit();
             this.SuspendLayout();
@@ -112,16 +113,28 @@
             // 
             // flowPanelTest1
             // 
-            this.flowPanelTest1.Location = new System.Drawing.Point(12, 70);
+            this.flowPanelTest1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.flowPanelTest1.Location = new System.Drawing.Point(0, 102);
             this.flowPanelTest1.Name = "flowPanelTest1";
-            this.flowPanelTest1.Size = new System.Drawing.Size(845, 422);
+            this.flowPanelTest1.Size = new System.Drawing.Size(869, 402);
             this.flowPanelTest1.TabIndex = 0;
+            // 
+            // btnLoadPictures
+            // 
+            this.btnLoadPictures.Location = new System.Drawing.Point(27, 59);
+            this.btnLoadPictures.Name = "btnLoadPictures";
+            this.btnLoadPictures.Size = new System.Drawing.Size(109, 23);
+            this.btnLoadPictures.TabIndex = 7;
+            this.btnLoadPictures.Text = "Load Pictures";
+            this.btnLoadPictures.UseVisualStyleBackColor = true;
+            this.btnLoadPictures.Click += new System.EventHandler(this.btnLoadPictures_Click);
             // 
             // PanelTest
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(869, 504);
+            this.Controls.Add(this.btnLoadPictures);
             this.Controls.Add(this.lblTime);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -148,5 +161,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label lblTime;
+        private System.Windows.Forms.Button btnLoadPictures;
     }
 }
