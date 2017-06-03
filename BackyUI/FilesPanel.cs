@@ -171,7 +171,10 @@ namespace Backy
                 var item = new LargeFileView();
                 var shellFile = ShellFolder.FromParsingName(x.value.PhysicalPath);
                 shellFile.Thumbnail.FormatOption = ShellThumbnailFormatOption.Default;
-                item.SetData(shellFile.Thumbnail.MediumBitmap, x.value);
+                if (this.InvokeRequired)
+                    this.BeginInvoke((Action)(() => item.SetData(shellFile.Thumbnail.MediumBitmap, x.value)));
+                else
+                    item.SetData(shellFile.Thumbnail.MediumBitmap, x.value);
                 item.ContextMenuStrip = this.GetContextMenuForFileView(x.value);
                 item.DoubleClick += fileView => Process.Start(fileView.PhysicalPath);
                 ret[x.seqNum] = item;
