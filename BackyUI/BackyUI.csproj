@@ -151,9 +151,6 @@
     <EmbeddedResource Include="FilesPanel.resx">
       <DependentUpon>FilesPanel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FlowPanelTest.resx">
-      <DependentUpon>FlowPanelTest.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
     </EmbeddedResource>
