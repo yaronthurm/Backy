@@ -49,6 +49,12 @@ namespace Backy
 
             this.multiStepProgress1.BackColor = SystemColors.Control;
             this.richTextBox1.BackColor = SystemColors.Control;
+
+            var lastBackyExecutbleFile = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+                "Backy",
+                "LastExecutable.txt");
+            File.WriteAllText(lastBackyExecutbleFile, System.Reflection.Assembly.GetExecutingAssembly().Location);
         }
 
         private void TestForBackyDriveAndStartBackup(DriveInfo drive)

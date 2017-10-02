@@ -1,15 +1,9 @@
 ﻿using BackyLogic;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.ServiceProcess;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using System.IO;
 
 namespace BackyListener
 {
@@ -39,12 +33,21 @@ namespace BackyListener
 
         private void InvokeBackyUI()
         {
-            
+            var lastBackyExecutbleFile = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+                "Backy",
+                "LastExecutable.txt");
+            var pathToExecutable = File.ReadAllText(lastBackyExecutbleFile);
+            Process.Start(pathToExecutable);
         }
 
         private void MarkNewBackyDrive(DriveInfo drive)
         {
-            
+            var fileForMarking = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
+                "Backy",
+                "NewDriveDetection.txt");
+            File.WriteAllText(fileForMarking, drive.RootDirectory.FullName);
         }
 
         protected override void OnStop()
