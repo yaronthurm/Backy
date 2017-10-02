@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestBacky", "TestBacky\Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackyLogic", "BackyLogic\BackyLogic.csproj", "{2D4FEEF4-3930-4D1A-A528-16B4F7C6BB8B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackyListener", "BackyListener\BackyListener.csproj", "{307F4CE0-75C7-4D51-9C6F-CFD742BBE8C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{2D4FEEF4-3930-4D1A-A528-16B4F7C6BB8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2D4FEEF4-3930-4D1A-A528-16B4F7C6BB8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2D4FEEF4-3930-4D1A-A528-16B4F7C6BB8B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{307F4CE0-75C7-4D51-9C6F-CFD742BBE8C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{307F4CE0-75C7-4D51-9C6F-CFD742BBE8C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{307F4CE0-75C7-4D51-9C6F-CFD742BBE8C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{307F4CE0-75C7-4D51-9C6F-CFD742BBE8C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
