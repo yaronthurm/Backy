@@ -1,6 +1,6 @@
 ﻿namespace BackyListener
 {
-    partial class Service1
+    partial class BackyListenerService
     {
         /// <summary> 
         /// Required designer variable.

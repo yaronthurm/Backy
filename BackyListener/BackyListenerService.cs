@@ -10,9 +10,9 @@ using System.Threading.Tasks;
 
 namespace BackyListener
 {
-    public partial class Service1 : ServiceBase
+    public partial class BackyListenerService : ServiceBase
     {
-        public Service1()
+        public BackyListenerService()
         {
             InitializeComponent();
         }
