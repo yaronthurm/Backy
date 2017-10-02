@@ -424,36 +424,4 @@ namespace Backy
             _backupTheBackupForm.Show();
         }
     }
-
-    public class DriveWatcher
-    {
-        public event Action<IEnumerable<DriveInfo>> NewDrivesAdded;
-
-        public void Start()
-        {
-            Task.Run(async () =>
-            {
-                while (true)
-                {
-                    CheckForChanges();
-                    await Task.Delay(2000);
-                }
-            });
-        }
-
-
-        private List<string> _lastDrivesList = DriveInfo.GetDrives().Where(x => x.IsReady).Select(x => x.Name).ToList();
-
-        private void CheckForChanges()
-        {            
-            var currentDrives = DriveInfo.GetDrives().Where(x => x.IsReady).Select(x => x.Name).ToList();
-            var addedDrives = currentDrives.Except(_lastDrivesList).ToList();
-            if (addedDrives.Any())
-            {
-                Task.Run(() => this.NewDrivesAdded?.Invoke(addedDrives.Select(x => new DriveInfo(x))));
-            }
-            _lastDrivesList = currentDrives;
-            
-        }
-    }
 }
