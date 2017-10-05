@@ -202,7 +202,7 @@ namespace Backy
                     FileView itemSource = (FileView)x.Tag;
                     var shellFile = ShellFolder.FromParsingName(itemSource.PhysicalPath);
                     shellFile.Thumbnail.FormatOption = ShellThumbnailFormatOption.Default;
-                    var bitmap = shellFile.Thumbnail.MediumBitmap;
+                    var bitmap = FuncWithRetry(() => shellFile.Thumbnail.MediumBitmap);
 
                     if (this.InvokeRequired)
                         this.Invoke((Action)(() => x.SetData(bitmap, itemSource)));
@@ -212,6 +212,18 @@ namespace Backy
             });
 
             return ret;
+        }
+
+        private static T FuncWithRetry<T>(Func<T> func)
+        {
+            try
+            {
+                return func();
+            }
+            catch
+            {
+                return func();
+            }
         }
 
         private ContextMenuStrip GetContextMenuForFileView(FileView file)
