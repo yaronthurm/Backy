@@ -90,6 +90,22 @@ namespace BackyLogic
             dInfo.SetAccessControl(dSecurity);
         }
 
+        public void MarkDirectoryAsFullControl(string dirName)
+        {
+            if (!Directory.Exists(dirName)) return;
+
+            DirectoryInfo dInfo = new DirectoryInfo(dirName);
+            DirectorySecurity dSecurity = dInfo.GetAccessControl();
+            dSecurity.SetAccessRuleProtection(true, false); // Disable inheritance
+            dSecurity.AddAccessRule(
+                new FileSystemAccessRule(
+                    "Everyone",
+                    FileSystemRights.FullControl,
+                    InheritanceFlags.ObjectInherit | InheritanceFlags.ContainerInherit,
+                    PropagationFlags.None, AccessControlType.Allow));
+            dInfo.SetAccessControl(dSecurity);
+        }
+
         public IEnumerable<string> ReadLines(string filename)
         {
             var ret = File.ReadAllLines(filename);
@@ -142,6 +158,16 @@ namespace BackyLogic
         public void SetCreateTime(string destination, DateTime dateTime)
         {
             Directory.SetCreationTimeUtc(destination, dateTime);
+        }
+
+        public void DeleteFile(string filename)
+        {
+            File.Delete(filename);
+        }
+
+        public void DeleteDirectory(string dirName)
+        {
+            Directory.Delete(dirName, true);
         }
     }
 

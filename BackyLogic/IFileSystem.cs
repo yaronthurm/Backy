@@ -7,6 +7,8 @@ namespace BackyLogic
     {
         void CreateFile(string filename);
 
+        void DeleteFile(string filename);
+
         void Copy(string sourceFileName, string destFileName);
 
         IEnumerable<string> EnumerateFiles(string dirName);
@@ -25,9 +27,14 @@ namespace BackyLogic
 
         void MakeDirectoryReadOnly(string dirName);
 
+        void MarkDirectoryAsFullControl(string dirName);
+
+        void DeleteDirectory(string dirName);
+
         DateTime GetCreateTime(string rootDir);
 
         void SetCreateTime(string destination, DateTime dateTime);
+
     }
 
 }

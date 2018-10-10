@@ -51,18 +51,54 @@ namespace BackyLogic
         {
             foreach (var existingSource in existingSources.Where(x => x.MissingDirectories.Any()))
             {
+                if (DirtyFlagExists(existingSource.Directory.Guid))
+                    CleanupDirtyDirectory(existingSource.Directory.Guid);
+
                 var missingDirectories = existingSource.MissingDirectories;
                 foreach (var missingDir in missingDirectories)
                 {
                     var dirToCopy = Path.Combine(_source, existingSource.Directory.Guid, missingDir);
                     var destination = Path.Combine(_target, existingSource.Directory.Guid, missingDir);
+
+                    SetDirtyFlag(existingSource.Directory.Guid, destination);
                     CopyEntireDirectory(dirToCopy, destination);
                     AdjustCreateTime(dirToCopy, destination);
                     MakeReadOnly(destination);
+                    ClearDirtyFlag(existingSource.Directory.Guid);
                 }
             }
         }
 
+        private void CleanupDirtyDirectory(string guid)
+        {
+            var dirtyFileName = Path.Combine(_target, guid, "dirty.txt");
+            var dirtyDirectoryFullPath = _fileSystem.ReadLines(dirtyFileName).First();
+
+            this.Progress?.StartStepWithoutProgress($"Found dirty directory. Performing cleanup");
+            _fileSystem.MarkDirectoryAsFullControl(dirtyDirectoryFullPath);
+            _fileSystem.DeleteDirectory(dirtyDirectoryFullPath);
+            _fileSystem.DeleteFile(dirtyFileName);
+            this.Progress?.StartStepWithoutProgress($"Cleanup completed succesfully");
+        }
+
+        private bool DirtyFlagExists(string guid)
+        {
+            return _fileSystem.FindFile(Path.Combine(_target, guid), "dirty.txt") != null;
+        }
+        private void ClearDirtyFlag(string guid)
+        {
+            var dirtyFilePath = Path.Combine(_target, guid, "dirty.txt");
+            _fileSystem.DeleteFile(dirtyFilePath);
+        }
+
+        private void SetDirtyFlag(string guid, string destination)
+        {
+            var dirtyFilePath = Path.Combine(_target, guid, "dirty.txt");
+            _fileSystem.CreateFile(dirtyFilePath);
+            _fileSystem.AppendLine(dirtyFilePath, destination);
+        }
+
+        
         private void AdjustCreateTime(string dirToCopy, string destination)
         {
             _fileSystem.SetCreateTime(destination, _fileSystem.GetCreateTime(dirToCopy));
@@ -149,8 +185,18 @@ namespace BackyLogic
         {
             var dirsInSource = fs.GetTopLevelDirectories(source).Select(x => Path.GetFileName(x));
             var dirsInTarget = fs.GetTopLevelDirectories(target).Select(x => Path.GetFileName(x));
-            var ret = dirsInSource.Except(dirsInTarget);
+            var dirtyDirectories = FindDirtyDirectories(target, fs).Select(x => Path.GetFileName(x));
+            var ret = dirsInSource.Except(dirsInTarget.Except(dirtyDirectories));
             return ret;
+        }
+
+        private static IEnumerable<string> FindDirtyDirectories(string target, IFileSystem fs)
+        {
+            var dirtyFile = fs.FindFile(target, "dirty.txt");
+            if (dirtyFile == null) yield break;
+
+            var ret = fs.ReadLines(dirtyFile).First();
+            yield return ret;
         }
 
         private static IEnumerable<BackupDirectory> FindMissingSources(string source, string target, IFileSystem fs)

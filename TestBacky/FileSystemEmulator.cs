@@ -131,6 +131,18 @@ namespace TestBacky
         {
             // TODO: add logic when test are written for this functionality.
         }
+
+        public void MarkDirectoryAsFullControl(string dirName)
+        {
+            //
+        }
+
+        public void DeleteDirectory(string dirName)
+        {
+            var files = _files.Where(x => x.Name.StartsWith(dirName)).ToList();
+            foreach (var file in files)
+                _files.Remove(file);
+        }
     }
 
     public class EmulatorFile

@@ -124,7 +124,16 @@ namespace Backy
             var cmd = new BackupTheBackupCommand(_fileSystem, settings.Target, this.backupTargetView1.Path);
             this.multiStepProgress1.Clear();
             cmd.Progress = this.multiStepProgress1;
-            await Task.Run(() => cmd.Execute());
+            try
+            {
+                await Task.Run(() => cmd.Execute());
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("There was an error: " + ex.Message);
+                return;
+            }
+            
         }
 
 
