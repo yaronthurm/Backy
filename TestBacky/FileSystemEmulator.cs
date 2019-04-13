@@ -143,6 +143,11 @@ namespace TestBacky
             foreach (var file in files)
                 _files.Remove(file);
         }
+
+        public bool IsDirectoryExist(string dirName)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class EmulatorFile

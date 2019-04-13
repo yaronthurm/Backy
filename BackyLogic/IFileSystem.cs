@@ -35,6 +35,7 @@ namespace BackyLogic
 
         void SetCreateTime(string destination, DateTime dateTime);
 
+        bool IsDirectoryExist(string dirName);
     }
 
 }

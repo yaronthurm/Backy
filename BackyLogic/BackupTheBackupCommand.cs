@@ -55,7 +55,7 @@ namespace BackyLogic
                     CleanupDirtyDirectory(existingSource.Directory.Guid);
 
                 var missingDirectories = existingSource.MissingDirectories;
-                foreach (var missingDir in missingDirectories)
+                foreach (var missingDir in GetNumericalOrdered(missingDirectories))
                 {
                     var dirToCopy = Path.Combine(_source, existingSource.Directory.Guid, missingDir);
                     var destination = Path.Combine(_target, existingSource.Directory.Guid, missingDir);
@@ -69,14 +69,23 @@ namespace BackyLogic
             }
         }
 
+        private List<string> GetNumericalOrdered(List<string> source)
+        {
+            var ret = source.Select(int.Parse).OrderBy(x => x).Select(x => x.ToString());
+            return ret.ToList();
+        }
+
         private void CleanupDirtyDirectory(string guid)
         {
             var dirtyFileName = Path.Combine(_target, guid, "dirty.txt");
             var dirtyDirectoryFullPath = _fileSystem.ReadLines(dirtyFileName).First();
 
             this.Progress?.StartStepWithoutProgress($"Found dirty directory. Performing cleanup");
-            _fileSystem.MarkDirectoryAsFullControl(dirtyDirectoryFullPath);
-            _fileSystem.DeleteDirectory(dirtyDirectoryFullPath);
+            if (_fileSystem.IsDirectoryExist(dirtyDirectoryFullPath))
+            {
+                _fileSystem.MarkDirectoryAsFullControl(dirtyDirectoryFullPath);
+                _fileSystem.DeleteDirectory(dirtyDirectoryFullPath);
+            }
             _fileSystem.DeleteFile(dirtyFileName);
             this.Progress?.StartStepWithoutProgress($"Cleanup completed succesfully");
         }

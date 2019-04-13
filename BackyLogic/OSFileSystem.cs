@@ -169,6 +169,11 @@ namespace BackyLogic
         {
             Directory.Delete(dirName, true);
         }
+
+        public bool IsDirectoryExist(string dirName)
+        {
+            return Directory.Exists(dirName);
+        }
     }
 
 
