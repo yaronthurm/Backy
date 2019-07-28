@@ -90,11 +90,24 @@ namespace BackyLogic
             }
             finally
             {
-                MakeReadOnly(targetDir);
+                if (DirectoryIsEmpty(targetDir)) // Might happen if failed to copy files after creating the directory
+                    DeleteDirectory(targetDir); // No need to keep it around
+                else
+                    MakeReadOnly(targetDir);
                 sw.Stop();
                 this.Progress?.StartStepWithoutProgress($"Finished backing up '{_source}' at: { DateTime.Now }");
                 this.Progress?.StartStepWithoutProgress("Total time: " + sw.Elapsed);
             }
+        }
+
+        private void DeleteDirectory(string targetDir)
+        {
+            _fileSystem.DeleteDirectory(targetDir);
+        }
+
+        private bool DirectoryIsEmpty(string targetDir)
+        {
+            return _fileSystem.IsDirectoryExist(targetDir) && !_fileSystem.EnumerateFiles(targetDir).Any();
         }
 
         private void CalculateDiff(State currentState, State lastBackedupState)
