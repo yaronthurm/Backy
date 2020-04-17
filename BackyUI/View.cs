@@ -20,7 +20,8 @@ namespace Backy
         private string _selectedSourceDirectory = "";
         private IFileSystem _fileSystem;
         private RestoreTo _restorToForm = new RestoreTo();
-        private string _backupFolder;
+        private string _initialBackupFolder;
+        private string _currentBackupFolder;
         private ConcurrentDictionary<string, StateCalculator> _stateCalculatorPerSource = new ConcurrentDictionary<string, StateCalculator>();
         private ConcurrentDictionary<string, string> _currentDirectoryPerSource = new ConcurrentDictionary<string, string>();
 
@@ -33,10 +34,25 @@ namespace Backy
             this.filesPanel1.AddContextMenuItem("Copy", x => Clipboard.SetFileDropList(new System.Collections.Specialized.StringCollection { x.PhysicalPath }));
             this.filesPanel1.AddContextMenuItem("Restore", x => RestoreFile(x, _selectedSourceDirectory));
 
-            _backupFolder = backupFolder;
+            _initialBackupFolder = backupFolder;
+            _currentBackupFolder = backupFolder;
+            PopulateBackupFoldersCombo();
 
             this.radState.CheckedChanged += Rad_CheckedChanged;
             this.radDiff.CheckedChanged += Rad_CheckedChanged;
+        }
+
+        private void PopulateBackupFoldersCombo()
+        {
+            this.comboBackupFolder.Items.Clear();
+            this.comboBackupFolder.Items.Add(_initialBackupFolder);
+            var otherBackupFolders = DriveInfo.GetDrives().Where(x => x.IsReady)
+                .Select(x => new { drive = x, iniFile = new FileInfo(Path.Combine(x.RootDirectory.FullName, "backy_drive.ini")) })
+                .Where(x => x.iniFile.Exists)
+                .Select(x => Path.Combine(x.drive.RootDirectory.FullName, File.ReadAllText(x.iniFile.FullName)))
+                .ToArray();
+            this.comboBackupFolder.Items.AddRange(otherBackupFolders);
+            this.comboBackupFolder.SelectedIndex = 0;
         }
 
         private async void Rad_CheckedChanged(object sender, EventArgs e)
@@ -82,22 +98,19 @@ namespace Backy
 
             if (!_stateCalculatorPerSource.ContainsKey(_selectedSourceDirectory))
             {
-                this.comboBox1.Enabled = false;
-                this.radState.Enabled = false;
-                this.radDiff.Enabled = false;
-                var machineID = _fileSystem.GetTopLevelDirectories(_backupFolder)
+                this.Enabled = false;
+                this.lblDateTime.Visible = false;
+                var machineID = _fileSystem.GetTopLevelDirectories(_currentBackupFolder)
                     .Where(x => BackupDirectory.IsBackupDirectory(x, _fileSystem))
                     .Select(x => BackupDirectory.FromPath(x, _fileSystem))
                     .First(x => x.OriginalSource == _selectedSourceDirectory)
                     .MachineID;
-                var stateCalculator = new StateCalculator(_fileSystem, _backupFolder, _selectedSourceDirectory, machineID);
+                var stateCalculator = new StateCalculator(_fileSystem, _currentBackupFolder, _selectedSourceDirectory, machineID);
                 stateCalculator.OnProgress += OnScanProgressHandler;
                 _stateCalculatorPerSource[_selectedSourceDirectory] = stateCalculator;
                 await Task.Run(() => stateCalculator.GetLastState());
-                this.comboBox1.Enabled = true;
                 this.comboBox1.Focus();
-                this.radState.Enabled = true;
-                this.radDiff.Enabled = true;
+                this.Enabled = true;
             }
 
             var backupState = GetStateOrDiff(null);
@@ -120,6 +133,11 @@ namespace Backy
                 _stateCalculatorPerSource = new ConcurrentDictionary<string, StateCalculator>();
                 PopulateCombo();
             }
+        }
+
+        public void NotifyNewDrive(string pathToBackyFolder)
+        {
+            PopulateBackupFoldersCombo();
         }
 
 
@@ -146,7 +164,7 @@ namespace Backy
 
         private void SetFiles(IEnumerable<FileView> files)
         {
-            this.filesPanel1.PopulateFiles(files, _backupFolder);
+            this.filesPanel1.PopulateFiles(files, _currentBackupFolder);
         }
 
         private void btnPrev_Click(object sender, EventArgs e)
@@ -201,7 +219,7 @@ namespace Backy
         {
             _restorToForm.SetRestoreData(new CloneSource
             {
-                BackupPath = _backupFolder,
+                BackupPath = _currentBackupFolder,
                 OriginalSourcePath = _selectedSourceDirectory
             },
             int.Parse(this.lblCurrentVersion.Text));
@@ -217,7 +235,7 @@ namespace Backy
 
         private void PopulateCombo()
         {
-            if (!Directory.Exists(_backupFolder))
+            if (!Directory.Exists(_currentBackupFolder))
                 return;
 
             // Reset the combo box.
@@ -226,7 +244,7 @@ namespace Backy
             var currentlySelectedItem = this.comboBox1.SelectedItem?.ToString();
             this.comboBox1.Items.Clear();
             this.comboBox1.Items.AddRange(
-                _fileSystem.GetTopLevelDirectories(_backupFolder)
+                _fileSystem.GetTopLevelDirectories(_currentBackupFolder)
                 .Where(x => BackupDirectory.IsBackupDirectory(x, _fileSystem))
                 .Select(x => BackupDirectory.FromPath(x, _fileSystem).OriginalSource)
                 .ToArray());
@@ -259,6 +277,17 @@ namespace Backy
         {
             var time = CurrentStateCalculator.GetDateByVersion(int.Parse(lblCurrentVersion.Text)).ToLocalTime();
             this.lblDateTime.Text = $"{time.ToShortTimeString()}   {time.ToLongDateString()}";
+        }
+
+        private void comboBackupFolder_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (!_isLoaded) return;
+            if (_currentBackupFolder == this.comboBackupFolder.SelectedItem?.ToString()) return;
+            _selectedSourceDirectory = "";
+            _currentBackupFolder = this.comboBackupFolder.SelectedItem?.ToString();
+            _stateCalculatorPerSource = new ConcurrentDictionary<string, StateCalculator>();
+            _currentDirectoryPerSource = new ConcurrentDictionary<string, string>();
+            PopulateCombo();
         }
     }
 }

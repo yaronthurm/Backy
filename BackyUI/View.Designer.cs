@@ -37,6 +37,7 @@
             this.radDiff = new System.Windows.Forms.RadioButton();
             this.radState = new System.Windows.Forms.RadioButton();
             this.lblDateTime = new System.Windows.Forms.Label();
+            this.comboBackupFolder = new System.Windows.Forms.ComboBox();
             this.filesPanel1 = new Backy.FilesPanel();
             this.SuspendLayout();
             // 
@@ -110,7 +111,7 @@
             // 
             this.radDiff.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.radDiff.AutoSize = true;
-            this.radDiff.Location = new System.Drawing.Point(509, 12);
+            this.radDiff.Location = new System.Drawing.Point(477, 12);
             this.radDiff.Name = "radDiff";
             this.radDiff.Size = new System.Drawing.Size(41, 17);
             this.radDiff.TabIndex = 7;
@@ -122,7 +123,7 @@
             this.radState.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.radState.AutoSize = true;
             this.radState.Checked = true;
-            this.radState.Location = new System.Drawing.Point(556, 12);
+            this.radState.Location = new System.Drawing.Point(524, 12);
             this.radState.Name = "radState";
             this.radState.Size = new System.Drawing.Size(50, 17);
             this.radState.TabIndex = 8;
@@ -140,6 +141,18 @@
             this.lblDateTime.Text = "label1";
             this.lblDateTime.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.lblDateTime.Visible = false;
+            // 
+            // comboBackupFolder
+            // 
+            this.comboBackupFolder.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.comboBackupFolder.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboBackupFolder.FormattingEnabled = true;
+            this.comboBackupFolder.Location = new System.Drawing.Point(580, 8);
+            this.comboBackupFolder.Name = "comboBackupFolder";
+            this.comboBackupFolder.Size = new System.Drawing.Size(116, 21);
+            this.comboBackupFolder.TabIndex = 10;
+            this.comboBackupFolder.SelectedIndexChanged += new System.EventHandler(this.comboBackupFolder_SelectedIndexChanged);
             // 
             // filesPanel1
             // 
@@ -160,6 +173,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(724, 507);
+            this.Controls.Add(this.comboBackupFolder);
             this.Controls.Add(this.lblDateTime);
             this.Controls.Add(this.radState);
             this.Controls.Add(this.radDiff);
@@ -193,5 +207,6 @@
         private System.Windows.Forms.RadioButton radDiff;
         private System.Windows.Forms.RadioButton radState;
         private System.Windows.Forms.Label lblDateTime;
+        private System.Windows.Forms.ComboBox comboBackupFolder;
     }
 }

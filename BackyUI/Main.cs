@@ -66,6 +66,7 @@ namespace Backy
             if (!Directory.Exists(pathToBackyFolder))
                 return;
 
+            _viewForm.NotifyNewDrive(pathToBackyFolder);
             _backupTheBackupForm.ShowAndRun(pathToBackyFolder);
         }
 
