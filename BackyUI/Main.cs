@@ -45,7 +45,7 @@ namespace Backy
             };
             _driveWatcher.Start();
 
-            _viewForm = new View(_fileSystem, _settings);
+            _viewForm = new View(_fileSystem, _settings.Target);
 
             this.multiStepProgress1.BackColor = SystemColors.Control;
             this.richTextBox1.BackColor = SystemColors.Control;

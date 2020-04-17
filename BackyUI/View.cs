@@ -20,11 +20,11 @@ namespace Backy
         private string _selectedSourceDirectory = "";
         private IFileSystem _fileSystem;
         private RestoreTo _restorToForm = new RestoreTo();
-        private BackyLogic.Settings _setting;
+        private string _backupFolder;
         private ConcurrentDictionary<string, StateCalculator> _stateCalculatorPerSource = new ConcurrentDictionary<string, StateCalculator>();
         private ConcurrentDictionary<string, string> _currentDirectoryPerSource = new ConcurrentDictionary<string, string>();
 
-        public View(IFileSystem fileSystem, BackyLogic.Settings setting)
+        public View(IFileSystem fileSystem, string backupFolder)
         {
             InitializeComponent();
 
@@ -33,7 +33,7 @@ namespace Backy
             this.filesPanel1.AddContextMenuItem("Copy", x => Clipboard.SetFileDropList(new System.Collections.Specialized.StringCollection { x.PhysicalPath }));
             this.filesPanel1.AddContextMenuItem("Restore", x => RestoreFile(x, _selectedSourceDirectory));
 
-            _setting = setting;
+            _backupFolder = backupFolder;
 
             this.radState.CheckedChanged += Rad_CheckedChanged;
             this.radDiff.CheckedChanged += Rad_CheckedChanged;
@@ -85,7 +85,12 @@ namespace Backy
                 this.comboBox1.Enabled = false;
                 this.radState.Enabled = false;
                 this.radDiff.Enabled = false;
-                var stateCalculator = new StateCalculator(_fileSystem, _setting.Target, _selectedSourceDirectory, _setting.MachineID);
+                var machineID = _fileSystem.GetTopLevelDirectories(_backupFolder)
+                    .Where(x => BackupDirectory.IsBackupDirectory(x, _fileSystem))
+                    .Select(x => BackupDirectory.FromPath(x, _fileSystem))
+                    .First(x => x.OriginalSource == _selectedSourceDirectory)
+                    .MachineID;
+                var stateCalculator = new StateCalculator(_fileSystem, _backupFolder, _selectedSourceDirectory, machineID);
                 stateCalculator.OnProgress += OnScanProgressHandler;
                 _stateCalculatorPerSource[_selectedSourceDirectory] = stateCalculator;
                 await Task.Run(() => stateCalculator.GetLastState());
@@ -141,7 +146,7 @@ namespace Backy
 
         private void SetFiles(IEnumerable<FileView> files)
         {
-            this.filesPanel1.PopulateFiles(files, _setting.Target);
+            this.filesPanel1.PopulateFiles(files, _backupFolder);
         }
 
         private void btnPrev_Click(object sender, EventArgs e)
@@ -196,7 +201,7 @@ namespace Backy
         {
             _restorToForm.SetRestoreData(new CloneSource
             {
-                BackupPath = _setting.Target,
+                BackupPath = _backupFolder,
                 OriginalSourcePath = _selectedSourceDirectory
             },
             int.Parse(this.lblCurrentVersion.Text));
@@ -212,7 +217,7 @@ namespace Backy
 
         private void PopulateCombo()
         {
-            if (!Directory.Exists(_setting.Target))            
+            if (!Directory.Exists(_backupFolder))
                 return;
 
             // Reset the combo box.
@@ -221,10 +226,9 @@ namespace Backy
             var currentlySelectedItem = this.comboBox1.SelectedItem?.ToString();
             this.comboBox1.Items.Clear();
             this.comboBox1.Items.AddRange(
-                _setting
-                .Sources
-                .Select(x => x.Path)
-                .Where(x => StateCalculator.IsTargetForSourceExist(x, _setting.Target, _fileSystem, _setting.MachineID))
+                _fileSystem.GetTopLevelDirectories(_backupFolder)
+                .Where(x => BackupDirectory.IsBackupDirectory(x, _fileSystem))
+                .Select(x => BackupDirectory.FromPath(x, _fileSystem).OriginalSource)
                 .ToArray());
             for (int i = 0; i < this.comboBox1.Items.Count; i++)
             {
