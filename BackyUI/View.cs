@@ -63,7 +63,7 @@ namespace Backy
                 this.filesPanel1.EnableContextMenu = true;
 
             this.filesPanel1.SetCurrentDirectoty("");
-            var state = GetStateOrDiff(int.Parse(this.lblCurrentVersion.Text));
+            var state = GetStateOrDiff((int)this.numVersion.Value);
             this.SetFiles(state.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
         }
 
@@ -88,7 +88,7 @@ namespace Backy
         private void ClearView()
         {
             this.filesPanel1.Clear();
-            this.lblCurrentVersion.Visible = false;
+            this.numVersion.Visible = false;
             this.ResetScanCount();
         }
 
@@ -115,14 +115,14 @@ namespace Backy
 
             var backupState = GetStateOrDiff(null);
             this.lblScanned.Visible = false;
-            this.lblCurrentVersion.Text = CurrentStateCalculator.MaxVersion.ToString();
+            this.numVersion.Minimum = 1;
+            this.numVersion.Maximum = CurrentStateCalculator.MaxVersion;
+            this.numVersion.Value = CurrentStateCalculator.MaxVersion;
             this.SetFiles(backupState.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
 
-            this.btnPrev.Enabled = CurrentStateCalculator.MaxVersion > 1;
-            this.btnNext.Enabled = false;
             this.btnRestoreTo.Enabled = true;
             this.filesPanel1.Enabled = true;
-            this.lblCurrentVersion.Visible = true;
+            this.numVersion.Visible = true;
             this.lblDateTime.Visible = true;
         }
 
@@ -167,36 +167,6 @@ namespace Backy
             this.filesPanel1.PopulateFiles(files, _currentBackupFolder);
         }
 
-        private void btnPrev_Click(object sender, EventArgs e)
-        {
-            this.btnNext.Enabled = true;
-
-            var currentVersion = int.Parse(this.lblCurrentVersion.Text);
-            currentVersion--;
-
-            var backupState = GetStateOrDiff(currentVersion);
-            this.lblCurrentVersion.Text = currentVersion.ToString();
-            this.SetFiles(backupState.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
-
-            if (currentVersion == 1)
-                this.btnPrev.Enabled = false;
-        }
-
-        private void btnNext_Click(object sender, EventArgs e)
-        {
-            this.btnPrev.Enabled = true;
-
-            var currentVersion = int.Parse(this.lblCurrentVersion.Text);
-            currentVersion++;
-
-            var backupState = GetStateOrDiff(currentVersion);
-            this.lblCurrentVersion.Text = currentVersion.ToString();
-            this.SetFiles(backupState.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
-
-            if (currentVersion == CurrentStateCalculator.MaxVersion)
-                this.btnNext.Enabled = false;
-        }
-
         private static void RestoreFile(FileView x, string sourceRootDirectory)
         {
             var restorePath = Path.Combine(sourceRootDirectory, x.LogicalPath);
@@ -222,7 +192,7 @@ namespace Backy
                 BackupPath = _currentBackupFolder,
                 OriginalSourcePath = _selectedSourceDirectory
             },
-            int.Parse(this.lblCurrentVersion.Text));
+            (int)this.numVersion.Value);
 
             _restorToForm.Show();
         }
@@ -273,12 +243,6 @@ namespace Backy
             await this.SetDirectories();
         }
 
-        private void lblCurrentVersion_TextChanged(object sender, EventArgs e)
-        {
-            var time = CurrentStateCalculator.GetDateByVersion(int.Parse(lblCurrentVersion.Text)).ToLocalTime();
-            this.lblDateTime.Text = $"{time.ToShortTimeString()}   {time.ToLongDateString()}";
-        }
-
         private void comboBackupFolder_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (!_isLoaded) return;
@@ -288,6 +252,14 @@ namespace Backy
             _stateCalculatorPerSource = new ConcurrentDictionary<string, StateCalculator>();
             _currentDirectoryPerSource = new ConcurrentDictionary<string, string>();
             PopulateCombo();
+        }
+
+        private void numVersion_ValueChanged(object sender, EventArgs e)
+        {
+            var backupState = GetStateOrDiff((int)this.numVersion.Value);
+            this.SetFiles(backupState.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
+            var time = CurrentStateCalculator.GetDateByVersion((int)this.numVersion.Value).ToLocalTime();
+            this.lblDateTime.Text = $"{time.ToShortTimeString()}   {time.ToLongDateString()}";
         }
     }
 }

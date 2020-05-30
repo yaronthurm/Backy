@@ -28,9 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.btnPrev = new System.Windows.Forms.Button();
-            this.btnNext = new System.Windows.Forms.Button();
-            this.lblCurrentVersion = new System.Windows.Forms.Label();
             this.lblScanned = new System.Windows.Forms.Label();
             this.btnRestoreTo = new System.Windows.Forms.Button();
             this.comboBox1 = new System.Windows.Forms.ComboBox();
@@ -38,40 +35,11 @@
             this.radState = new System.Windows.Forms.RadioButton();
             this.lblDateTime = new System.Windows.Forms.Label();
             this.comboBackupFolder = new System.Windows.Forms.ComboBox();
+            this.numVersion = new System.Windows.Forms.NumericUpDown();
+            this.label1 = new System.Windows.Forms.Label();
             this.filesPanel1 = new Backy.FilesPanel();
+            ((System.ComponentModel.ISupportInitialize)(this.numVersion)).BeginInit();
             this.SuspendLayout();
-            // 
-            // btnPrev
-            // 
-            this.btnPrev.Enabled = false;
-            this.btnPrev.Location = new System.Drawing.Point(130, 35);
-            this.btnPrev.Name = "btnPrev";
-            this.btnPrev.Size = new System.Drawing.Size(75, 23);
-            this.btnPrev.TabIndex = 1;
-            this.btnPrev.Text = "<<Prev";
-            this.btnPrev.UseVisualStyleBackColor = true;
-            this.btnPrev.Click += new System.EventHandler(this.btnPrev_Click);
-            // 
-            // btnNext
-            // 
-            this.btnNext.Enabled = false;
-            this.btnNext.Location = new System.Drawing.Point(252, 35);
-            this.btnNext.Name = "btnNext";
-            this.btnNext.Size = new System.Drawing.Size(75, 23);
-            this.btnNext.TabIndex = 2;
-            this.btnNext.Text = "Next>>";
-            this.btnNext.UseVisualStyleBackColor = true;
-            this.btnNext.Click += new System.EventHandler(this.btnNext_Click);
-            // 
-            // lblCurrentVersion
-            // 
-            this.lblCurrentVersion.Location = new System.Drawing.Point(211, 40);
-            this.lblCurrentVersion.Name = "lblCurrentVersion";
-            this.lblCurrentVersion.Size = new System.Drawing.Size(35, 13);
-            this.lblCurrentVersion.TabIndex = 3;
-            this.lblCurrentVersion.Text = "label1";
-            this.lblCurrentVersion.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.lblCurrentVersion.TextChanged += new System.EventHandler(this.lblCurrentVersion_TextChanged);
             // 
             // lblScanned
             // 
@@ -153,6 +121,25 @@
             this.comboBackupFolder.TabIndex = 10;
             this.comboBackupFolder.SelectedIndexChanged += new System.EventHandler(this.comboBackupFolder_SelectedIndexChanged);
             // 
+            // numVersion
+            // 
+            this.numVersion.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.numVersion.Location = new System.Drawing.Point(111, 38);
+            this.numVersion.Name = "numVersion";
+            this.numVersion.Size = new System.Drawing.Size(81, 23);
+            this.numVersion.TabIndex = 12;
+            this.numVersion.ValueChanged += new System.EventHandler(this.numVersion_ValueChanged);
+            // 
+            // label1
+            // 
+            this.label1.Font = new System.Drawing.Font("Tahoma", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(177)));
+            this.label1.Location = new System.Drawing.Point(22, 38);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(83, 23);
+            this.label1.TabIndex = 13;
+            this.label1.Text = "Version:";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // filesPanel1
             // 
             this.filesPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -172,6 +159,8 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(724, 507);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.numVersion);
             this.Controls.Add(this.comboBackupFolder);
             this.Controls.Add(this.lblDateTime);
             this.Controls.Add(this.radState);
@@ -179,9 +168,6 @@
             this.Controls.Add(this.comboBox1);
             this.Controls.Add(this.btnRestoreTo);
             this.Controls.Add(this.lblScanned);
-            this.Controls.Add(this.lblCurrentVersion);
-            this.Controls.Add(this.btnNext);
-            this.Controls.Add(this.btnPrev);
             this.Controls.Add(this.filesPanel1);
             this.MinimumSize = new System.Drawing.Size(500, 300);
             this.Name = "View";
@@ -189,6 +175,7 @@
             this.Text = "View";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.View_FormClosing);
             this.Load += new System.EventHandler(this.View_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.numVersion)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -197,9 +184,6 @@
         #endregion
 
         private Backy.FilesPanel filesPanel1;
-        private System.Windows.Forms.Button btnPrev;
-        private System.Windows.Forms.Button btnNext;
-        private System.Windows.Forms.Label lblCurrentVersion;
         private System.Windows.Forms.Label lblScanned;
         private System.Windows.Forms.Button btnRestoreTo;
         private System.Windows.Forms.ComboBox comboBox1;
@@ -207,5 +191,7 @@
         private System.Windows.Forms.RadioButton radState;
         private System.Windows.Forms.Label lblDateTime;
         private System.Windows.Forms.ComboBox comboBackupFolder;
+        private System.Windows.Forms.NumericUpDown numVersion;
+        private System.Windows.Forms.Label label1;
     }
 }
