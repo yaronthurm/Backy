@@ -117,6 +117,9 @@ namespace BackyLogic
             var file1 = new FileInfo(pathToFile1);
             var file2 = new FileInfo(pathToFile2);
 
+            if (!file1.Exists || !file2.Exists)
+                return false;
+
             // Check size
             if (file1.Length != file2.Length)
                 return false;

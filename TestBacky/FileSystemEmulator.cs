@@ -146,7 +146,7 @@ namespace TestBacky
 
         public bool IsDirectoryExist(string dirName)
         {
-            throw new NotImplementedException();
+            return _files.Any(x => x.Name.StartsWith(dirName));
         }
     }
 

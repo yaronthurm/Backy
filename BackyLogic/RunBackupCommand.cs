@@ -90,15 +90,20 @@ namespace BackyLogic
             }
             finally
             {
-                if (DirectoryIsEmpty(targetDir)) // Might happen if failed to copy files after creating the directory
-                    DeleteDirectory(targetDir); // No need to keep it around
-                else
-                    MakeReadOnly(targetDir);
+                if (targetDir != null)
+                {
+                    if (DirectoryIsEmpty(targetDir)) // Might happen if failed to copy files after creating the directory
+                        DeleteDirectory(targetDir); // No need to keep it around
+                    else
+                        MakeReadOnly(targetDir);
+                }
                 sw.Stop();
                 this.Progress?.StartStepWithoutProgress($"Finished backing up '{_source}' at: { DateTime.Now }");
                 this.Progress?.StartStepWithoutProgress("Total time: " + sw.Elapsed);
             }
         }
+
+
 
         private void DeleteDirectory(string targetDir)
         {
@@ -113,15 +118,15 @@ namespace BackyLogic
         private void CalculateDiff(State currentState, State lastBackedupState)
         {
             this.Progress?.StartStepWithoutProgress("Calculating diff");
-                _diff = GetDiff(currentState, lastBackedupState);
-                _diff.CalculateDiff();
-                if (IsAborted()) return;
-                this.Progress?.StartStepWithoutProgress(
-                    "Finished calculating diff:\n" +
-                    $"  New files: {_diff.NewFiles.Count}\n" +
-                    $"  Modified files: {_diff.ModifiedFiles.Count}\n" +
-                    $"  Deleted files: {_diff.DeletedFiles.Count}\n" +
-                    $"  Renamed files: {_diff.RenamedFiles.Count}");
+            _diff = GetDiff(currentState, lastBackedupState);
+            _diff.CalculateDiff();
+            if (IsAborted()) return;
+            this.Progress?.StartStepWithoutProgress(
+                "Finished calculating diff:\n" +
+                $"  New files: {_diff.NewFiles.Count}\n" +
+                $"  Modified files: {_diff.ModifiedFiles.Count}\n" +
+                $"  Deleted files: {_diff.DeletedFiles.Count}\n" +
+                $"  Renamed files: {_diff.RenamedFiles.Count}");
         }
 
         private State GetLastBackedUpState()
