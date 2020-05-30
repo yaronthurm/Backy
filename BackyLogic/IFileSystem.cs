@@ -21,7 +21,7 @@ namespace BackyLogic
 
         IEnumerable<string> ReadLines(string fullname);
 
-        void AppendLine(string filename, string line);
+        void AppendLines(string filename, params string[] lines);
 
         bool AreEqualFiles(string pathToFile1, string pathToFile2);
 

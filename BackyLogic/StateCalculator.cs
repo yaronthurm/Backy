@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -153,6 +154,32 @@ namespace BackyLogic
         {
             var backyFolder = _backyFolders.Value.First(x => x.SerialNumber == currentVersion);
             return backyFolder.DateCreated;
+        }
+    }
+
+    public class ShallowFoldersMaker
+    {
+        public static void MakeFolderShallow(State state, IFileSystem fs)
+        {
+            var files = state.GetFiles()
+                .Select(x => new { nameParts = x.RelativeName.Split(new[] { '\\' }, 2), orig = x })
+                .Select(x => new { type = x.nameParts[0], name = x.nameParts[1], x.orig})
+                .GroupBy(x => x.type);
+
+            var rootFolder = files.FirstOrDefault()?.FirstOrDefault()?.orig.Root;
+            if (rootFolder == null) return;
+            fs.MarkDirectoryAsFullControl(rootFolder);
+            foreach (var group in files)
+            {
+                var tmpFile = rootFolder + "\\" + group.Key + ".tmp";
+                var finalFile = rootFolder + "\\" + group.Key + ".txt";                
+                fs.CreateFile(tmpFile);
+                var lines = group.Select(file => new JObject(new JProperty("name", file.name), new JProperty("lastWrite", file.orig.LastWriteTime)).ToString(Newtonsoft.Json.Formatting.None));
+                fs.AppendLines(tmpFile, lines.ToArray());
+                fs.Copy(tmpFile, finalFile);
+                fs.DeleteFile(tmpFile);
+            }
+            fs.MakeDirectoryReadOnly(rootFolder);
         }
     }
 }

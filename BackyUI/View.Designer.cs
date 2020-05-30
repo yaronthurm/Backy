@@ -37,6 +37,7 @@
             this.comboBackupFolder = new System.Windows.Forms.ComboBox();
             this.numVersion = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
+            this.btnShallow = new System.Windows.Forms.Button();
             this.filesPanel1 = new Backy.FilesPanel();
             ((System.ComponentModel.ISupportInitialize)(this.numVersion)).BeginInit();
             this.SuspendLayout();
@@ -55,7 +56,7 @@
             // btnRestoreTo
             // 
             this.btnRestoreTo.Enabled = false;
-            this.btnRestoreTo.Location = new System.Drawing.Point(375, 35);
+            this.btnRestoreTo.Location = new System.Drawing.Point(375, 37);
             this.btnRestoreTo.Name = "btnRestoreTo";
             this.btnRestoreTo.Size = new System.Drawing.Size(75, 23);
             this.btnRestoreTo.TabIndex = 5;
@@ -140,6 +141,16 @@
             this.label1.Text = "Version:";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
+            // btnShallow
+            // 
+            this.btnShallow.Location = new System.Drawing.Point(212, 37);
+            this.btnShallow.Name = "btnShallow";
+            this.btnShallow.Size = new System.Drawing.Size(86, 23);
+            this.btnShallow.TabIndex = 14;
+            this.btnShallow.Text = "Make Shallow";
+            this.btnShallow.UseVisualStyleBackColor = true;
+            this.btnShallow.Click += new System.EventHandler(this.btnShallow_Click);
+            // 
             // filesPanel1
             // 
             this.filesPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
@@ -159,6 +170,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(724, 507);
+            this.Controls.Add(this.btnShallow);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.numVersion);
             this.Controls.Add(this.comboBackupFolder);
@@ -193,5 +205,6 @@
         private System.Windows.Forms.ComboBox comboBackupFolder;
         private System.Windows.Forms.NumericUpDown numVersion;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button btnShallow;
     }
 }

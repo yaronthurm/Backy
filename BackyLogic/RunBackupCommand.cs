@@ -184,7 +184,7 @@ namespace BackyLogic
                 {
                     if (IsAborted()) break;
                     string renameLine = new JObject(new JProperty("oldName", file.OldName), new JProperty("newName", file.NewName)).ToString(Newtonsoft.Json.Formatting.None);
-                    _fileSystem.AppendLine(renamedFilename, renameLine);
+                    _fileSystem.AppendLines(renamedFilename, renameLine);
                     this.Progress?.Increment();
                 }
             }
@@ -201,7 +201,7 @@ namespace BackyLogic
                 foreach (var file in deletedFiles)
                 {
                     if (IsAborted()) break;
-                    _fileSystem.AppendLine(deletedFilename, file.RelativeName);
+                    _fileSystem.AppendLines(deletedFilename, file.RelativeName);
                     this.Progress?.Increment();
                 }
             }

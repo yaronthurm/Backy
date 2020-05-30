@@ -104,7 +104,7 @@ namespace BackyLogic
         {
             var dirtyFilePath = Path.Combine(_target, guid, "dirty.txt");
             _fileSystem.CreateFile(dirtyFilePath);
-            _fileSystem.AppendLine(dirtyFilePath, destination);
+            _fileSystem.AppendLines(dirtyFilePath, destination);
         }
 
         
@@ -249,9 +249,9 @@ namespace BackyLogic
         public static void CreateIniFile(string sourceGuid, string target, string source, IFileSystem fs, string machineID)
         {
             fs.CreateFile(Path.Combine(target, sourceGuid, IniFileName));
-            fs.AppendLine(Path.Combine(target, sourceGuid, IniFileName), source);
-            fs.AppendLine(Path.Combine(target, sourceGuid, IniFileName), sourceGuid);
-            fs.AppendLine(Path.Combine(target, sourceGuid, IniFileName), machineID);
+            fs.AppendLines(Path.Combine(target, sourceGuid, IniFileName), source);
+            fs.AppendLines(Path.Combine(target, sourceGuid, IniFileName), sourceGuid);
+            fs.AppendLines(Path.Combine(target, sourceGuid, IniFileName), machineID);
         }
     }
 

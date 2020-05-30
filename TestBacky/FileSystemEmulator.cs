@@ -17,10 +17,10 @@ namespace TestBacky
         }
 
 
-        public void AppendLine(string filename, string line)
+        public void AppendLines(string filename, params string[] lines)
         {
             var file = _files.First(x => x.Name == filename);
-            file.Content += line + Environment.NewLine;
+            file.Content += string.Join(Environment.NewLine, lines) + Environment.NewLine;
         }
 
         public void Copy(string sourceFileName, string destFileName)

@@ -261,5 +261,11 @@ namespace Backy
             var time = CurrentStateCalculator.GetDateByVersion((int)this.numVersion.Value).ToLocalTime();
             this.lblDateTime.Text = $"{time.ToShortTimeString()}   {time.ToLongDateString()}";
         }
-    }
+
+        private void btnShallow_Click(object sender, EventArgs e)
+        {
+            var state = CurrentStateCalculator.GetDiff((int)this.numVersion.Value);
+            ShallowFoldersMaker.MakeFolderShallow(state, _fileSystem);
+        }
+    } 
 }

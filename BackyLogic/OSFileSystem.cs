@@ -11,9 +11,9 @@ namespace BackyLogic
 
     public class OSFileSystem : IFileSystem
     {
-        public void AppendLine(string filename, string line)
+        public void AppendLines(string filename, params string[] lines)
         {
-            File.AppendAllLines(filename, new[] { line });
+            File.AppendAllLines(filename, lines);
         }
 
         public void Copy(string sourceFileName, string destFileName)
@@ -81,7 +81,7 @@ namespace BackyLogic
             DirectoryInfo dInfo = new DirectoryInfo(dirName);
             DirectorySecurity dSecurity = dInfo.GetAccessControl();
             dSecurity.SetAccessRuleProtection(true, false); // Disable inheritance
-            dSecurity.AddAccessRule(
+            dSecurity.ResetAccessRule(
                 new FileSystemAccessRule(
                     "Everyone",
                     FileSystemRights.ReadAndExecute | FileSystemRights.Traverse,
@@ -97,7 +97,7 @@ namespace BackyLogic
             DirectoryInfo dInfo = new DirectoryInfo(dirName);
             DirectorySecurity dSecurity = dInfo.GetAccessControl();
             dSecurity.SetAccessRuleProtection(true, false); // Disable inheritance
-            dSecurity.AddAccessRule(
+            dSecurity.ResetAccessRule(
                 new FileSystemAccessRule(
                     "Everyone",
                     FileSystemRights.FullControl,
