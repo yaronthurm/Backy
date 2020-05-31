@@ -173,10 +173,15 @@ namespace BackyLogic
             Directory.Delete(dirName, true);
         }
 
+        public void RenameDirectory(string currName, string newName)
+        {
+            Directory.Move(currName, newName);
+        }
+
         public bool IsDirectoryExist(string dirName)
         {
             return Directory.Exists(dirName);
-        }
+        }        
     }
 
 

@@ -50,8 +50,8 @@ namespace TestBacky
             var btbCommand = new BackupTheBackupCommand(fs, backupTarget, backupOfTheBackupTarget);
             btbCommand.Execute();
 
-            var expected = fs.EnumerateFiles(backupTarget).Select(x => EmulatorFile.FromlFileName(x, x.Replace(backupTarget + "\\", ""), fs)).ToArray();
-            var actual = fs.EnumerateFiles(backupOfTheBackupTarget).Select(x => EmulatorFile.FromlFileName(x, x.Replace(backupOfTheBackupTarget + "\\", ""), fs)).ToArray();
+            var expected = fs.EnumerateFiles(backupTarget).Select(x => EmulatorFile.FromFileName(x, x.Replace(backupTarget + "\\", ""), fs)).ToArray();
+            var actual = fs.EnumerateFiles(backupOfTheBackupTarget).Select(x => EmulatorFile.FromFileName(x, x.Replace(backupOfTheBackupTarget + "\\", ""), fs)).ToArray();
             TestsUtils.AssertEmulatorFiles(fs, expected, actual, "");
         }
 
@@ -111,8 +111,8 @@ namespace TestBacky
             btbCommand.Execute();
 
 
-            var expected = fs.EnumerateFiles(backupTarget).Select(x => EmulatorFile.FromlFileName(x, x.Replace(backupTarget + "\\", ""), fs)).ToArray();
-            var actual = fs.EnumerateFiles(backupOfTheBackupTarget).Select(x => EmulatorFile.FromlFileName(x, x.Replace(backupOfTheBackupTarget + "\\", ""), fs)).ToArray();
+            var expected = fs.EnumerateFiles(backupTarget).Select(x => EmulatorFile.FromFileName(x, x.Replace(backupTarget + "\\", ""), fs)).ToArray();
+            var actual = fs.EnumerateFiles(backupOfTheBackupTarget).Select(x => EmulatorFile.FromFileName(x, x.Replace(backupOfTheBackupTarget + "\\", ""), fs)).ToArray();
             TestsUtils.AssertEmulatorFiles(fs, expected, actual, "");
         }
 
@@ -158,8 +158,8 @@ namespace TestBacky
             btbCommand.Execute();
 
 
-            var expected = fs.EnumerateFiles(backupTarget).Select(x => EmulatorFile.FromlFileName(x, x.Replace(backupTarget + "\\", ""), fs)).ToArray();
-            var actual = fs.EnumerateFiles(backupOfTheBackupTarget).Select(x => EmulatorFile.FromlFileName(x, x.Replace(backupOfTheBackupTarget + "\\", ""), fs)).ToArray();
+            var expected = fs.EnumerateFiles(backupTarget).Select(x => EmulatorFile.FromFileName(x, x.Replace(backupTarget + "\\", ""), fs)).ToArray();
+            var actual = fs.EnumerateFiles(backupOfTheBackupTarget).Select(x => EmulatorFile.FromFileName(x, x.Replace(backupOfTheBackupTarget + "\\", ""), fs)).ToArray();
             TestsUtils.AssertEmulatorFiles(fs, expected, actual, "");
         }
 
@@ -220,8 +220,8 @@ namespace TestBacky
             btbCommand.Execute();
 
 
-            var expected = fs.EnumerateFiles(backupTarget).Select(x => EmulatorFile.FromlFileName(x, x.Replace(backupTarget + "\\", ""), fs)).ToArray();
-            var actual = fs.EnumerateFiles(backupOfTheBackupTarget).Select(x => EmulatorFile.FromlFileName(x, x.Replace(backupOfTheBackupTarget + "\\", ""), fs)).ToArray();
+            var expected = fs.EnumerateFiles(backupTarget).Select(x => EmulatorFile.FromFileName(x, x.Replace(backupTarget + "\\", ""), fs)).ToArray();
+            var actual = fs.EnumerateFiles(backupOfTheBackupTarget).Select(x => EmulatorFile.FromFileName(x, x.Replace(backupOfTheBackupTarget + "\\", ""), fs)).ToArray();
             TestsUtils.AssertEmulatorFiles(fs, expected, actual, "");
         }
     }

@@ -71,7 +71,7 @@ namespace TestBacky
                 new EmulatorFile(@"dir3\file3") };
 
             var actual = fs.EnumerateFiles(cloneTarget)
-                .Select(x => EmulatorFile.FromlFileName(x, x.Replace(cloneTarget + "\\", ""), fs));
+                .Select(x => EmulatorFile.FromFileName(x, x.Replace(cloneTarget + "\\", ""), fs));
             TestsUtils.AssertEmulatorFiles(fs, expected, actual, "");
         }
 
@@ -130,7 +130,7 @@ namespace TestBacky
                 new EmulatorFile(@"dir2\file2")};
 
             var actual = fs.EnumerateFiles(cloneTarget)
-                .Select(x => EmulatorFile.FromlFileName(x, x.Replace(cloneTarget + "\\", ""), fs));
+                .Select(x => EmulatorFile.FromFileName(x, x.Replace(cloneTarget + "\\", ""), fs));
             TestsUtils.AssertEmulatorFiles(fs, expected, actual, "");
         }
     }

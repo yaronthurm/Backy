@@ -69,7 +69,7 @@ namespace TestBacky
                     cmd.Execute();
 
                     var actual = Directory.GetFiles(cloneTarget, "*", SearchOption.AllDirectories)
-                        .Select(x => EmulatorFile.FromlFileName(x, x.Replace(cloneTarget + "\\", ""), fs));
+                        .Select(x => EmulatorFile.FromFileName(x, x.Replace(cloneTarget + "\\", ""), fs));
                     TestsUtils.AssertEmulatorFiles(fs, expectedStates[i], actual, "clone: " + i);
                 }
             }
@@ -120,8 +120,8 @@ namespace TestBacky
 
                 btbCommand.Execute();
 
-                var expected = fs.EnumerateFiles(backupTarget).Select(x => EmulatorFile.FromlFileName(x, x.Replace(backupTarget + "\\", ""), fs)).ToArray();
-                var actual = fs.EnumerateFiles(backupTheBackupTarget).Select(x => EmulatorFile.FromlFileName(x, x.Replace(backupTheBackupTarget + "\\", ""), fs)).ToArray();
+                var expected = fs.EnumerateFiles(backupTarget).Select(x => EmulatorFile.FromFileName(x, x.Replace(backupTarget + "\\", ""), fs)).ToArray();
+                var actual = fs.EnumerateFiles(backupTheBackupTarget).Select(x => EmulatorFile.FromFileName(x, x.Replace(backupTheBackupTarget + "\\", ""), fs)).ToArray();
                 TestsUtils.AssertEmulatorFiles(fs, expected, actual, "");
             }
             finally
@@ -136,6 +136,314 @@ namespace TestBacky
             }
         }
 
+        [TestMethod]
+        public void RealFileSystem_04_Run_backup_on_already_shallowed_backup()
+        {
+            var source = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
+            var target = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
+
+            Directory.CreateDirectory(target);
+            Directory.CreateDirectory(source);
+
+            try
+            {
+                var fs = new OSFileSystem();
+                var cmd = new RunBackupCommand(fs, source, target, MachineID.One);
+
+                var now = new DateTime(2010, 1, 1);
+
+                // Create files in source and run first time
+                Enumerable.Range(1, 8).ToList().ForEach(x => WriteFile(source, $"file{x}.txt", $"hello{x}", now));
+                cmd.Execute();
+                var expectedVersion = new[] {
+                    new EmulatorFile(@"file1.txt", now, "hello1", false, @"\1\new\file1.txt"),
+                    new EmulatorFile(@"file2.txt", now, "hello2", false, @"\1\new\file2.txt"),
+                    new EmulatorFile(@"file3.txt", now, "hello3", false, @"\1\new\file3.txt"),
+                    new EmulatorFile(@"file4.txt", now, "hello4", false, @"\1\new\file4.txt"),
+                    new EmulatorFile(@"file5.txt", now, "hello5", false, @"\1\new\file5.txt"),
+                    new EmulatorFile(@"file6.txt", now, "hello6", false, @"\1\new\file6.txt"),
+                    new EmulatorFile(@"file7.txt", now, "hello7", false, @"\1\new\file7.txt"),
+                    new EmulatorFile(@"file8.txt", now, "hello8", false, @"\1\new\file8.txt"),
+                };
+                TestsUtils.AssertLastState(fs, target, source, expectedVersion);
+
+                // Modify 4 files and create 4 new files
+                var now2 = new DateTime(2010, 1, 2);
+                Enumerable.Range(5, 4).ToList().ForEach(x => WriteFile(source, $"file{x}.txt", $"hello{x} - mod", now2));
+                Enumerable.Range(9, 4).ToList().ForEach(x => WriteFile(source, $"file{x}.txt", $"hello{x}", now2));
+                cmd.Execute();
+                expectedVersion = new[] {
+                    new EmulatorFile(@"file1.txt", now, "hello1", false, @"\1\new\file1.txt"),
+                    new EmulatorFile(@"file2.txt", now, "hello2", false, @"\1\new\file2.txt"),
+                    new EmulatorFile(@"file3.txt", now, "hello3", false, @"\1\new\file3.txt"),
+                    new EmulatorFile(@"file4.txt", now, "hello4", false, @"\1\new\file4.txt"),
+                    new EmulatorFile(@"file5.txt", now2, "hello5 - mod", false, @"\2\modified\file5.txt"),
+                    new EmulatorFile(@"file6.txt", now2, "hello6 - mod", false, @"\2\modified\file6.txt"),
+                    new EmulatorFile(@"file7.txt", now2, "hello7 - mod", false, @"\2\modified\file7.txt"),
+                    new EmulatorFile(@"file8.txt", now2, "hello8 - mod", false, @"\2\modified\file8.txt"),
+                    new EmulatorFile(@"file9.txt", now2, "hello9", false, @"\2\new\file9.txt"),
+                    new EmulatorFile(@"file10.txt", now2, "hello10", false, @"\2\new\file10.txt"),
+                    new EmulatorFile(@"file11.txt", now2, "hello11", false, @"\2\new\file11.txt"),
+                    new EmulatorFile(@"file12.txt", now2, "hello12", false, @"\2\new\file12.txt"),
+                };
+                TestsUtils.AssertLastState(fs, target, source, expectedVersion);
+                
+                // Make ver 2 as shallow
+                ShallowFoldersMaker.MakeFolderShallow(fs, target, source, MachineID.One.Value, 2);
+                expectedVersion = new[] {
+                    new EmulatorFile(@"file1.txt", now, "hello1", false, @"\1\new\file1.txt"),
+                    new EmulatorFile(@"file2.txt", now, "hello2", false, @"\1\new\file2.txt"),
+                    new EmulatorFile(@"file3.txt", now, "hello3", false, @"\1\new\file3.txt"),
+                    new EmulatorFile(@"file4.txt", now, "hello4", false, @"\1\new\file4.txt"),
+                    new EmulatorFile(@"file5.txt", now2, null, true, null),
+                    new EmulatorFile(@"file6.txt", now2, null, true, null),
+                    new EmulatorFile(@"file7.txt", now2, null, true, null),
+                    new EmulatorFile(@"file8.txt", now2, null, true, null),
+                    new EmulatorFile(@"file9.txt", now2, null, true, null),
+                    new EmulatorFile(@"file10.txt", now2, null, true, null),
+                    new EmulatorFile(@"file11.txt", now2, null, true, null),
+                    new EmulatorFile(@"file12.txt", now2, null, true, null),
+                };
+                TestsUtils.AssertLastState(fs, target, source, expectedVersion);
+
+                // Delete/Modify/Rename files from the shallow folder
+                var now3 = new DateTime(2010, 1, 3);
+                for (int i = 1; i <= 12; i += 4)
+                {
+                    File.Delete(Path.Combine(source, $"file{i}.txt"));
+                    WriteFile(source, $"file{i+1}.txt", $"hello{i+1} - mod2", now3);
+                    File.Move(Path.Combine(source, $"file{i+2}.txt"), Path.Combine(source, $"file{i+2}_renamed.txt"));
+                }
+
+                cmd.Execute();
+                expectedVersion = new[] {
+                    //new EmulatorFile(@"file1.txt", now, "hello1", false, @"\1\new\file1.txt"),
+                    new EmulatorFile(@"file2.txt", now3, "hello2 - mod2", false, @"\3\modified\file2.txt"),
+                    new EmulatorFile(@"file3_renamed.txt", now, "hello3", false, @"\1\new\file3.txt"),
+                    new EmulatorFile(@"file4.txt", now, "hello4", false, @"\1\new\file4.txt"),
+                    //new EmulatorFile(@"file5.txt", now2, null, true, null),
+                    new EmulatorFile(@"file6.txt", now3, "hello6 - mod2", false, @"\3\modified\file6.txt"),
+                    new EmulatorFile(@"file7_renamed.txt", now2, "hello7 - mod", false, @"\3\new\file7_renamed.txt"),
+                    new EmulatorFile(@"file8.txt", now2, null, true, null),
+                    //new EmulatorFile(@"file9.txt", now2, null, true, null),
+                    new EmulatorFile(@"file10.txt", now3, "hello10 - mod2", false, @"\3\modified\file10.txt"),
+                    new EmulatorFile(@"file11_renamed.txt", now2, "hello11", false, @"\3\new\file11_renamed.txt"),
+                    new EmulatorFile(@"file12.txt", now2, null, true, null),
+                };
+                TestsUtils.AssertLastState(fs, target, source, expectedVersion);
+            }
+            finally
+            {
+                UnmarkDirectoryAsReadOnlyRecursive(target);
+                Directory.Delete(target, true);
+                Directory.Delete(source, true);
+            }
+        }
+
+        [TestMethod]
+        public void RealFileSystem_05_Run_shallow_backup_on_already_finisjed_backup()
+        {
+            var source = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
+            var target = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
+
+            Directory.CreateDirectory(target);
+            Directory.CreateDirectory(source);
+
+            try
+            {
+                var fs = new OSFileSystem();
+                var cmd = new RunBackupCommand(fs, source, target, MachineID.One);
+
+                var now = new DateTime(2010, 1, 1);
+
+                // Create files in source and run first time
+                Enumerable.Range(1, 8).ToList().ForEach(x => WriteFile(source, $"file{x}.txt", $"hello{x}", now));
+                cmd.Execute();
+                var expectedVersion = new[] {
+                    new EmulatorFile(@"file1.txt", now, "hello1", false, @"\1\new\file1.txt"),
+                    new EmulatorFile(@"file2.txt", now, "hello2", false, @"\1\new\file2.txt"),
+                    new EmulatorFile(@"file3.txt", now, "hello3", false, @"\1\new\file3.txt"),
+                    new EmulatorFile(@"file4.txt", now, "hello4", false, @"\1\new\file4.txt"),
+                    new EmulatorFile(@"file5.txt", now, "hello5", false, @"\1\new\file5.txt"),
+                    new EmulatorFile(@"file6.txt", now, "hello6", false, @"\1\new\file6.txt"),
+                    new EmulatorFile(@"file7.txt", now, "hello7", false, @"\1\new\file7.txt"),
+                    new EmulatorFile(@"file8.txt", now, "hello8", false, @"\1\new\file8.txt"),
+                };
+                TestsUtils.AssertLastState(fs, target, source, expectedVersion);
+
+                // Modify 4 files and create 4 new files
+                var now2 = new DateTime(2010, 1, 2);
+                Enumerable.Range(5, 4).ToList().ForEach(x => WriteFile(source, $"file{x}.txt", $"hello{x} - mod", now2));
+                Enumerable.Range(9, 4).ToList().ForEach(x => WriteFile(source, $"file{x}.txt", $"hello{x}", now2));
+                cmd.Execute();
+                expectedVersion = new[] {
+                    new EmulatorFile(@"file1.txt", now, "hello1", false, @"\1\new\file1.txt"),
+                    new EmulatorFile(@"file2.txt", now, "hello2", false, @"\1\new\file2.txt"),
+                    new EmulatorFile(@"file3.txt", now, "hello3", false, @"\1\new\file3.txt"),
+                    new EmulatorFile(@"file4.txt", now, "hello4", false, @"\1\new\file4.txt"),
+                    new EmulatorFile(@"file5.txt", now2, "hello5 - mod", false, @"\2\modified\file5.txt"),
+                    new EmulatorFile(@"file6.txt", now2, "hello6 - mod", false, @"\2\modified\file6.txt"),
+                    new EmulatorFile(@"file7.txt", now2, "hello7 - mod", false, @"\2\modified\file7.txt"),
+                    new EmulatorFile(@"file8.txt", now2, "hello8 - mod", false, @"\2\modified\file8.txt"),
+                    new EmulatorFile(@"file9.txt", now2, "hello9", false, @"\2\new\file9.txt"),
+                    new EmulatorFile(@"file10.txt", now2, "hello10", false, @"\2\new\file10.txt"),
+                    new EmulatorFile(@"file11.txt", now2, "hello11", false, @"\2\new\file11.txt"),
+                    new EmulatorFile(@"file12.txt", now2, "hello12", false, @"\2\new\file12.txt"),
+                };
+                TestsUtils.AssertLastState(fs, target, source, expectedVersion);
+
+                // Delete/Modify/Rename files from the shallow folder
+                var now3 = new DateTime(2010, 1, 3);
+                for (int i = 1; i <= 12; i += 4)
+                {
+                    File.Delete(Path.Combine(source, $"file{i}.txt"));
+                    WriteFile(source, $"file{i + 1}.txt", $"hello{i + 1} - mod2", now3);
+                    File.Move(Path.Combine(source, $"file{i + 2}.txt"), Path.Combine(source, $"file{i + 2}_renamed.txt"));
+                }
+
+                cmd.Execute();
+                expectedVersion = new[] {
+                    //new EmulatorFile(@"file1.txt", now, "hello1", false, @"\1\new\file1.txt"),
+                    new EmulatorFile(@"file2.txt", now3, "hello2 - mod2", false, @"\3\modified\file2.txt"),
+                    new EmulatorFile(@"file3_renamed.txt", now, "hello3", false, @"\1\new\file3.txt"),
+                    new EmulatorFile(@"file4.txt", now, "hello4", false, @"\1\new\file4.txt"),
+                    //new EmulatorFile(@"file5.txt", now2, "hello5 - mod", false, @"\2\modified\file5.txt"),
+                    new EmulatorFile(@"file6.txt", now3, "hello6 - mod2", false, @"\3\modified\file6.txt"),
+                    new EmulatorFile(@"file7_renamed.txt", now2, "hello7 - mod", false, @"\2\modified\file7.txt"),
+                    new EmulatorFile(@"file8.txt", now2, "hello8 - mod", false, @"\2\modified\file8.txt"),
+                    //new EmulatorFile(@"file9.txt", now2, "hello9", false, @"\2\new\file9.txt"),
+                    new EmulatorFile(@"file10.txt", now3, "hello10 - mod2", false, @"\3\modified\file10.txt"),
+                    new EmulatorFile(@"file11_renamed.txt", now2, "hello11", false, @"\2\new\file11.txt"),
+                    new EmulatorFile(@"file12.txt", now2, "hello12", false, @"\2\new\file12.txt"),
+                };
+                TestsUtils.AssertLastState(fs, target, source, expectedVersion);
+
+                // Make ver 2 shallow
+                ShallowFoldersMaker.MakeFolderShallow(fs, target, source, MachineID.One.Value, 2);
+                expectedVersion = new[] {
+                    //new EmulatorFile(@"file1.txt", now, "hello1", false, @"\1\new\file1.txt"),
+                    new EmulatorFile(@"file2.txt", now3, "hello2 - mod2", false, @"\3\modified\file2.txt"),
+                    new EmulatorFile(@"file3_renamed.txt", now, "hello3", false, @"\1\new\file3.txt"),
+                    new EmulatorFile(@"file4.txt", now, "hello4", false, @"\1\new\file4.txt"),
+                    //new EmulatorFile(@"file5.txt", now2, "hello5 - mod", false, @"\2\modified\file5.txt"),
+                    new EmulatorFile(@"file6.txt", now3, "hello6 - mod2", false, @"\3\modified\file6.txt"),
+                    new EmulatorFile(@"file7_renamed.txt", now2, null, true, null),
+                    new EmulatorFile(@"file8.txt", now2, null, true, null),
+                    //new EmulatorFile(@"file9.txt", now2, "hello9", false, @"\2\new\file9.txt"),
+                    new EmulatorFile(@"file10.txt", now3, "hello10 - mod2", false, @"\3\modified\file10.txt"),
+                    new EmulatorFile(@"file11_renamed.txt", now2, null, true, null),
+                    new EmulatorFile(@"file12.txt", now2, null, true, null),
+                };
+                TestsUtils.AssertLastState(fs, target, source, expectedVersion);                
+            }
+            finally
+            {
+                UnmarkDirectoryAsReadOnlyRecursive(target);
+                Directory.Delete(target, true);
+                Directory.Delete(source, true);
+            }
+        }
+
+        [TestMethod]
+        public void RealFileSystem_06_Run_backup_on_shallowed_files()
+        {
+            var source = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
+            var target = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(Path.GetRandomFileName()));
+
+            Directory.CreateDirectory(target);
+            Directory.CreateDirectory(source);
+
+            try
+            {
+                var fs = new OSFileSystem();
+                var cmd = new RunBackupCommand(fs, source, target, MachineID.One);
+                var now = new DateTime(2010, 1, 1);
+
+                // Create files in source and run first time
+                WriteFile(source, "file1.txt", "hello1", now);
+                WriteFile(source, "file2.txt", "hello2", now);
+                WriteFile(source, "file3.txt", "hello3", now);
+                WriteFile(source, "file4.doc", "", now);
+
+                // 1
+                cmd.Execute();
+                var expectedVersion1 = new[] {
+                    new EmulatorFile(@"file1.txt", now, "hello1"),
+                    new EmulatorFile(@"file2.txt", now, "hello2"),
+                    new EmulatorFile(@"file3.txt", now, "hello3"),
+                    new EmulatorFile(@"file4.doc", now, "")};
+                TestsUtils.AssertLastState(fs, target, source, expectedVersion1);
+
+                // Add new files
+                WriteFile(source, "file5.txt", "hello5", now);
+                WriteFile(source, "file6.txt", "hello6", now);
+
+                // 2
+                cmd.Execute();
+                var expectedVersion2 = new[] {
+                    new EmulatorFile(@"file1.txt", now, "hello1"),
+                    new EmulatorFile(@"file2.txt", now, "hello2"),
+                    new EmulatorFile(@"file3.txt", now, "hello3"),
+                    new EmulatorFile(@"file4.doc", now, ""),
+                    new EmulatorFile(@"file5.txt", now, "hello5"),
+                    new EmulatorFile(@"file6.txt", now, "hello6")};
+                TestsUtils.AssertLastState(fs, target, source, expectedVersion2);
+
+                // Make version 1 a shallow folder
+                ShallowFoldersMaker.MakeFolderShallow(fs, target, source, MachineID.One.Value, 1);
+                var expectedVersion3 = new[] {
+                    new EmulatorFile(@"file1.txt", now, null, true),
+                    new EmulatorFile(@"file2.txt", now, null, true),
+                    new EmulatorFile(@"file3.txt", now, null, true),
+                    new EmulatorFile(@"file4.doc", now, null, true),
+                    new EmulatorFile(@"file5.txt", now, "hello5"),
+                    new EmulatorFile(@"file6.txt", now, "hello6")};
+                TestsUtils.AssertLastState(fs, target, source, expectedVersion3);
+
+                // Modify and add some files
+                var now1 = new DateTime(2010, 1, 2);
+                WriteFile(source, "file1.txt", "hello1 - modified", now1);
+                WriteFile(source, "file6.txt", "hello6 - modified", now1);
+                WriteFile(source, "file7.txt", "hello7", now1);
+
+                // 4
+                cmd.Execute();
+                var expectedVersion4 = new[] {
+                    new EmulatorFile(@"file1.txt", now1, "hello1 - modified"),
+                    new EmulatorFile(@"file2.txt", now, null, true),
+                    new EmulatorFile(@"file3.txt", now, null, true),
+                    new EmulatorFile(@"file4.doc", now, null, true),
+                    new EmulatorFile(@"file5.txt", now, "hello5"),
+                    new EmulatorFile(@"file6.txt", now1, "hello6 - modified"),
+                    new EmulatorFile(@"file7.txt", now1, "hello7") };
+                TestsUtils.AssertLastState(fs, target, source, expectedVersion4);
+
+                // Rename some files
+                File.Move(Path.Combine(source, "file1.txt"), Path.Combine(source, "file1_renamed.txt"));
+                Directory.CreateDirectory(Path.Combine(source, "subdir"));
+                File.Move(Path.Combine(source, "file2.txt"), Path.Combine(source, "subdir", "file2_renamed.txt"));
+
+                // 5
+                cmd.Execute();
+                var expectedVersion5 = new[] {
+                    new EmulatorFile(@"file1_renamed.txt", now1, "hello1 - modified"),
+                    new EmulatorFile(@"subdir\file2_renamed.txt", now, "hello2"),
+                    new EmulatorFile(@"file3.txt", now, null, true),
+                    new EmulatorFile(@"file4.doc", now, null, true),
+                    new EmulatorFile(@"file5.txt", now, "hello5"),
+                    new EmulatorFile(@"file6.txt", now1, "hello6 - modified"),
+                    new EmulatorFile(@"file7.txt", now1, "hello7") };
+                TestsUtils.AssertLastState(fs, target, source, expectedVersion5);
+            }
+            finally
+            {
+                UnmarkDirectoryAsReadOnlyRecursive(target);
+                Directory.Delete(target, true);
+                Directory.Delete(source, true);
+            }
+
+            
+        }
 
 
 

@@ -199,10 +199,15 @@ namespace Backy
             {
                 Parallel.ForEach(ret, x =>
                 {
+                    System.Drawing.Bitmap bitmap = null;                   
                     FileView itemSource = (FileView)x.Tag;
-                    var shellFile = ShellFolder.FromParsingName(itemSource.PhysicalPath);
-                    shellFile.Thumbnail.FormatOption = ShellThumbnailFormatOption.Default;
-                    var bitmap = FuncWithRetry(() => shellFile.Thumbnail.MediumBitmap);
+
+                    if (itemSource.PhysicalPath != null)
+                    {
+                        var shellFile = ShellFolder.FromParsingName(itemSource.PhysicalPath);
+                        shellFile.Thumbnail.FormatOption = ShellThumbnailFormatOption.Default;
+                        bitmap = FuncWithRetry(() => shellFile.Thumbnail.MediumBitmap);
+                    }
 
                     if (this.InvokeRequired)
                         this.Invoke((Action)(() => x.SetData(bitmap, itemSource)));

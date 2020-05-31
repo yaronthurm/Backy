@@ -13,17 +13,18 @@ namespace BackyLogic
     {
         public event Action OnProgress;
 
-        private IFileSystem _fileSystem;
-        private string _target;
+        private IFileSystem _fileSystem;        
         private Lazy<List<BackyFolder>> _backyFolders;
+
+        public string Target { get; }
 
         public StateCalculator(IFileSystem fileSystem, string target, string source, string machineID)
         {
             _fileSystem = fileSystem;
             if (source == null)
-                _target = target;
+                Target = target;
             else
-                _target = FindTargetForSource(source, target, fileSystem, machineID);
+                Target = FindTargetForSource(source, target, fileSystem, machineID);
             _backyFolders = new Lazy<List<BackyFolder>>(this.GetFolders);
         }
 
@@ -116,7 +117,7 @@ namespace BackyLogic
 
             // Get all files in backup directory
             var ret = new State();
-            var rootPath = Path.Combine(_target, version.ToString());
+            var rootPath = Path.Combine(Target, version.ToString());
             foreach (var file in _fileSystem.EnumerateFiles(rootPath)) 
             {
                 var backyFile = BackyFile.FromTargetFileName(_fileSystem, file, rootPath);
@@ -131,17 +132,16 @@ namespace BackyLogic
             var tree = new HierarchicalDictionary<string, string>();
             
             // Get all backup files
-            foreach (var file in _fileSystem.EnumerateFiles(_target))
+            foreach (var file in _fileSystem.EnumerateFiles(Target))
             {
                 tree.Add(file, file.Split('\\'));
-                if (this.OnProgress != null)
-                    this.OnProgress();
+                this.OnProgress?.Invoke();
             }
 
             var ret = new List<BackyFolder>();
-            foreach (string dir in tree.GetFirstLevelContainers(_target.Split('\\')))
+            foreach (string dir in tree.GetFirstLevelContainers(Target.Split('\\')))
             {
-                var fullDirectoryPath = System.IO.Path.Combine(_target, dir);
+                var fullDirectoryPath = System.IO.Path.Combine(Target, dir);
                 var allFilesForThisDirectory = tree.GetAllDescendantsItems(fullDirectoryPath.Split('\\'));
                 var newFolder = BackyFolder.FromFileNames(_fileSystem, allFilesForThisDirectory, fullDirectoryPath);
                 ret.Add(newFolder);
@@ -159,10 +159,13 @@ namespace BackyLogic
 
     public class ShallowFoldersMaker
     {
-        public static void MakeFolderShallow(State state, IFileSystem fs)
+        public static void MakeFolderShallow(IFileSystem fs, string target, string source, string machineID, int version)
         {
+            var stateCalculator = new StateCalculator(fs, target, source, machineID);
+            var state = stateCalculator.GetDiff(version);
             var files = state.GetFiles()
                 .Select(x => new { nameParts = x.RelativeName.Split(new[] { '\\' }, 2), orig = x })
+                .Where(x => x.nameParts.Length == 2)
                 .Select(x => new { type = x.nameParts[0], name = x.nameParts[1], x.orig})
                 .GroupBy(x => x.type);
 
@@ -172,12 +175,15 @@ namespace BackyLogic
             foreach (var group in files)
             {
                 var tmpFile = rootFolder + "\\" + group.Key + ".tmp";
-                var finalFile = rootFolder + "\\" + group.Key + ".txt";                
+                var finalFile = rootFolder + "\\" + group.Key + ".txt";
+                if (fs.FindFile(rootFolder, group.Key + ".txt") != null)
+                    continue; // Shallow file already exists
                 fs.CreateFile(tmpFile);
                 var lines = group.Select(file => new JObject(new JProperty("name", file.name), new JProperty("lastWrite", file.orig.LastWriteTime)).ToString(Newtonsoft.Json.Formatting.None));
                 fs.AppendLines(tmpFile, lines.ToArray());
                 fs.Copy(tmpFile, finalFile);
                 fs.DeleteFile(tmpFile);
+                fs.RenameDirectory(rootFolder + "\\" + group.Key, rootFolder + "\\_" + group.Key);
             }
             fs.MakeDirectoryReadOnly(rootFolder);
         }

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BackyLogic;
 
 namespace TestBacky
 {
@@ -148,6 +149,11 @@ namespace TestBacky
         {
             return _files.Any(x => x.Name.StartsWith(dirName));
         }
+
+        void IFileSystem.RenameDirectory(string currName, string newName)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class EmulatorFile
@@ -155,12 +161,16 @@ namespace TestBacky
         public string Name;
         public string Content;
         public DateTime LastModified;
+        public bool IsShallow;
+        public string PhysicalRelativePath;
 
-        public EmulatorFile(string name, DateTime lastModified = new DateTime(), string content = "")
+        public EmulatorFile(string name, DateTime lastModified = new DateTime(), string content = "", bool isShallow = false, string physicalRelativePath = null)
         {
             this.Name = name;
             this.LastModified = lastModified;
             this.Content = content;
+            this.IsShallow = isShallow;
+            this.PhysicalRelativePath = physicalRelativePath;
         }
 
         public EmulatorFile Clone()
@@ -171,13 +181,26 @@ namespace TestBacky
         }
 
 
-        public static EmulatorFile FromlFileName(string fullName, string relativeName, BackyLogic.IFileSystem fs)
+        public static EmulatorFile FromFileName(string fullName, string relativeName, BackyLogic.IFileSystem fs, string rootFolder = null)
         {
             var ret = new EmulatorFile(
-                relativeName, 
-                fs.GetLastWriteTime(fullName), 
-                string.Join(Environment.NewLine, fs.ReadLines(fullName)));
+                relativeName,
+                fs.GetLastWriteTime(fullName),
+                string.Join(Environment.NewLine, fs.ReadLines(fullName)),
+                isShallow: false,
+                physicalRelativePath: rootFolder == null ? null : fullName.Replace(rootFolder, ""));
             return ret;
         }
+
+        public static EmulatorFile FromShallowData(string relativeName, DateTime lastWrite)
+        {
+            var ret = new EmulatorFile(
+                relativeName,
+                lastWrite,
+                null,
+                true);
+            return ret;
+        }
+
     }
 }

@@ -66,7 +66,7 @@ namespace BackyLogic
             var ret = new List<RenameInfo>();
             if (deletedFiles.Any()) this.Progress?.StartBoundedStep("Analyzing possible renamed files:", deletedFiles.Count);
 
-            foreach (var deleted in deletedFiles)
+            foreach (var deleted in deletedFiles.Where(x => !x.IsShallow))
             {
                 if (_abort) break;
                 var matchingFile = newFiles.FirstOrDefault(x => _fileSystem.AreEqualFiles(deleted.PhysicalPath, x.PhysicalPath));

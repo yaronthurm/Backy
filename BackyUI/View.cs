@@ -264,8 +264,19 @@ namespace Backy
 
         private void btnShallow_Click(object sender, EventArgs e)
         {
-            var state = CurrentStateCalculator.GetDiff((int)this.numVersion.Value);
-            ShallowFoldersMaker.MakeFolderShallow(state, _fileSystem);
+            try
+            {
+                this.Enabled = false;
+                var machineID = _fileSystem.GetTopLevelDirectories(_currentBackupFolder)
+                        .Where(x => BackupDirectory.IsBackupDirectory(x, _fileSystem))
+                        .Select(x => BackupDirectory.FromPath(x, _fileSystem))
+                        .First(x => x.OriginalSource == _selectedSourceDirectory)
+                        .MachineID;
+                ShallowFoldersMaker.MakeFolderShallow(_fileSystem, _currentBackupFolder, _selectedSourceDirectory, machineID, (int)this.numVersion.Value);
+            }
+            finally{
+                this.Enabled = true;
+            }
         }
     } 
 }

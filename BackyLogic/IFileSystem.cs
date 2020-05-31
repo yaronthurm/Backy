@@ -31,6 +31,8 @@ namespace BackyLogic
 
         void DeleteDirectory(string dirName);
 
+        void RenameDirectory(string currName, string newName);
+
         DateTime GetCreateTime(string rootDir);
 
         void SetCreateTime(string destination, DateTime dateTime);

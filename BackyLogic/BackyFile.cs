@@ -12,6 +12,7 @@ namespace BackyLogic
         public string RelativeName;
         public string PhysicalPath;
         public DateTime LastWriteTime;
+        public bool IsShallow;
         
         
 
@@ -24,8 +25,20 @@ namespace BackyLogic
                 LastWriteTime = this.LastWriteTime,
                 PhysicalPath = this.PhysicalPath,
                 RelativeName = this.RelativeName,
-                Root = this.Root
+                Root = this.Root,
+                IsShallow = this.IsShallow
             };
+            return ret;
+        }
+
+        public static BackyFile FromShallowData(string relativeName, string targetParentDirectory, DateTime lastWrite)
+        {
+            var ret = new BackyFile();
+            ret.Root = targetParentDirectory;
+            ret.RelativeName = relativeName;
+            ret.PhysicalPath = null;
+            ret.LastWriteTime = lastWrite;
+            ret.IsShallow = true;
             return ret;
         }
 

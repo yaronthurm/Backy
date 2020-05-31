@@ -41,12 +41,36 @@ namespace BackyLogic
             var ret = new BackyFolder();
             ret.SerialNumber = int.Parse(System.IO.Path.GetFileName(rootDir));
             ret.DateCreated = fileSystem.GetCreateTime(rootDir);
-            ret.New = fileNames
-                .Where(x => x.StartsWith(System.IO.Path.Combine(rootDir, "new")))
-                .Select(x => BackyFile.FromTargetFileName(fileSystem, x, rootDir + "\\new")).ToList();
-            ret.Modified = fileNames
-                .Where(x => x.StartsWith(System.IO.Path.Combine(rootDir, "modified")))
-                .Select(x => BackyFile.FromTargetFileName(fileSystem, x, rootDir + "\\modified")).ToList();
+
+            var newName = System.IO.Path.Combine(rootDir, "new.txt");
+            if (fileNames.Contains(newName)) // Support for reading shallow files
+            {
+                ret.New = fileSystem.ReadLines(newName)
+                    .Select(x => Newtonsoft.Json.Linq.JObject.Parse(x))
+                    .Select(x => BackyFile.FromShallowData(x.Value<string>("name"), rootDir + "\\new", x.Value<DateTime>("lastWrite")))
+                    .ToList();
+            }
+            else
+            {
+                ret.New = fileNames
+                    .Where(x => x.StartsWith(System.IO.Path.Combine(rootDir, "new\\")))
+                    .Select(x => BackyFile.FromTargetFileName(fileSystem, x, rootDir + "\\new")).ToList();
+            }
+
+            var modifiedName = System.IO.Path.Combine(rootDir, "modified.txt");
+            if (fileNames.Contains(modifiedName)) // Support for reading shallow files
+            {
+                ret.Modified = fileSystem.ReadLines(modifiedName)
+                    .Select(x => Newtonsoft.Json.Linq.JObject.Parse(x))
+                    .Select(x => BackyFile.FromShallowData(x.Value<string>("name"), rootDir + "\\modified", x.Value<DateTime>("lastWrite")))
+                    .ToList();
+            }
+            else
+            {
+                ret.Modified = fileNames
+                    .Where(x => x.StartsWith(System.IO.Path.Combine(rootDir, "modified\\")))
+                    .Select(x => BackyFile.FromTargetFileName(fileSystem, x, rootDir + "\\modified")).ToList();
+            }
 
             var deletedName = System.IO.Path.Combine(rootDir, "deleted.txt");
             if (fileNames.Contains(deletedName)) {

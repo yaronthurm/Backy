@@ -26,18 +26,17 @@ namespace TestBacky
             stateCalculator.MaxVersion.ShouldBe(expectedFilesByVersion.Length);
             for (int i = 0; i < expectedFilesByVersion.Length; i++)
             {
-                var state = stateCalculator.GetState(i + 1);
-                var actualFiles = state.GetFiles().Select(x => EmulatorFile.FromlFileName(x.PhysicalPath, x.RelativeName, fs));
+                var actualFiles = GetFilesForVersion(fs, target, source, i + 1);
                 var expectedFiles = expectedFilesByVersion[i];
                 AssertEmulatorFiles(fs, expectedFiles, actualFiles, "index: " + (i+1));
             }
+        }
 
-            {
-                var latestState = stateCalculator.GetLastState();
-                var actualFiles = latestState.GetFiles().Select(x => EmulatorFile.FromlFileName(x.PhysicalPath, x.RelativeName, fs));
-                var expectedFiles = expectedFilesByVersion.Last();
-                AssertEmulatorFiles(fs, expectedFiles, actualFiles, "index: last");
-            }
+        public static void AssertLastState(IFileSystem fs, string target, string source, IEnumerable<EmulatorFile> expectedFiles, string msg = "")
+        {
+            var stateCalculator = new StateCalculator(fs, target, source, MachineID.One.Value);
+            var actualFiles = GetFilesForVersion(fs, target, source, stateCalculator.MaxVersion);
+            AssertEmulatorFiles(fs, expectedFiles, actualFiles, msg);
         }
 
         public static void AssertEmulatorFiles(IFileSystem fs, IEnumerable<EmulatorFile> expected, IEnumerable<EmulatorFile> actual, string msg)
@@ -52,7 +51,25 @@ namespace TestBacky
                 var correspondingExpectedFile = expected.First(x => x.Name == actualFile.Name);
                 actualFile.LastModified.ShouldBe(correspondingExpectedFile.LastModified, customMessage: msg);
                 actualFile.Content.ShouldBe(correspondingExpectedFile.Content, customMessage: msg);
+                actualFile.IsShallow.ShouldBe(correspondingExpectedFile.IsShallow, customMessage: msg);
+                if (correspondingExpectedFile.PhysicalRelativePath != null)
+                    actualFile.PhysicalRelativePath.ShouldBe(correspondingExpectedFile.PhysicalRelativePath, customMessage: msg);
             }
         }
+        
+        private static IEnumerable<EmulatorFile> GetFilesForVersion(IFileSystem fs, string target, string source, int version)
+        {
+            var stateCalculator = new StateCalculator(fs, target, source, MachineID.One.Value);
+            var state = stateCalculator.GetState(version);
+            var actualFiles = state.GetFiles()
+                .Select(x =>
+                {
+                    if (x.IsShallow)
+                        return EmulatorFile.FromShallowData(x.RelativeName, x.LastWriteTime);
+                    else
+                        return EmulatorFile.FromFileName(x.PhysicalPath, x.RelativeName, fs, stateCalculator.Target);
+                });
+            return actualFiles;
+        }               
     }
 }
