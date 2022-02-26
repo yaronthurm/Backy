@@ -184,6 +184,7 @@ namespace BackyLogic
                 fs.Copy(tmpFile, finalFile);
                 fs.DeleteFile(tmpFile);
                 fs.RenameDirectory(rootFolder + "\\" + group.Key, rootFolder + "\\_" + group.Key);
+                fs.DeleteDirectory(rootFolder + "\\_" + group.Key);
             }
             fs.MakeDirectoryReadOnly(rootFolder);
         }
