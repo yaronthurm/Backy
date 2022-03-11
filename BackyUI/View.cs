@@ -264,6 +264,19 @@ namespace Backy
 
         private void btnShallow_Click(object sender, EventArgs e)
         {
+            var respond = MessageBox.Show(
+                $"Turning a folder into a Shallow Folder removes all files from that folder " +
+                "and will only leave a few 'marker files' - files that contain only the names of the " +
+                "actual files that were removed.\n\n" +
+                "Before proceeding, please make sure you have a copy of that folder elsewhere, " +
+                "otherwise, you are risking loosing data that will prevent you from being able to do a complete " +
+                "backup in the future.\n\n" +
+                $"Are you sure you want to turn the folder of version {this.numVersion.Value} into a Shallow Folder?",
+                "Confirm Shallow Folder",
+                MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (respond != DialogResult.Yes)
+                return;
+                       
             try
             {
                 this.Enabled = false;
@@ -273,6 +286,7 @@ namespace Backy
                         .First(x => x.OriginalSource == _selectedSourceDirectory)
                         .MachineID;
                 ShallowFoldersMaker.MakeFolderShallow(_fileSystem, _currentBackupFolder, _selectedSourceDirectory, machineID, (int)this.numVersion.Value);
+                MessageBox.Show($"Finished turning folder of version {this.numVersion.Value} into a Shallow Folder?", "Shallow Folder", MessageBoxButtons.OK);
             }
             finally{
                 this.Enabled = true;
