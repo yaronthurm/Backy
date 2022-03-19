@@ -31,7 +31,7 @@ namespace BackyLogic
         ///                 file4, file5
         ///                 subfolder\
         ///                     file6, file7
-        ///             deleted.txt (each row looks contains the name of the deleted file
+        ///             deleted.txt (each row contains the name of the deleted file)
         ///             renamed.txt (each row looks like that: {oldName: "relative path before rename", newName: "relative name after rename"})
         /// </summary>
         /// <returns></returns>
