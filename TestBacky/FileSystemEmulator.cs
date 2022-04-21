@@ -42,6 +42,12 @@ namespace TestBacky
             return _files.Where(x => x.Name.StartsWith(directory)).Select(x => x.Name);
         }
 
+        public IEnumerable<EmulatorFile> ListAllFiles()
+        {
+            foreach (var file in _files)
+                yield return file;
+        }
+
         public bool AreEqualFiles(string pathToFile1, string pathToFile2)
         {
             var file1 = _files.First(x => x.Name == pathToFile1);
@@ -202,5 +208,9 @@ namespace TestBacky
             return ret;
         }
 
+        public override string ToString()
+        {
+            return this.Name;
+        }
     }
 }
