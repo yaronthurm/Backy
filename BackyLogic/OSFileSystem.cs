@@ -178,6 +178,11 @@ namespace BackyLogic
             Directory.Move(currName, newName);
         }
 
+        public void RenameFile(string currName, string newName)
+        {
+            File.Move(currName, newName);
+        }
+
         public bool IsDirectoryExist(string dirName)
         {
             return Directory.Exists(dirName);

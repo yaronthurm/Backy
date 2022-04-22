@@ -112,13 +112,13 @@ namespace TestBacky
             file.Content = newContent;
         }
 
-        internal void RenameFile(string currentName, string newName)
+        public void RenameFile(string currentName, string newName)
         {
             var file = _files.First(x => x.Name == currentName);
             file.Name = newName;
         }
 
-        internal void RenameDirectory(string currentName, string newName)
+        public void RenameDirectory(string currentName, string newName)
         {
             var files = _files.Where(x => x.Name.StartsWith(currentName));
             foreach (var file in files)
@@ -156,11 +156,6 @@ namespace TestBacky
         public bool IsDirectoryExist(string dirName)
         {
             return _files.Any(x => x.Name.StartsWith(dirName));
-        }
-
-        void IFileSystem.RenameDirectory(string currName, string newName)
-        {
-            throw new NotImplementedException();
         }
     }
 

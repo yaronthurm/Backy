@@ -185,6 +185,40 @@ namespace BackyLogic
                     }
                 }
             }
+
+            var renamedFilesPath = _fileSystem.FindFile(diffDir, "renamed.txt");
+            if (renamedFilesPath != null)
+            {
+                var renamedData = _fileSystem.ReadLines(renamedFilesPath)
+                    .Select(x => Newtonsoft.Json.JsonConvert.DeserializeObject<JObject>(x))
+                    .Select(x => new {
+                        oldName = x.Value<string>("oldName"),
+                        newName = x.Value<string>("newName")
+                    }).ToList();
+                this.Progress?.StartBoundedStep("Renaming files:", renamedData.Count);
+                foreach (var file in renamedData)
+                {
+                    if (IsAborted()) break;
+                    var oldFullName = Path.Combine(_targetForSource, "CurrentState", file.oldName);
+                    var newFullName = Path.Combine(_targetForSource, "CurrentState", file.newName);
+                    try
+                    {
+                        _fileSystem.RenameFile(oldFullName, newFullName);
+                        this.Progress?.Increment();
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Failures.Add(new BackupFailure
+                        {
+                            FileName = oldFullName,
+                            ErrorMessage = "Could not renamed file: " + file.oldName,
+                            ErrorDetails = ex.Message
+                        });
+                    }
+                }
+                var histrotyName = Path.Combine(historyDir, "renamed.txt");
+                _fileSystem.Copy(renamedFilesPath, histrotyName);
+            }
         }
 
         private void PopulateDiffDirectory(string diffDir)
