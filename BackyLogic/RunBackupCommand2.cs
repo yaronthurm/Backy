@@ -96,19 +96,32 @@ namespace BackyLogic
 
         private void UpdateStateAndHistory(string historyDir)
         {
+            // TODO - Fix code such that all operations are done against _diff directory
+
             if (_diff.NewFiles.Any())
             {
-                CopyAllNewFiles(Path.Combine(_targetForSource, "CurrentState"), _diff);
-                if (IsAborted()) return;
-
-                this.Progress?.StartBoundedStep("Marking new files:", _diff.NewFiles.Count);
+                this.Progress?.StartBoundedStep("Copying new files:", _diff.NewFiles.Count);
                 var newFilename = Path.Combine(historyDir, "new.txt");
                 _fileSystem.CreateFile(newFilename);
-                foreach (var file in _diff.NewFiles)
+                foreach (BackyFile file in _diff.NewFiles)
                 {
                     if (IsAborted()) break;
-                    _fileSystem.AppendLines(newFilename, file.RelativeName);
-                    this.Progress?.Increment();
+                    try
+                    {
+                        var currentStatePath = Path.Combine(_targetForSource, "CurrentState", file.RelativeName);
+                        _fileSystem.Copy(file.PhysicalPath, currentStatePath);
+                        _fileSystem.AppendLines(newFilename, file.RelativeName);
+                        this.Progress?.Increment();
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Failures.Add(new BackupFailure
+                        {
+                            FileName = file.PhysicalPath,
+                            ErrorMessage = "Could not copy deleted file: " + file.RelativeName,
+                            ErrorDetails = ex.Message
+                        });
+                    }
                 }
             }
 
