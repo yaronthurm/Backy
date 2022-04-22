@@ -110,6 +110,7 @@ namespace BackyLogic
                     var currentStatePath = Path.Combine(_targetForSource, "CurrentState", file);
                     _fileSystem.Copy(fullName, currentStatePath);
                     _fileSystem.AppendLines(newFilesPath, file);
+                    _fileSystem.DeleteFile(fullName);
                 });
             }
 
@@ -138,6 +139,7 @@ namespace BackyLogic
                     var historyPath = Path.Combine(historyDir, "modified", file);
                     _fileSystem.Copy(currentStatePath, historyPath);
                     _fileSystem.Copy(fullName, currentStatePath);
+                    _fileSystem.DeleteFile(fullName);
                 });
             }
 
