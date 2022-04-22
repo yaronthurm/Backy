@@ -65,14 +65,20 @@ namespace BackyLogic
                 {
                     return;
                 }
-
-              
-                var diffDir = GetDiffDirectory();
-                PopulateDiffDirectory(diffDir);
-
+                
                 var historyDir = GetHistoryDirectory(lastBackedupState);
-                UpdateStateAndHistory(diffDir, historyDir);
-                ClearDiffDir(diffDir);
+
+                HandleNewFiles(historyDir, _diff);
+                if (IsAborted()) return;
+
+                HandleModifiedFiles(historyDir, _diff);
+                if (IsAborted()) return;
+
+                HandleDeletedFiles(historyDir, _diff);
+                if (IsAborted()) return;
+
+                HandleRenamedFiles(historyDir, _diff);
+                if (IsAborted()) return;
             }
             finally
             {
@@ -94,120 +100,28 @@ namespace BackyLogic
             _fileSystem.DeleteDirectory(diffDir);
         }
 
-        private void UpdateStateAndHistory(string diffDir, string historyDir)
+        private void Loop<T>(List<T> coll, string progressMessage, string errorMessage, Func<T, string> getRelativeName, Action<T> action)
         {
-            var newFilesDir = Path.Combine(diffDir, "new");
-            if (_fileSystem.IsDirectoryExist(newFilesDir))            
+            this.Progress?.StartBoundedStep(progressMessage, coll.Count);
+            foreach (var item in coll)
             {
-                var newFilesPath = Path.Combine(historyDir, "new.txt");
-                _fileSystem.CreateFile(newFilesPath);
-
-                var newFilesRelativeNames = _fileSystem.EnumerateFiles(newFilesDir)
-                    .Select(x => x.Replace(diffDir + "\\new\\", "")).ToList();
-                Loop(newFilesRelativeNames, "Copying new files:", "Could not copy new file: ", x => x, file =>
+                if (IsAborted()) break;
+                try
                 {
-                    var fullName = Path.Combine(newFilesDir, file);
-                    var currentStatePath = Path.Combine(_targetForSource, "CurrentState", file);
-                    _fileSystem.Copy(fullName, currentStatePath);
-                    _fileSystem.AppendLines(newFilesPath, file);
-                    _fileSystem.DeleteFile(fullName);
-                });
-            }
-
-            var deletedFilesPath = _fileSystem.FindFile(diffDir, "deleted.txt");
-            if (deletedFilesPath != null)            
-            {
-                var deletedFilesRelativeNames = _fileSystem.ReadLines(deletedFilesPath).ToList();
-                Loop(deletedFilesRelativeNames, "Copying deleted files:", "Could not copy deleted file: ", x => x, file =>
+                    action(item);
+                    this.Progress?.Increment();
+                }
+                catch (Exception ex)
                 {
-                    var fullName = Path.Combine(_targetForSource, "CurrentState", file);
-                    var histrotyName = Path.Combine(historyDir, "deleted", file);
-                    _fileSystem.Copy(fullName, histrotyName);
-                    _fileSystem.DeleteFile(fullName);
-                });
-            }
-
-            var modifiedFilesDir = Path.Combine(diffDir, "modified");
-            if (_fileSystem.IsDirectoryExist(modifiedFilesDir))
-            {
-                var modifiedFilesRelativeNames = _fileSystem.EnumerateFiles(modifiedFilesDir)
-                    .Select(x => x.Replace(diffDir + "\\modified\\", "")).ToList();
-                Loop(modifiedFilesRelativeNames, "Copying modified files:", "Could not copy modified file: ", x => x, file =>
-                {
-                    var fullName = Path.Combine(modifiedFilesDir, file);
-                    var currentStatePath = Path.Combine(_targetForSource, "CurrentState", file);
-                    var historyPath = Path.Combine(historyDir, "modified", file);
-                    _fileSystem.Copy(currentStatePath, historyPath);
-                    _fileSystem.Copy(fullName, currentStatePath);
-                    _fileSystem.DeleteFile(fullName);
-                });
-            }
-
-            var renamedFilesPath = _fileSystem.FindFile(diffDir, "renamed.txt");
-            if (renamedFilesPath != null)
-            {
-                var renamedData = _fileSystem.ReadLines(renamedFilesPath)
-                    .Select(x => Newtonsoft.Json.JsonConvert.DeserializeObject<JObject>(x))
-                    .Select(x => new {
-                        oldName = x.Value<string>("oldName"),
-                        newName = x.Value<string>("newName")
-                    }).ToList();
-                Loop(renamedData, "Renaming files:", "Could not rename file: ", x => x.oldName, file =>
-                {
-                    var oldFullName = Path.Combine(_targetForSource, "CurrentState", file.oldName);
-                    var newFullName = Path.Combine(_targetForSource, "CurrentState", file.newName);
-                    _fileSystem.RenameFile(oldFullName, newFullName);
-                });
-                var historyFileName = Path.Combine(historyDir, "renamed.txt");
-                _fileSystem.Copy(renamedFilesPath, historyFileName);
-            }
-
-            void Loop<T>(List<T> coll, string progressMessage, string errorMessage, Func<T, string> getRelativeName, Action<T> action)
-            {
-                this.Progress?.StartBoundedStep(progressMessage, coll.Count);
-                foreach (var item in coll)
-                {
-                    if (IsAborted()) break;
-                    try
+                    var name = getRelativeName(item);
+                    this.Failures.Add(new BackupFailure
                     {
-                        action(item);
-                        this.Progress?.Increment();
-                    }
-                    catch (Exception ex)
-                    {
-                        var name = getRelativeName(item);
-                        this.Failures.Add(new BackupFailure
-                        {
-                            FileName = name,
-                            ErrorMessage = errorMessage + name,
-                            ErrorDetails = ex.Message
-                        });
-                    }
+                        FileName = name,
+                        ErrorMessage = errorMessage + name,
+                        ErrorDetails = ex.Message
+                    });
                 }
             }
-        }
-
-        private void PopulateDiffDirectory(string diffDir)
-        {
-            var newFilesDir = Path.Combine(diffDir, "new");
-            CopyAllNewFiles(newFilesDir, _diff);
-            if (IsAborted()) return;
-
-            var modifiedFilesDir = Path.Combine(diffDir, "modified");
-            CopyAllModifiedFiles(modifiedFilesDir, _diff);
-            if (IsAborted()) return;
-
-            MarkAllDeletedFiles(diffDir, _diff);
-            if (IsAborted()) return;
-
-            MarkAllRenamedFiles(diffDir, _diff);
-            if (IsAborted()) return;
-        }
-
-        private string GetDiffDirectory()
-        {
-            var ret = Path.Combine(_targetForSource, "_diff");
-            return ret;
         }
 
         private void DeleteDirectory(string targetDir)
@@ -277,90 +191,68 @@ namespace BackyLogic
             return ret;
         }
 
-        private void MarkAllRenamedFiles(string targetDir, FoldersDiff diff)
+        private void HandleRenamedFiles(string historyDir, FoldersDiff diff)
         {
-            var renamedFiles = diff.RenamedFiles;
-            if (renamedFiles.Any())
+            if (diff.RenamedFiles.Any())
             {
-                this.Progress?.StartBoundedStep("Marking renamed files:", renamedFiles.Count);
-                var renamedFilename = System.IO.Path.Combine(targetDir, "renamed.txt");
-                _fileSystem.CreateFile(renamedFilename);
-                foreach (var file in renamedFiles)
+                var historyFileName = Path.Combine(historyDir, "renamed.txt");
+                _fileSystem.CreateFile(historyFileName);
+                Loop(diff.RenamedFiles, "Renaming files:", "Could not rename file: ", x => x.OldName, file =>
                 {
-                    if (IsAborted()) break;
+                    var oldCurrentStateName = Path.Combine(_targetForSource, "CurrentState", file.OldName);
+                    var newCurrentStateName = Path.Combine(_targetForSource, "CurrentState", file.NewName);
+                    _fileSystem.RenameFile(oldCurrentStateName, newCurrentStateName);
+
                     string renameLine = new JObject(new JProperty("oldName", file.OldName), new JProperty("newName", file.NewName)).ToString(Newtonsoft.Json.Formatting.None);
-                    _fileSystem.AppendLines(renamedFilename, renameLine);
-                    this.Progress?.Increment();
-                }
+                    _fileSystem.AppendLines(historyFileName, renameLine);
+                });
             }
         }
 
-        private void MarkAllDeletedFiles(string targetDir, FoldersDiff diff)
+        private void HandleDeletedFiles(string historyDir, FoldersDiff diff)
         {
-            var deletedFiles = diff.DeletedFiles;
-            if (deletedFiles.Any())
+            if (diff.DeletedFiles.Any())
             {
-                this.Progress?.StartBoundedStep("Marking deleted files:", deletedFiles.Count);
-                var deletedFilename = System.IO.Path.Combine(targetDir, "deleted.txt");
-                _fileSystem.CreateFile(deletedFilename);
-                foreach (var file in deletedFiles)
+                Loop(diff.DeletedFiles, "Copying deleted files:", "Could not copy deleted file: ", x => x.RelativeName, file =>
                 {
-                    if (IsAborted()) break;
-                    _fileSystem.AppendLines(deletedFilename, file.RelativeName);
-                    this.Progress?.Increment();
-                }
+                    var currentStatePath = Path.Combine(_targetForSource, "CurrentState", file.RelativeName);
+                    var histrotyName = Path.Combine(historyDir, "deleted", file.RelativeName);
+                    _fileSystem.Copy(currentStatePath, histrotyName);
+                    _fileSystem.DeleteFile(currentStatePath);
+                });
             }
         }
 
-        private void CopyAllModifiedFiles(string targetDir, FoldersDiff diff)
+        private void HandleModifiedFiles(string historyDir, FoldersDiff diff)
         {
-            var modifiedFiles = diff.ModifiedFiles;
-            if (modifiedFiles.Any())
-                this.Progress?.StartBoundedStep("Copy modified files", modifiedFiles.Count);
-            foreach (BackyFile file in modifiedFiles)
+            if (diff.ModifiedFiles.Any())
             {
-                if (IsAborted()) break;
-                try {
-                    _fileSystem.Copy(file.PhysicalPath, System.IO.Path.Combine(targetDir, file.RelativeName));                    
-                    this.Progress?.Increment();
-                }
-                catch (Exception ex)
+                var modifiedFilesDir = Path.Combine(historyDir, "modified");
+                Loop(diff.ModifiedFiles, "Copying modified files:", "Could not copy modified file: ", x => x.RelativeName, file =>
                 {
-                    this.Failures.Add(new BackupFailure
-                    {
-                        FileName = file.PhysicalPath,
-                        ErrorMessage = "Could not copy modified file: " + file.RelativeName,
-                        ErrorDetails = ex.Message
-                    });
-
-                    //_progress.Failed.Add(file.RelativeName);
-                }
+                    var fullName = file.PhysicalPath;
+                    var currentStatePath = Path.Combine(_targetForSource, "CurrentState", file.RelativeName);
+                    var historyPath = Path.Combine(historyDir, "modified", file.RelativeName);
+                    _fileSystem.Copy(currentStatePath, historyPath);
+                    _fileSystem.Copy(fullName, currentStatePath);
+                });
             }
         }
 
-        private void CopyAllNewFiles(string targetDir, FoldersDiff diff)
+        private void HandleNewFiles(string historyDir, FoldersDiff diff)
         {
-            var newFiles = diff.NewFiles;
-            if (newFiles.Count > 0)
-                this.Progress?.StartBoundedStep("Copy new files", newFiles.Count);
-            foreach (BackyFile file in newFiles)
+            if (diff.NewFiles.Any())
             {
-                if (IsAborted()) break;
-                try {
-                    _fileSystem.Copy(file.PhysicalPath, System.IO.Path.Combine(targetDir, file.RelativeName));
-                    this.Progress?.Increment();
-                }
-                catch (Exception ex)
+                var newFilesPath = Path.Combine(historyDir, "new.txt");
+                _fileSystem.CreateFile(newFilesPath);
+
+                Loop(diff.NewFiles, "Copying new files:", "Could not copy new file: ", x => x.RelativeName, file =>
                 {
-                    this.Failures.Add(new BackupFailure
-                    {
-                        FileName = file.PhysicalPath,
-                        ErrorMessage = "Could not copy new file: " + file.RelativeName,
-                        ErrorDetails = ex.Message
-                    });
-                    //_progress.Failed.Add(file.RelativeName);
-                    //RaiseOnProgress();
-                }
+                    var fullName = file.PhysicalPath;
+                    var currentStatePath = Path.Combine(_targetForSource, "CurrentState", file.RelativeName);
+                    _fileSystem.Copy(fullName, currentStatePath);
+                    _fileSystem.AppendLines(newFilesPath, file.RelativeName);
+                });
             }
         }
 
