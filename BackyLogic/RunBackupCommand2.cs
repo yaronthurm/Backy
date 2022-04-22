@@ -111,6 +111,31 @@ namespace BackyLogic
                     this.Progress?.Increment();
                 }
             }
+
+            if (_diff.DeletedFiles.Any())
+            {
+                foreach (BackyFile file in _diff.DeletedFiles)
+                {
+                    if (IsAborted()) break;
+                    try
+                    {                        
+                        _fileSystem.Copy(file.PhysicalPath, Path.Combine(historyDir, "deleted", file.RelativeName));
+                        _fileSystem.DeleteFile(file.PhysicalPath);
+                        this.Progress?.Increment();
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Failures.Add(new BackupFailure
+                        {
+                            FileName = file.PhysicalPath,
+                            ErrorMessage = "Could not copy deleted file: " + file.RelativeName,
+                            ErrorDetails = ex.Message
+                        });
+                        //_progress.Failed.Add(file.RelativeName);
+                        //RaiseOnProgress();
+                    }
+                }
+            }
         }
 
         private void PopulateDiffDirectory(string diffDir)
