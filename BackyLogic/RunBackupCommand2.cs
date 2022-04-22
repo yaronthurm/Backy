@@ -71,7 +71,7 @@ namespace BackyLogic
                 PopulateDiffDirectory(diffDir);
 
                 var historyDir = GetHistoryDirectory(lastBackedupState);
-                UpdateStateAndHistory(historyDir);
+                UpdateStateAndHistory(diffDir, historyDir);
                 ClearDiffDir(diffDir);
             }
             finally
@@ -94,81 +94,92 @@ namespace BackyLogic
             _fileSystem.DeleteDirectory(diffDir);
         }
 
-        private void UpdateStateAndHistory(string historyDir)
+        private void UpdateStateAndHistory(string diffDir, string historyDir)
         {
-            // TODO - Fix code such that all operations are done against _diff directory
-
-            if (_diff.NewFiles.Any())
+            var newFilesDir = Path.Combine(diffDir, "new");
+            if (_fileSystem.IsDirectoryExist(newFilesDir))            
             {
-                this.Progress?.StartBoundedStep("Copying new files:", _diff.NewFiles.Count);
-                var newFilename = Path.Combine(historyDir, "new.txt");
-                _fileSystem.CreateFile(newFilename);
-                foreach (BackyFile file in _diff.NewFiles)
+                var newFiles = _fileSystem.EnumerateFiles(newFilesDir).ToList();
+                this.Progress?.StartBoundedStep("Copying new files:", newFiles.Count);
+                var newFilesPath = Path.Combine(historyDir, "new.txt");
+                _fileSystem.CreateFile(newFilesPath);
+                foreach (string file in newFiles)
                 {
                     if (IsAborted()) break;
+                    var relativeName = file.Replace(diffDir + "\\new\\", "");
+                    var currentStatePath = Path.Combine(_targetForSource, "CurrentState", relativeName);
                     try
                     {
-                        var currentStatePath = Path.Combine(_targetForSource, "CurrentState", file.RelativeName);
-                        _fileSystem.Copy(file.PhysicalPath, currentStatePath);
-                        _fileSystem.AppendLines(newFilename, file.RelativeName);
+                        
+                        _fileSystem.Copy(file, currentStatePath);
+                        _fileSystem.AppendLines(newFilesPath, relativeName);
                         this.Progress?.Increment();
                     }
                     catch (Exception ex)
                     {
                         this.Failures.Add(new BackupFailure
                         {
-                            FileName = file.PhysicalPath,
-                            ErrorMessage = "Could not copy deleted file: " + file.RelativeName,
+                            FileName = file,
+                            ErrorMessage = "Could not copy deleted file: " + relativeName,
                             ErrorDetails = ex.Message
                         });
                     }
                 }
             }
 
-            if (_diff.DeletedFiles.Any())
+            var deletedFilesPath = _fileSystem.FindFile(diffDir, "deleted.txt");
+            if (deletedFilesPath != null)            
             {
-                this.Progress?.StartBoundedStep("Copying deleted files:", _diff.DeletedFiles.Count);
-                foreach (BackyFile file in _diff.DeletedFiles)
+                var deletedFiles = _fileSystem.ReadLines(deletedFilesPath).ToList();
+                this.Progress?.StartBoundedStep("Copying deleted files:", deletedFiles.Count);
+                foreach (var file in deletedFiles)
                 {
                     if (IsAborted()) break;
+                    var fullName = Path.Combine(_targetForSource, "CurrentState", file);
+                    var histrotyName = Path.Combine(historyDir, "deleted", file);
                     try
                     {                        
-                        _fileSystem.Copy(file.PhysicalPath, Path.Combine(historyDir, "deleted", file.RelativeName));
-                        _fileSystem.DeleteFile(file.PhysicalPath);
+                        _fileSystem.Copy(fullName, histrotyName);
+                        _fileSystem.DeleteFile(fullName);
                         this.Progress?.Increment();
                     }
                     catch (Exception ex)
                     {
                         this.Failures.Add(new BackupFailure
                         {
-                            FileName = file.PhysicalPath,
-                            ErrorMessage = "Could not copy deleted file: " + file.RelativeName,
+                            FileName = fullName,
+                            ErrorMessage = "Could not copy deleted file: " + file,
                             ErrorDetails = ex.Message
                         });
                     }
                 }
             }
 
-            if (_diff.ModifiedFiles.Any())
+            var modifiedFilesDir = Path.Combine(diffDir, "modified");
+            if (_fileSystem.IsDirectoryExist(modifiedFilesDir))
             {
-                this.Progress?.StartBoundedStep("Copying modified files:", _diff.ModifiedFiles.Count);
-                foreach (BackyFile file in _diff.ModifiedFiles)
+                var modifiedFiles = _fileSystem.EnumerateFiles(modifiedFilesDir).ToList();
+                this.Progress?.StartBoundedStep("Copying modified files:", modifiedFiles.Count);
+                foreach (string file in modifiedFiles)
                 {
                     if (IsAborted()) break;
+
+                    var relativeName = file.Replace(diffDir + "\\modified\\", "");
+                    var currentStatePath = Path.Combine(_targetForSource, "CurrentState", relativeName);
                     try
                     {
-                        var currentStatePath = Path.Combine(_targetForSource, "CurrentState", file.RelativeName);
-                        var historyPath = Path.Combine(historyDir, "modified", file.RelativeName);
+                        
+                        var historyPath = Path.Combine(historyDir, "modified", relativeName);
                         _fileSystem.Copy(currentStatePath, historyPath);
-                        _fileSystem.Copy(file.PhysicalPath, currentStatePath);                        
+                        _fileSystem.Copy(file, currentStatePath);                        
                         this.Progress?.Increment();
                     }
                     catch (Exception ex)
                     {
                         this.Failures.Add(new BackupFailure
                         {
-                            FileName = file.PhysicalPath,
-                            ErrorMessage = "Could not copy modified file: " + file.RelativeName,
+                            FileName = file,
+                            ErrorMessage = "Could not copy modified file: " + relativeName,
                             ErrorDetails = ex.Message
                         });
                     }
