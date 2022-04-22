@@ -287,30 +287,37 @@ namespace TestBacky
             var files = new EmulatorFile[] {
                 new EmulatorFile(@"c:\source\file1.txt", new DateTime(2010, 1, 1), "1"),
                 new EmulatorFile(@"c:\source\file2.txt", new DateTime(2010, 1, 1), "2"),
-                new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1), "3")};
+                new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1), "11"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
+            };
             var fs = new FileSystemEmulator(files);
             var cmd = new RunBackupCommand2(fs, source, target, MachineID.One);
 
             // First run
             cmd.Execute();
 
-            fs.UpdateFile(@"c:\source\file1.txt", new DateTime(2015, 1, 1), "11");
-            fs.UpdateFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1), "22");
+            fs.UpdateFile(@"c:\source\file1.txt", new DateTime(2015, 1, 1), "1_");
+            fs.UpdateFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1), "2_");
 
             // Second run
             cmd.Execute();
 
             // Expected to see 2 versions
-            var expectedVersion1 = new[] {
-                new EmulatorFile(@"file1.txt", new DateTime(2010, 1, 1), "1"),
-                new EmulatorFile(@"file2.txt", new DateTime(2010, 1, 1), "2"),
-                new EmulatorFile(@"subdir\file11.txt", new DateTime(2010, 1, 1), "3")};
-            var expectedVersion2 = new[] {
-                new EmulatorFile(@"file1.txt", new DateTime(2015, 1, 1), "11"),
-                new EmulatorFile(@"file2.txt", new DateTime(2015, 1, 1), "22"),
-                new EmulatorFile(@"subdir\file11.txt", new DateTime(2010, 1, 1), "3")};
+            var expected = new[] {
+                new EmulatorFile(@"c:\source\file1.txt", new DateTime(2015, 1, 1), "1_"),
+                new EmulatorFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1), "2_"),
+                new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1), "11"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
 
-            TestsUtils.AssertState(fs, target, source, expectedVersion1, expectedVersion2);
+                new EmulatorFile(@"d:\target\guid1\CurrentState\file1.txt", new DateTime(2015, 1, 1), "1_"),
+                new EmulatorFile(@"d:\target\guid1\CurrentState\file2.txt", new DateTime(2015, 1, 1), "2_"),
+                new EmulatorFile(@"d:\target\guid1\CurrentState\subdir\file11.txt", new DateTime(2010, 1, 1), "11"),
+                new EmulatorFile(@"d:\target\guid1\History\1\new.txt", content: "file1.txt\r\nfile2.txt\r\nsubdir\\file11.txt\r\n"),
+                new EmulatorFile(@"d:\target\guid1\History\2\modified\file1.txt", new DateTime(2010, 1, 1), "1"),
+                new EmulatorFile(@"d:\target\guid1\History\2\modified\file2.txt", new DateTime(2010, 1, 1), "2"),
+            };
+            var actual = fs.ListAllFiles();
+            TestsUtils.AssertEmulatorFiles(fs, expected, actual, "");
         }
 
         [TestMethod]
@@ -326,15 +333,17 @@ namespace TestBacky
             var files = new EmulatorFile[] {
                 new EmulatorFile(@"c:\source\file1.txt", new DateTime(2010, 1, 1), "1"),
                 new EmulatorFile(@"c:\source\file2.txt", new DateTime(2010, 1, 1), "2"),
-                new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1), "3")};
+                new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1), "11"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
+            };
             var fs = new FileSystemEmulator(files);
             var cmd = new RunBackupCommand2(fs, source, target, MachineID.One);
 
             // First run
             cmd.Execute();
 
-            fs.UpdateFile(@"c:\source\file1.txt", new DateTime(2015, 1, 1), "11");
-            fs.UpdateFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1), "22");
+            fs.UpdateFile(@"c:\source\file1.txt", new DateTime(2015, 1, 1), "1_");
+            fs.UpdateFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1), "2_");
             fs.AddFiles(new[] {
                 new EmulatorFile(@"c:\source\file3.txt", content: "new file 3"),
                 new EmulatorFile(@"c:\source\subdir3\file4.txt", content: "new file 4") });
@@ -343,18 +352,27 @@ namespace TestBacky
             cmd.Execute();
 
             // Expected to see 2 versions
-            var expectedVersion1 = new[] {
-                new EmulatorFile(@"file1.txt", new DateTime(2010, 1, 1), "1"),
-                new EmulatorFile(@"file2.txt", new DateTime(2010, 1, 1), "2"),
-                new EmulatorFile(@"subdir\file11.txt", new DateTime(2010, 1, 1), "3")};
-            var expectedVersion2 = new[] {
-                new EmulatorFile(@"file1.txt", new DateTime(2015, 1, 1), "11"),
-                new EmulatorFile(@"file2.txt", new DateTime(2015, 1, 1), "22"),
-                new EmulatorFile(@"subdir\file11.txt", new DateTime(2010, 1, 1), "3"),
-                new EmulatorFile(@"file3.txt", content: "new file 3"),
-                new EmulatorFile(@"subdir3\file4.txt", content: "new file 4")};
+            var expected = new[] {
+                new EmulatorFile(@"c:\source\file1.txt", new DateTime(2015, 1, 1), "1_"),
+                new EmulatorFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1), "2_"),
+                new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1), "11"),
+                new EmulatorFile(@"c:\source\file3.txt", content: "new file 3"),
+                new EmulatorFile(@"c:\source\subdir3\file4.txt", content: "new file 4"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
 
-            TestsUtils.AssertState(fs, target, source, expectedVersion1, expectedVersion2);
+                new EmulatorFile(@"d:\target\guid1\CurrentState\file1.txt", new DateTime(2015, 1, 1), "1_"),
+                new EmulatorFile(@"d:\target\guid1\CurrentState\file2.txt", new DateTime(2015, 1, 1), "2_"),
+                new EmulatorFile(@"d:\target\guid1\CurrentState\subdir\file11.txt", new DateTime(2010, 1, 1), "11"),
+                new EmulatorFile(@"d:\target\guid1\CurrentState\file3.txt", content: "new file 3"),
+                new EmulatorFile(@"d:\target\guid1\CurrentState\subdir3\file4.txt", content: "new file 4"),
+                
+                new EmulatorFile(@"d:\target\guid1\History\1\new.txt", content: "file1.txt\r\nfile2.txt\r\nsubdir\\file11.txt\r\n"),
+                new EmulatorFile(@"d:\target\guid1\History\2\new.txt", content: "file3.txt\r\nsubdir3\\file4.txt\r\n"),
+                new EmulatorFile(@"d:\target\guid1\History\2\modified\file1.txt", new DateTime(2010, 1, 1), "1"),
+                new EmulatorFile(@"d:\target\guid1\History\2\modified\file2.txt", new DateTime(2010, 1, 1), "2"),
+            };
+            var actual = fs.ListAllFiles();
+            TestsUtils.AssertEmulatorFiles(fs, expected, actual, "");
         }
 
         [TestMethod]
@@ -372,15 +390,17 @@ namespace TestBacky
             var files = new EmulatorFile[] {
                 new EmulatorFile(@"c:\source\file1.txt", new DateTime(2010, 1, 1), "1"),
                 new EmulatorFile(@"c:\source\file2.txt", new DateTime(2010, 1, 1), "2"),
-                new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1), "3")};
+                new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1), "11"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
+            };
             var fs = new FileSystemEmulator(files);
             var cmd = new RunBackupCommand2(fs, source, target, MachineID.One);
 
             // First run
             cmd.Execute();
 
-            fs.UpdateFile(@"c:\source\file1.txt", new DateTime(2015, 1, 1), "11");
-            fs.UpdateFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1), "22");
+            fs.UpdateFile(@"c:\source\file1.txt", new DateTime(2015, 1, 1), "1_");
+            fs.UpdateFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1), "2_");
             fs.AddFiles(new[] {
                 new EmulatorFile(@"c:\source\file3.txt", content: "new file 3"),
                 new EmulatorFile(@"c:\source\subdir3\file4.txt", content: "new file 4") });
@@ -390,17 +410,26 @@ namespace TestBacky
             cmd.Execute();
 
             // Expected to see 2 versions
-            var expectedVersion1 = new[] {
-                new EmulatorFile(@"file1.txt", new DateTime(2010, 1, 1), "1"),
-                new EmulatorFile(@"file2.txt", new DateTime(2010, 1, 1), "2"),
-                new EmulatorFile(@"subdir\file11.txt", new DateTime(2010, 1, 1), "3")};
-            var expectedVersion2 = new[] {
-                new EmulatorFile(@"file1.txt", new DateTime(2015, 1, 1), "11"),
-                new EmulatorFile(@"file2.txt", new DateTime(2015, 1, 1), "22"),
-                new EmulatorFile(@"file3.txt", content: "new file 3"),
-                new EmulatorFile(@"subdir3\file4.txt", content: "new file 4")};
+            var expected = new[] {
+                new EmulatorFile(@"c:\source\file1.txt", new DateTime(2015, 1, 1), "1_"),
+                new EmulatorFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1), "2_"),
+                new EmulatorFile(@"c:\source\file3.txt", content: "new file 3"),
+                new EmulatorFile(@"c:\source\subdir3\file4.txt", content: "new file 4"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
 
-            TestsUtils.AssertState(fs, target, source, expectedVersion1, expectedVersion2);
+                new EmulatorFile(@"d:\target\guid1\CurrentState\file1.txt", new DateTime(2015, 1, 1), "1_"),
+                new EmulatorFile(@"d:\target\guid1\CurrentState\file2.txt", new DateTime(2015, 1, 1), "2_"),
+                new EmulatorFile(@"d:\target\guid1\CurrentState\file3.txt", content: "new file 3"),
+                new EmulatorFile(@"d:\target\guid1\CurrentState\subdir3\file4.txt", content: "new file 4"),
+
+                new EmulatorFile(@"d:\target\guid1\History\1\new.txt", content: "file1.txt\r\nfile2.txt\r\nsubdir\\file11.txt\r\n"),
+                new EmulatorFile(@"d:\target\guid1\History\2\new.txt", content: "file3.txt\r\nsubdir3\\file4.txt\r\n"),
+                new EmulatorFile(@"d:\target\guid1\History\2\modified\file1.txt", new DateTime(2010, 1, 1), "1"),
+                new EmulatorFile(@"d:\target\guid1\History\2\modified\file2.txt", new DateTime(2010, 1, 1), "2"),
+                new EmulatorFile(@"d:\target\guid1\History\2\deleted\subdir\file11.txt", new DateTime(2010, 1, 1), "11"),
+            };
+            var actual = fs.ListAllFiles();
+            TestsUtils.AssertEmulatorFiles(fs, expected, actual, "");
         }
 
         [TestMethod]

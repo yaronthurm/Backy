@@ -114,6 +114,7 @@ namespace BackyLogic
 
             if (_diff.DeletedFiles.Any())
             {
+                this.Progress?.StartBoundedStep("Copying deleted files:", _diff.DeletedFiles.Count);
                 foreach (BackyFile file in _diff.DeletedFiles)
                 {
                     if (IsAborted()) break;
@@ -131,8 +132,32 @@ namespace BackyLogic
                             ErrorMessage = "Could not copy deleted file: " + file.RelativeName,
                             ErrorDetails = ex.Message
                         });
-                        //_progress.Failed.Add(file.RelativeName);
-                        //RaiseOnProgress();
+                    }
+                }
+            }
+
+            if (_diff.ModifiedFiles.Any())
+            {
+                this.Progress?.StartBoundedStep("Copying modified files:", _diff.ModifiedFiles.Count);
+                foreach (BackyFile file in _diff.ModifiedFiles)
+                {
+                    if (IsAborted()) break;
+                    try
+                    {
+                        var currentStatePath = Path.Combine(_targetForSource, "CurrentState", file.RelativeName);
+                        var historyPath = Path.Combine(historyDir, "modified", file.RelativeName);
+                        _fileSystem.Copy(currentStatePath, historyPath);
+                        _fileSystem.Copy(file.PhysicalPath, currentStatePath);                        
+                        this.Progress?.Increment();
+                    }
+                    catch (Exception ex)
+                    {
+                        this.Failures.Add(new BackupFailure
+                        {
+                            FileName = file.PhysicalPath,
+                            ErrorMessage = "Could not copy modified file: " + file.RelativeName,
+                            ErrorDetails = ex.Message
+                        });
                     }
                 }
             }

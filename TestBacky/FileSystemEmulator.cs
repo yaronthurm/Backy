@@ -26,6 +26,8 @@ namespace TestBacky
 
         public void Copy(string sourceFileName, string destFileName)
         {
+            // Delete if already exists to simulate override
+            _files.RemoveAll(x => x.Name == destFileName);
             var source = _files.First(x => x.Name == sourceFileName);
             var clone = source.Clone();
             clone.Name = destFileName;
