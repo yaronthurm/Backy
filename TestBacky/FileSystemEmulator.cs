@@ -23,6 +23,8 @@ namespace TestBacky
 
         public Action<string> OnBeforeDelete { get; set; }
 
+        public Action<string, string> OnBeforeRename { get; set; }
+
 
         public void AppendLines(string filename, params string[] lines)
         {
@@ -131,6 +133,7 @@ namespace TestBacky
 
         public void RenameFile(string currentName, string newName)
         {
+            OnBeforeRename?.Invoke(currentName, newName);
             var file = _files.First(x => x.Name == currentName);
             file.Name = newName;
         }

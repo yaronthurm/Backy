@@ -142,6 +142,8 @@ namespace BackyLogic
 
                 MaybeCleanupModifiedFiles(versionDir);
 
+                MaybeCleanupRenamedFiles(versionDir);
+
                 MaybeRemoveEmptyListingFiles(versionDir);
 
                 // Remove the whole version if it is empty
@@ -200,6 +202,30 @@ namespace BackyLogic
                 if (_fileSystem.IsFileExists(currentStatePath) &&
                     _fileSystem.AreEqualFiles(file, currentStatePath))
                     _fileSystem.DeleteFile(file);
+            }
+        }
+
+        private void MaybeCleanupRenamedFiles(string versionDir)
+        {
+            var renamedFilesPath = Path.Combine(versionDir, "renamed.txt");
+            if (_fileSystem.IsFileExists(renamedFilesPath))
+            {
+                var currentStateDir = Path.Combine(_targetForSource, "CurrentState");
+                var renamedList = _fileSystem.ReadLines(renamedFilesPath)
+                    .Select(x => Newtonsoft.Json.JsonConvert.DeserializeObject<JObject>(x))
+                    .Select(x => new
+                    {
+                        oldName = x.Value<string>("oldName"),
+                        newName = x.Value<string>("newName")
+                    });
+                foreach (var item in renamedList)
+                {
+                    var oldFileFullPath = Path.Combine(currentStateDir, item.oldName);
+                    var newFileFullPath = Path.Combine(currentStateDir, item.newName);
+                    if (_fileSystem.IsFileExists(oldFileFullPath) &&
+                        !_fileSystem.IsFileExists(newFileFullPath))
+                        _fileSystem.RenameFile(oldFileFullPath, newFileFullPath);
+                }
             }
         }
 
@@ -274,16 +300,17 @@ namespace BackyLogic
         {
             if (diff.RenamedFiles.Any())
             {
-                var historyFileName = Path.Combine(historyDir, "renamed.txt");
-                _fileSystem.CreateFile(historyFileName);
+                var renamedFileName = Path.Combine(historyDir, "renamed.txt");
+                _fileSystem.CreateFile(renamedFileName);
+                _fileSystem.WriteLines(renamedFileName, diff.RenamedFiles
+                    .Select(x => new JObject(new JProperty("oldName", x.OldName), new JProperty("newName", x.NewName)))
+                    .Select(x => x.ToString(Newtonsoft.Json.Formatting.None))
+                    .ToArray());
                 Loop(diff.RenamedFiles, "Renaming files:", "Could not rename file: ", x => x.OldName, file =>
                 {
                     var oldCurrentStateName = Path.Combine(_targetForSource, "CurrentState", file.OldName);
                     var newCurrentStateName = Path.Combine(_targetForSource, "CurrentState", file.NewName);
                     _fileSystem.RenameFile(oldCurrentStateName, newCurrentStateName);
-
-                    string renameLine = new JObject(new JProperty("oldName", file.OldName), new JProperty("newName", file.NewName)).ToString(Newtonsoft.Json.Formatting.None);
-                    _fileSystem.AppendLines(historyFileName, renameLine);
                 });
             }
         }
