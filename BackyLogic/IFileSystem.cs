@@ -23,6 +23,8 @@ namespace BackyLogic
 
         void AppendLines(string filename, params string[] lines);
 
+        void WriteLines(string filename, params string[] lines);
+
         bool AreEqualFiles(string pathToFile1, string pathToFile2);
 
         void MakeDirectoryReadOnly(string dirName);

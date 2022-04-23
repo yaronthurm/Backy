@@ -29,6 +29,13 @@ namespace TestBacky
             file.Content += string.Join(Environment.NewLine, lines) + Environment.NewLine;
         }
 
+        public void WriteLines(string filename, params string[] lines)
+        {
+            OnBeforeAppendLines?.Invoke(filename, lines);
+            var file = _files.First(x => x.Name == filename);
+            file.Content = string.Join(Environment.NewLine, lines) + Environment.NewLine;
+        }
+
         public void Copy(string sourceFileName, string destFileName)
         {
             OnBeforeCopy?.Invoke(sourceFileName, destFileName);

@@ -16,6 +16,11 @@ namespace BackyLogic
             File.AppendAllLines(filename, lines);
         }
 
+        public void WriteLines(string filename, params string[] lines)
+        {
+            File.WriteAllLines(filename, lines);
+        }
+
         public void Copy(string sourceFileName, string destFileName)
         {
             if (!Directory.Exists(Path.GetDirectoryName(destFileName)))
