@@ -262,7 +262,7 @@ namespace TestBacky
         }
 
         [TestMethod]
-        public void Backup_02_3_Running_for_the_second_time_Only_deleted_files_Failing_on_all_mix_phases()
+        public void Backup_02_3_Running_for_the_second_time_Only_deleted_files_Failing_on_mix_phases()
         {
             // This test simulates running the tool for the second time and failing to delete/copy files.
             // The next time a backup is being run should resolve all the issues and bring the system to a
