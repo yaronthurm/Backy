@@ -98,11 +98,6 @@ namespace BackyLogic
             }
         }
 
-        private void ClearDiffDir(string diffDir)
-        {
-            _fileSystem.DeleteDirectory(diffDir);
-        }
-
         private void Loop<T>(List<T> coll, string progressMessage, string errorMessage, Func<T, string> getRelativeName, Action<T> action)
         {
             this.Progress?.StartBoundedStep(progressMessage, coll.Count);
