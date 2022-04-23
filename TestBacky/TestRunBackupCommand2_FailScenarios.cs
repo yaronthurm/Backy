@@ -17,8 +17,8 @@ namespace TestBacky
         [TestMethod]
         public void Backup_01_Running_for_the_first_time_Fail_on_all_files()
         {
-            // This test simulates running the tool for the first time and getting a failure during it.
-            // The next time a backup is run should resolve all the issues and bring the system to a
+            // This test simulates running the tool for the first time and faling to copy all the files.
+            // The next time a backup is being run should resolve all the issues and bring the system to a
             // valid state (as if the failure never happened)
 
             var source = @"c:\source";
@@ -56,6 +56,55 @@ namespace TestBacky
                 new EmulatorFile(@"d:\target\guid1\History\1\new.txt", content: "file1.txt\r\nfile2.txt\r\nsubdir\\file11.txt\r\n") };
             var actual = fs.ListAllFiles();
             TestsUtils.AssertEmulatorFiles(fs, expected,actual, "");
+        }
+
+        [TestMethod]
+        public void Backup_02_Running_for_the_first_time_Fail_on_a_single_files()
+        {
+            // This test simulates running the tool for the first time and faling to copy a specific file.
+            // The next time a backup is being run should resolve all the issues and bring the system to a
+            // valid state (as if the failure never happened)
+
+            var source = @"c:\source";
+            var target = @"d:\target";
+
+            var files = new EmulatorFile[] {
+                new EmulatorFile(@"c:\source\file1.txt", content: "1"),
+                new EmulatorFile(@"c:\source\file2.txt", content: "2"),
+                new EmulatorFile(@"c:\source\subdir\file11.txt", content: "3"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n")
+            };
+            var fs = new FileSystemEmulator(files);
+
+            // force excpetion during copy
+            fs.OnBeforeCopy = (sourceName, destName) =>
+            {
+                if (sourceName == @"c:\source\file2.txt")
+                    throw new Exception($"Failed copying {sourceName} to {destName}");
+            };
+
+            var cmd = new RunBackupCommand2(fs, source, target, MachineID.One);
+            cmd.Execute();
+            cmd.Failures.Count.ShouldBe(1);
+
+            // Remove exceptions during copy and run again
+            fs.OnBeforeCopy = (sourceName, destName) => { };
+            cmd.Execute();
+
+            // Expected that all files will show up under version 1
+            var expected = new[] {
+                new EmulatorFile(@"c:\source\file1.txt", content: "1"),
+                new EmulatorFile(@"c:\source\file2.txt", content: "2"),
+                new EmulatorFile(@"c:\source\subdir\file11.txt", content: "3"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
+                new EmulatorFile(@"d:\target\guid1\CurrentState\file1.txt", content: "1"),
+                new EmulatorFile(@"d:\target\guid1\CurrentState\file2.txt", content: "2"),
+                new EmulatorFile(@"d:\target\guid1\CurrentState\subdir\file11.txt", content: "3"),
+                new EmulatorFile(@"d:\target\guid1\History\1\new.txt", content: "file1.txt\r\nsubdir\\file11.txt\r\n"),
+                new EmulatorFile(@"d:\target\guid1\History\2\new.txt", content: "file2.txt\r\n"),
+            };
+            var actual = fs.ListAllFiles();
+            TestsUtils.AssertEmulatorFiles(fs, expected, actual, "");
         }
 
         //[TestMethod]
@@ -164,7 +213,7 @@ namespace TestBacky
         //        new EmulatorFile(@"c:\source\file3.txt", content: "3"),
         //        new EmulatorFile(@"c:\source\subdir\file22.txt", content: "22") };
         //    fs.AddFiles(newFiles);
-            
+
         //    // Second run
         //    cmd.Execute();
 
@@ -376,7 +425,7 @@ namespace TestBacky
         //        new EmulatorFile(@"d:\target\guid1\CurrentState\subdir\file11.txt", new DateTime(2010, 1, 1), "11"),
         //        new EmulatorFile(@"d:\target\guid1\CurrentState\file3.txt", content: "new file 3"),
         //        new EmulatorFile(@"d:\target\guid1\CurrentState\subdir3\file4.txt", content: "new file 4"),
-                
+
         //        new EmulatorFile(@"d:\target\guid1\History\1\new.txt", content: "file1.txt\r\nfile2.txt\r\nsubdir\\file11.txt\r\n"),
         //        new EmulatorFile(@"d:\target\guid1\History\2\new.txt", content: "file3.txt\r\nsubdir3\\file4.txt\r\n"),
         //        new EmulatorFile(@"d:\target\guid1\History\2\modified\file1.txt", new DateTime(2010, 1, 1), "1"),
