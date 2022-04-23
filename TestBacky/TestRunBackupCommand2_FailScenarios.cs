@@ -107,6 +107,54 @@ namespace TestBacky
             TestsUtils.AssertEmulatorFiles(fs, expected, actual, "");
         }
 
+        [TestMethod]
+        public void Backup_03_Running_for_the_first_time_Fail_listing_a_single_file()
+        {
+            // This test simulates running the tool for the first time and faling to list a specific file.
+            // The next time a backup is being run should resolve all the issues and bring the system to a
+            // valid state (as if the failure never happened)
+
+            var source = @"c:\source";
+            var target = @"d:\target";
+
+            var files = new EmulatorFile[] {
+                new EmulatorFile(@"c:\source\file1.txt", content: "1"),
+                new EmulatorFile(@"c:\source\file2.txt", content: "2"),
+                new EmulatorFile(@"c:\source\subdir\file11.txt", content: "3"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n")
+            };
+            var fs = new FileSystemEmulator(files);
+
+            // force excpetion during copy
+            fs.OnBeforeAppendLines = (file, lines) =>
+            {
+                if (lines[0] == "file2.txt")
+                    throw new Exception($"Failed appending to {file}");
+            };
+
+            var cmd = new RunBackupCommand2(fs, source, target, MachineID.One);
+            cmd.Execute();
+            cmd.Failures.Count.ShouldBe(1);
+
+            // Remove exceptions during copy and run again
+            fs.OnBeforeAppendLines = (file, lines) => { };
+            cmd.Execute();
+
+            // Expected that all files will show up under version 1
+            var expected = new[] {
+                new EmulatorFile(@"c:\source\file1.txt", content: "1"),
+                new EmulatorFile(@"c:\source\file2.txt", content: "2"),
+                new EmulatorFile(@"c:\source\subdir\file11.txt", content: "3"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
+                new EmulatorFile(@"d:\target\guid1\CurrentState\file1.txt", content: "1"),
+                new EmulatorFile(@"d:\target\guid1\CurrentState\file2.txt", content: "2"),
+                new EmulatorFile(@"d:\target\guid1\CurrentState\subdir\file11.txt", content: "3"),
+                new EmulatorFile(@"d:\target\guid1\History\1\new.txt", content: "file1.txt\r\nsubdir\\file11.txt\r\nfile2.txt\r\n"),
+            };
+            var actual = fs.ListAllFiles();
+            TestsUtils.AssertEmulatorFiles(fs, expected, actual, "");
+        }
+
         //[TestMethod]
         //public void Backup_02_1_Running_for_the_second_time_No_change_in_source()
         //{

@@ -50,6 +50,7 @@ namespace BackyLogic
             if (IsAborted()) return;
             var sw = Stopwatch.StartNew();
             string targetDir = null;
+            this.Failures.Clear();
             try {
                 this.Progress?.StartStepWithoutProgress($"\nStarted backing up '{_source}' at: { DateTime.Now }");
 
@@ -138,6 +139,33 @@ namespace BackyLogic
             if (lastVersion > 0)
             {
                 var versionDir = Path.Combine(historyDir, lastVersion.ToString());
+
+                // Handle dirty files
+                var currentStateDir = Path.Combine(_targetForSource, "CurrentState");
+                var newDirtyPath = _fileSystem.FindFile(versionDir, "new_dirty.txt");
+                if (newDirtyPath != null)
+                {
+                    var newFilesSet = _fileSystem.ReadLines(Path.Combine(versionDir, "new.txt")).ToDictionary(x => x).Keys;
+                    foreach (var file in _fileSystem.ReadLines(newDirtyPath))
+                    {
+                        var fileExistsInCurrentState = _fileSystem.FindFile(currentStateDir, file) != null;
+                        var fileInListing = newFilesSet.Contains(file);
+                        if (fileInListing && fileExistsInCurrentState)
+                            continue; // nothing to do
+                        if (!fileInListing && !fileExistsInCurrentState)
+                            continue; // skip the file all together
+                        if (fileExistsInCurrentState && !fileInListing)
+                            // Correct listing
+                            _fileSystem.AppendLines(Path.Combine(versionDir, "new.txt"), file);
+                        if (fileInListing && !fileExistsInCurrentState)
+                        {
+                            //TODO - need to correct listing by removing the file                            
+                        }
+                    }
+
+                    // Now we only need to clear the dirty file
+                    _fileSystem.DeleteFile(newDirtyPath);
+                }
 
                 // Remove empty listing files if any
                 foreach (var listingFile in new[] { "new.txt" })
@@ -275,7 +303,9 @@ namespace BackyLogic
                 var newFilesPath = Path.Combine(historyDir, "new.txt");
                 if (_fileSystem.FindFile(historyDir, "new.txt") == null)
                     _fileSystem.CreateFile(newFilesPath);
-
+                var dirtyPath = Path.Combine(historyDir, "new_dirty.txt");
+                _fileSystem.CreateFile(dirtyPath);
+                _fileSystem.AppendLines(dirtyPath, diff.NewFiles.Select(x => x.RelativeName).ToArray());
                 Loop(diff.NewFiles, "Copying new files:", "Could not copy new file: ", x => x.RelativeName, file =>
                 {
                     var fullName = file.PhysicalPath;
@@ -283,6 +313,8 @@ namespace BackyLogic
                     _fileSystem.Copy(fullName, currentStatePath);
                     _fileSystem.AppendLines(newFilesPath, file.RelativeName);
                 });
+                if (!this.Failures.Any())
+                    _fileSystem.DeleteFile(dirtyPath);
             }
         }
 
