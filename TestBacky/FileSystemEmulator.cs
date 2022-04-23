@@ -21,6 +21,8 @@ namespace TestBacky
 
         public Action<string, string[]> OnBeforeAppendOrWriteLines { get; set; }
 
+        public Action<string> OnBeforeDelete { get; set; }
+
 
         public void AppendLines(string filename, params string[] lines)
         {
@@ -115,6 +117,7 @@ namespace TestBacky
 
         public void DeleteFile(string fullname)
         {
+            OnBeforeDelete?.Invoke(fullname);
             var file = _files.First(x => x.Name == fullname);
             _files.Remove(file);
         }

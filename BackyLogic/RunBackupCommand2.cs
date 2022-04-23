@@ -137,6 +137,8 @@ namespace BackyLogic
 
                 MaybeCleanupNewDirtyFiles(versionDir);
 
+                MaybeCleanupDeletedFiles(versionDir);
+
                 MaybeRemoveEmptyListingFiles(versionDir);
 
                 // Remove the whole version if it is empty
@@ -172,6 +174,20 @@ namespace BackyLogic
                 var path = Path.Combine(versionDir, listingFile);
                 if (_fileSystem.IsFileExists(path) && !_fileSystem.ReadLines(path).Any())
                     _fileSystem.DeleteFile(path);
+            }
+        }
+
+        private void MaybeCleanupDeletedFiles(string versionDir)
+        {
+            var currentStateDir = Path.Combine(_targetForSource, "CurrentState");
+            var deleteDir = Path.Combine(versionDir, "deleted");
+            foreach (var file in _fileSystem.EnumerateFiles(deleteDir).ToArray())
+            {
+                var relativePath = file.Replace(deleteDir + "\\", "");
+                var currentStatePath = Path.Combine(currentStateDir, relativePath);
+                if (_fileSystem.IsFileExists(currentStatePath) &&
+                    _fileSystem.AreEqualFiles(file, currentStatePath))
+                    _fileSystem.DeleteFile(currentStatePath);
             }
         }
 
