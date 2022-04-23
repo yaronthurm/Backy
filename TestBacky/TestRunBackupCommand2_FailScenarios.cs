@@ -15,7 +15,7 @@ namespace TestBacky
     public class TestRunBackupCommand2_FailScenarios
     {
         [TestMethod]
-        public void Backup_01_Running_for_the_first_time_Fail_on_all_files()
+        public void Backup_01_Running_for_the_first_time_Fail_on_all_files_copy()
         {
             // This test simulates running the tool for the first time and faling to copy all the files.
             // The next time a backup is being run should resolve all the issues and bring the system to a
@@ -59,7 +59,7 @@ namespace TestBacky
         }
 
         [TestMethod]
-        public void Backup_02_Running_for_the_first_time_Fail_on_a_single_files()
+        public void Backup_02_Running_for_the_first_time_Fail_on_a_single_file()
         {
             // This test simulates running the tool for the first time and faling to copy a specific file.
             // The next time a backup is being run should resolve all the issues and bring the system to a
@@ -108,9 +108,9 @@ namespace TestBacky
         }
 
         [TestMethod]
-        public void Backup_03_Running_for_the_first_time_Fail_listing_a_single_file()
+        public void Backup_03_Running_for_the_first_time_Fail_writing_list_of_new_files()
         {
-            // This test simulates running the tool for the first time and faling to list a specific file.
+            // This test simulates running the tool for the first time and faling to write the list of files.
             // The next time a backup is being run should resolve all the issues and bring the system to a
             // valid state (as if the failure never happened)
 
@@ -126,18 +126,19 @@ namespace TestBacky
             var fs = new FileSystemEmulator(files);
 
             // force excpetion during copy
-            fs.OnBeforeAppendLines = (file, lines) =>
-            {
-                if (lines[0] == "file2.txt")
-                    throw new Exception($"Failed appending to {file}");
-            };
+            fs.OnBeforeAppendOrWriteLines = (file, lines) =>
+                throw new Exception($"Failed appending to {file}");
 
             var cmd = new RunBackupCommand2(fs, source, target, MachineID.One);
-            cmd.Execute();
-            cmd.Failures.Count.ShouldBe(1);
+            try
+            {
+                cmd.Execute();
+                Assert.Fail("Should have thrown and exception");
+            }
+            catch { }
 
             // Remove exceptions during copy and run again
-            fs.OnBeforeAppendLines = (file, lines) => { };
+            fs.OnBeforeAppendOrWriteLines = (file, lines) => { };
             cmd.Execute();
 
             // Expected that all files will show up under version 1
@@ -149,7 +150,7 @@ namespace TestBacky
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file1.txt", content: "1"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file2.txt", content: "2"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\subdir\file11.txt", content: "3"),
-                new EmulatorFile(@"d:\target\guid1\History\1\new.txt", content: "file1.txt\r\nsubdir\\file11.txt\r\nfile2.txt\r\n"),
+                new EmulatorFile(@"d:\target\guid1\History\1\new.txt", content: "file1.txt\r\nfile2.txt\r\nsubdir\\file11.txt\r\n"),
             };
             var actual = fs.ListAllFiles();
             TestsUtils.AssertEmulatorFiles(fs, expected, actual, "");

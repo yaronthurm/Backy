@@ -140,44 +140,43 @@ namespace BackyLogic
             {
                 var versionDir = Path.Combine(historyDir, lastVersion.ToString());
 
-                // Handle dirty files
-                var currentStateDir = Path.Combine(_targetForSource, "CurrentState");
-                var newDirtyPath = Path.Combine(versionDir, "new_dirty.txt");
-                if (_fileSystem.IsFileExists(newDirtyPath))
-                {
-                    var newFilesSet = _fileSystem.ReadLines(Path.Combine(versionDir, "new.txt")).ToDictionary(x => x).Keys;
-                    foreach (var file in _fileSystem.ReadLines(newDirtyPath))
-                    {
-                        var fileExistsInCurrentState = _fileSystem.IsFileExists(Path.Combine(currentStateDir, file));
-                        var fileInListing = newFilesSet.Contains(file);
-                        if (fileInListing && fileExistsInCurrentState)
-                            continue; // nothing to do
-                        if (!fileInListing && !fileExistsInCurrentState)
-                            continue; // skip the file all together
-                        if (fileExistsInCurrentState && !fileInListing)
-                            // Correct listing
-                            _fileSystem.AppendLines(Path.Combine(versionDir, "new.txt"), file);
-                        if (fileInListing && !fileExistsInCurrentState)
-                        {
-                            //TODO - need to correct listing by removing the file                            
-                        }
-                    }
+                MaybeCleanupNewDirtyFiles(versionDir);
 
-                    // Now we only need to clear the dirty file
-                    _fileSystem.DeleteFile(newDirtyPath);
-                }
-
-                // Remove empty listing files if any
-                foreach (var listingFile in new[] { "new.txt" })
-                {
-                    var path = Path.Combine(versionDir, listingFile);
-                    if (_fileSystem.IsFileExists(path) && !_fileSystem.ReadLines(path).Any())
-                        _fileSystem.DeleteFile(path);
-                }
+                MaybeRemoveEmptyListingFiles(versionDir);
 
                 // Remove the whole version if it is empty
                 if (!_fileSystem.EnumerateFiles(versionDir).Any())
                     _fileSystem.DeleteDirectory(versionDir);
+            }
+        }
+
+        private void MaybeCleanupNewDirtyFiles(string versionDir)
+        {
+            var currentStateDir = Path.Combine(_targetForSource, "CurrentState");
+            var dirtyPath = Path.Combine(versionDir, "new_dirty.txt");
+            if (_fileSystem.IsFileExists(dirtyPath))
+            {
+                var newFilesPath = Path.Combine(versionDir, "new.txt");
+                var correctFilesList = (_fileSystem.IsFileExists(newFilesPath) ?
+                    _fileSystem.ReadLines(newFilesPath) : new string[0])
+                    .Where(x => _fileSystem.IsFileExists(Path.Combine(currentStateDir, x)))
+                    .ToArray();
+
+                // Adjust list of files to allign with actual files in current state
+                _fileSystem.WriteLines(newFilesPath, correctFilesList);
+
+                // Clear the dirty file
+                _fileSystem.DeleteFile(dirtyPath);
+            }
+        }
+
+        private void MaybeRemoveEmptyListingFiles(string versionDir)
+        {
+            foreach (var listingFile in new[] { "new.txt" })
+            {
+                var path = Path.Combine(versionDir, listingFile);
+                if (_fileSystem.IsFileExists(path) && !_fileSystem.ReadLines(path).Any())
+                    _fileSystem.DeleteFile(path);
             }
         }
 
@@ -300,18 +299,18 @@ namespace BackyLogic
         {
             if (diff.NewFiles.Any())
             {
-                var newFilesPath = Path.Combine(historyDir, "new.txt");
-                if (!_fileSystem.IsFileExists(newFilesPath))
-                    _fileSystem.CreateFile(newFilesPath);
                 var dirtyPath = Path.Combine(historyDir, "new_dirty.txt");
                 _fileSystem.CreateFile(dirtyPath);
-                _fileSystem.AppendLines(dirtyPath, diff.NewFiles.Select(x => x.RelativeName).ToArray());
+
+                var newFilesPath = Path.Combine(historyDir, "new.txt");
+                _fileSystem.CreateFile(newFilesPath);                
+                _fileSystem.WriteLines(newFilesPath, diff.NewFiles.Select(x => x.RelativeName).ToArray());
+
                 Loop(diff.NewFiles, "Copying new files:", "Could not copy new file: ", x => x.RelativeName, file =>
                 {
                     var fullName = file.PhysicalPath;
                     var currentStatePath = Path.Combine(_targetForSource, "CurrentState", file.RelativeName);
                     _fileSystem.Copy(fullName, currentStatePath);
-                    _fileSystem.AppendLines(newFilesPath, file.RelativeName);
                 });
                 if (!this.Failures.Any())
                     _fileSystem.DeleteFile(dirtyPath);
