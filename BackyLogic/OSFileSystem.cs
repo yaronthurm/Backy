@@ -186,7 +186,12 @@ namespace BackyLogic
         public bool IsDirectoryExist(string dirName)
         {
             return Directory.Exists(dirName);
-        }        
+        }
+
+        public bool IsFileExists(string filename)
+        {
+            return File.Exists(filename);
+        }
     }
 
 

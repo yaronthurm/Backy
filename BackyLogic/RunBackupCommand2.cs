@@ -142,13 +142,13 @@ namespace BackyLogic
 
                 // Handle dirty files
                 var currentStateDir = Path.Combine(_targetForSource, "CurrentState");
-                var newDirtyPath = _fileSystem.FindFile(versionDir, "new_dirty.txt");
-                if (newDirtyPath != null)
+                var newDirtyPath = Path.Combine(versionDir, "new_dirty.txt");
+                if (_fileSystem.IsFileExists(newDirtyPath))
                 {
                     var newFilesSet = _fileSystem.ReadLines(Path.Combine(versionDir, "new.txt")).ToDictionary(x => x).Keys;
                     foreach (var file in _fileSystem.ReadLines(newDirtyPath))
                     {
-                        var fileExistsInCurrentState = _fileSystem.FindFile(currentStateDir, file) != null;
+                        var fileExistsInCurrentState = _fileSystem.IsFileExists(Path.Combine(currentStateDir, file));
                         var fileInListing = newFilesSet.Contains(file);
                         if (fileInListing && fileExistsInCurrentState)
                             continue; // nothing to do
@@ -170,8 +170,8 @@ namespace BackyLogic
                 // Remove empty listing files if any
                 foreach (var listingFile in new[] { "new.txt" })
                 {
-                    var path = _fileSystem.FindFile(versionDir, listingFile);
-                    if (path != null && !_fileSystem.ReadLines(path).Any())
+                    var path = Path.Combine(versionDir, listingFile);
+                    if (_fileSystem.IsFileExists(path) && !_fileSystem.ReadLines(path).Any())
                         _fileSystem.DeleteFile(path);
                 }
 
@@ -301,7 +301,7 @@ namespace BackyLogic
             if (diff.NewFiles.Any())
             {
                 var newFilesPath = Path.Combine(historyDir, "new.txt");
-                if (_fileSystem.FindFile(historyDir, "new.txt") == null)
+                if (!_fileSystem.IsFileExists(newFilesPath))
                     _fileSystem.CreateFile(newFilesPath);
                 var dirtyPath = Path.Combine(historyDir, "new_dirty.txt");
                 _fileSystem.CreateFile(dirtyPath);

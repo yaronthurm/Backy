@@ -164,6 +164,11 @@ namespace TestBacky
         {
             return _files.Any(x => x.Name.StartsWith(dirName));
         }
+
+        public bool IsFileExists(string filename)
+        {
+            return _files.FirstOrDefault(x => filename.Equals(x.Name, StringComparison.OrdinalIgnoreCase)) != null;
+        }
     }
 
     public class EmulatorFile
