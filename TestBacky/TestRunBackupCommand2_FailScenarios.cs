@@ -17,7 +17,7 @@ namespace TestBacky
         [TestMethod]
         public void Backup_01_Running_for_the_first_time_Fail_on_all_files_copy()
         {
-            // This test simulates running the tool for the first time and faling to copy all the files.
+            // This test simulates running the tool for the first time and failing to copy all files.
             // The next time a backup is being run should resolve all the issues and bring the system to a
             // valid state (as if the failure never happened)
 
@@ -27,7 +27,7 @@ namespace TestBacky
             var files = new EmulatorFile[] {
                 new EmulatorFile(@"c:\source\file1.txt", content: "1"),
                 new EmulatorFile(@"c:\source\file2.txt", content: "2"),
-                new EmulatorFile(@"c:\source\subdir\file11.txt", content: "3"),
+                new EmulatorFile(@"c:\source\subdir\file11.txt", content: "11"),
                 new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n")
             };
             var fs = new FileSystemEmulator(files);
@@ -48,11 +48,11 @@ namespace TestBacky
             var expected = new[] {
                 new EmulatorFile(@"c:\source\file1.txt", content: "1"),
                 new EmulatorFile(@"c:\source\file2.txt", content: "2"),
-                new EmulatorFile(@"c:\source\subdir\file11.txt", content: "3"),
+                new EmulatorFile(@"c:\source\subdir\file11.txt", content: "11"),
                 new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file1.txt", content: "1"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file2.txt", content: "2"),
-                new EmulatorFile(@"d:\target\guid1\CurrentState\subdir\file11.txt", content: "3"),
+                new EmulatorFile(@"d:\target\guid1\CurrentState\subdir\file11.txt", content: "11"),
                 new EmulatorFile(@"d:\target\guid1\History\1\new.txt", content: "file1.txt\r\nfile2.txt\r\nsubdir\\file11.txt\r\n") };
             var actual = fs.ListAllFiles();
             TestsUtils.AssertEmulatorFiles(fs, expected,actual, "");
@@ -61,9 +61,9 @@ namespace TestBacky
         [TestMethod]
         public void Backup_02_Running_for_the_first_time_Fail_on_a_single_file()
         {
-            // This test simulates running the tool for the first time and faling to copy a specific file.
+            // This test simulates running the tool for the first time and failing to copy a specific file.
             // The next time a backup is being run should resolve all the issues and bring the system to a
-            // valid state (as if the failure never happened)
+            // valid state - a new version is added and the state is correct
 
             var source = @"c:\source";
             var target = @"d:\target";
@@ -71,7 +71,7 @@ namespace TestBacky
             var files = new EmulatorFile[] {
                 new EmulatorFile(@"c:\source\file1.txt", content: "1"),
                 new EmulatorFile(@"c:\source\file2.txt", content: "2"),
-                new EmulatorFile(@"c:\source\subdir\file11.txt", content: "3"),
+                new EmulatorFile(@"c:\source\subdir\file11.txt", content: "11"),
                 new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n")
             };
             var fs = new FileSystemEmulator(files);
@@ -91,15 +91,16 @@ namespace TestBacky
             fs.OnBeforeCopy = (sourceName, destName) => { };
             cmd.Execute();
 
-            // Expected that all files will show up under version 1
+            // Expected that all files that were copied correctly in the first time will show up under version 1,
+            // while the file that failed to copy will show up under version 2
             var expected = new[] {
                 new EmulatorFile(@"c:\source\file1.txt", content: "1"),
                 new EmulatorFile(@"c:\source\file2.txt", content: "2"),
-                new EmulatorFile(@"c:\source\subdir\file11.txt", content: "3"),
+                new EmulatorFile(@"c:\source\subdir\file11.txt", content: "11"),
                 new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file1.txt", content: "1"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file2.txt", content: "2"),
-                new EmulatorFile(@"d:\target\guid1\CurrentState\subdir\file11.txt", content: "3"),
+                new EmulatorFile(@"d:\target\guid1\CurrentState\subdir\file11.txt", content: "11"),
                 new EmulatorFile(@"d:\target\guid1\History\1\new.txt", content: "file1.txt\r\nsubdir\\file11.txt\r\n"),
                 new EmulatorFile(@"d:\target\guid1\History\2\new.txt", content: "file2.txt\r\n"),
             };
@@ -110,7 +111,7 @@ namespace TestBacky
         [TestMethod]
         public void Backup_03_Running_for_the_first_time_Fail_writing_list_of_new_files()
         {
-            // This test simulates running the tool for the first time and faling to write the list of files.
+            // This test simulates running the tool for the first time and failing to write the list of new files.
             // The next time a backup is being run should resolve all the issues and bring the system to a
             // valid state (as if the failure never happened)
 
@@ -120,7 +121,7 @@ namespace TestBacky
             var files = new EmulatorFile[] {
                 new EmulatorFile(@"c:\source\file1.txt", content: "1"),
                 new EmulatorFile(@"c:\source\file2.txt", content: "2"),
-                new EmulatorFile(@"c:\source\subdir\file11.txt", content: "3"),
+                new EmulatorFile(@"c:\source\subdir\file11.txt", content: "11"),
                 new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n")
             };
             var fs = new FileSystemEmulator(files);
@@ -145,11 +146,11 @@ namespace TestBacky
             var expected = new[] {
                 new EmulatorFile(@"c:\source\file1.txt", content: "1"),
                 new EmulatorFile(@"c:\source\file2.txt", content: "2"),
-                new EmulatorFile(@"c:\source\subdir\file11.txt", content: "3"),
+                new EmulatorFile(@"c:\source\subdir\file11.txt", content: "11"),
                 new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file1.txt", content: "1"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file2.txt", content: "2"),
-                new EmulatorFile(@"d:\target\guid1\CurrentState\subdir\file11.txt", content: "3"),
+                new EmulatorFile(@"d:\target\guid1\CurrentState\subdir\file11.txt", content: "11"),
                 new EmulatorFile(@"d:\target\guid1\History\1\new.txt", content: "file1.txt\r\nfile2.txt\r\nsubdir\\file11.txt\r\n"),
             };
             var actual = fs.ListAllFiles();
