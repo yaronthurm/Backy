@@ -158,6 +158,56 @@ namespace TestBacky
         }
 
         [TestMethod]
+        public void Backup_02_1_Running_for_the_second_time_Only_deleted_files_Failing_on_all_files_copy()
+        {
+            // This test simulates running the tool for the second time and failing to copy all deleted files.
+            // The next time a backup is being run should resolve all the issues and bring the system to a
+            // valid state (as if the failure never happened)
+
+            var source = @"c:\source";
+            var target = @"d:\target";
+
+            var files = new EmulatorFile[] {
+                new EmulatorFile(@"c:\source\file1.txt", content: "1"),
+                new EmulatorFile(@"c:\source\file2.txt", content: "2"),
+                new EmulatorFile(@"c:\source\subdir\file11.txt", content: "11"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
+            };
+            var fs = new FileSystemEmulator(files);
+            var cmd = new RunBackupCommand2(fs, source, target, MachineID.One);
+
+            // First run
+            cmd.Execute();
+
+            fs.DeleteFile(@"c:\source\file1.txt");
+            fs.DeleteFile(@"c:\source\subdir\file11.txt");
+
+            // force excpetion during copy
+            fs.OnBeforeCopy = (sourceName, destName) =>
+                throw new Exception($"Failed copying {sourceName} to {destName}");
+
+            // Second run
+            cmd.Execute();
+            cmd.Failures.Count.ShouldBe(2);
+
+            // Allow to copy without errors
+            fs.OnBeforeCopy = (sourceName, destName) => { };
+            cmd.Execute();
+
+            // Expected to see 2 versions
+            var expected = new[] {
+                new EmulatorFile(@"c:\source\file2.txt", content: "2"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
+                new EmulatorFile(@"d:\target\guid1\CurrentState\file2.txt", content: "2"),
+                new EmulatorFile(@"d:\target\guid1\History\1\new.txt", content: "file1.txt\r\nfile2.txt\r\nsubdir\\file11.txt\r\n"),
+                new EmulatorFile(@"d:\target\guid1\History\2\deleted\file1.txt", content: "1"),
+                new EmulatorFile(@"d:\target\guid1\History\2\deleted\subdir\file11.txt", content: "11"),
+            };
+            var actual = fs.ListAllFiles();
+            TestsUtils.AssertEmulatorFiles(fs, expected, actual, "");
+        }
+
+        [TestMethod]
         public void Backup_02_2_Running_for_the_second_time_Only_deleted_files_Failing_on_all_files_delete()
         {
             // This test simulates running the tool for the second time and failing to delete all deleted files.
@@ -212,9 +262,9 @@ namespace TestBacky
         }
 
         [TestMethod]
-        public void Backup_02_1_Running_for_the_second_time_Only_deleted_files_Failing_on_all_files_copy()
+        public void Backup_02_3_Running_for_the_second_time_Only_deleted_files_Failing_on_all_mix_phases()
         {
-            // This test simulates running the tool for the second time and faling to copy all deleted files.
+            // This test simulates running the tool for the second time and failing to delete/copy files.
             // The next time a backup is being run should resolve all the issues and bring the system to a
             // valid state (as if the failure never happened)
 
@@ -224,6 +274,7 @@ namespace TestBacky
             var files = new EmulatorFile[] {
                 new EmulatorFile(@"c:\source\file1.txt", content: "1"),
                 new EmulatorFile(@"c:\source\file2.txt", content: "2"),
+                new EmulatorFile(@"c:\source\file3.txt", content: "3"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt", content: "11"),
                 new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
             };
@@ -234,32 +285,48 @@ namespace TestBacky
             cmd.Execute();
 
             fs.DeleteFile(@"c:\source\file1.txt");
+            fs.DeleteFile(@"c:\source\file3.txt");
             fs.DeleteFile(@"c:\source\subdir\file11.txt");
 
-            // force excpetion during copy
+            // force excpetion during copy/delete
             fs.OnBeforeCopy = (sourceName, destName) =>
-                throw new Exception($"Failed copying {sourceName} to {destName}");
+            {
+                if (sourceName.Contains("file1.txt"))
+                    throw new Exception($"Failed copying {sourceName} to {destName}");
+            };
+            fs.OnBeforeDelete = filename =>
+            {
+                if (filename.Contains("file3.txt"))
+                    throw new Exception($"Failed to delete file {filename}");
+            };
+
 
             // Second run
             cmd.Execute();
             cmd.Failures.Count.ShouldBe(2);
 
-            // Allow to copy without errors
+            // Allow to run without errors
             fs.OnBeforeCopy = (sourceName, destName) => { };
+            fs.OnBeforeDelete = filename => { };
             cmd.Execute();
 
-            // Expected to see 2 versions
+            // Expected to see 3 versions
             var expected = new[] {
                 new EmulatorFile(@"c:\source\file2.txt", content: "2"),
                 new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file2.txt", content: "2"),
-                new EmulatorFile(@"d:\target\guid1\History\1\new.txt", content: "file1.txt\r\nfile2.txt\r\nsubdir\\file11.txt\r\n"),
-                new EmulatorFile(@"d:\target\guid1\History\2\deleted\file1.txt", content: "1"),
+                new EmulatorFile(@"d:\target\guid1\History\1\new.txt", content: "file1.txt\r\nfile2.txt\r\nfile3.txt\r\nsubdir\\file11.txt\r\n"),
+                new EmulatorFile(@"d:\target\guid1\History\2\deleted\file3.txt", content: "3"),
                 new EmulatorFile(@"d:\target\guid1\History\2\deleted\subdir\file11.txt", content: "11"),
+                new EmulatorFile(@"d:\target\guid1\History\3\deleted\file1.txt", content: "1"),                
             };
             var actual = fs.ListAllFiles();
             TestsUtils.AssertEmulatorFiles(fs, expected, actual, "");
         }
+
+
+
+
 
         //[TestMethod]
         //public void Backup_02_1_Running_for_the_second_time_No_change_in_source()
