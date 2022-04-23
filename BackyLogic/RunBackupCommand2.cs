@@ -54,7 +54,7 @@ namespace BackyLogic
             try {
                 this.Progress?.StartStepWithoutProgress($"\nStarted backing up '{_source}' at: { DateTime.Now }");
 
-                MaybeCleanupDirtyOldBackup();
+                MaybeCleanupDirtyPreviousBackup();
 
                 State currentState = GetCurrentState();
                 if (IsAborted()) return;
@@ -122,7 +122,7 @@ namespace BackyLogic
             }
         }
 
-        private void MaybeCleanupDirtyOldBackup()
+        private void MaybeCleanupDirtyPreviousBackup()
         {
             var historyDir = Path.Combine(_targetForSource, "History");
             var lastVersion = _fileSystem.GetTopLevelDirectories(historyDir)
