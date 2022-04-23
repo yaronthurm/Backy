@@ -51,7 +51,8 @@ namespace BackyLogic
             var sw = Stopwatch.StartNew();
             string targetDir = null;
             this.Failures.Clear();
-            try {
+            try
+            {
                 this.Progress?.StartStepWithoutProgress($"\nStarted backing up '{_source}' at: { DateTime.Now }");
 
                 MaybeCleanupDirtyPreviousBackup();
@@ -68,7 +69,7 @@ namespace BackyLogic
                 {
                     return;
                 }
-                
+
                 var historyDir = GetHistoryDirectory(lastBackedupState);
 
                 HandleNewFiles(historyDir, _diff);
@@ -149,21 +150,16 @@ namespace BackyLogic
 
         private void MaybeCleanupNewDirtyFiles(string versionDir)
         {
-            var currentStateDir = Path.Combine(_targetForSource, "CurrentState");
-            var dirtyPath = Path.Combine(versionDir, "new_dirty.txt");
-            if (_fileSystem.IsFileExists(dirtyPath))
+            var newFilesPath = Path.Combine(versionDir, "new.txt");
+            if (_fileSystem.IsFileExists(newFilesPath))
             {
-                var newFilesPath = Path.Combine(versionDir, "new.txt");
-                var correctFilesList = (_fileSystem.IsFileExists(newFilesPath) ?
-                    _fileSystem.ReadLines(newFilesPath) : new string[0])
+                var currentStateDir = Path.Combine(_targetForSource, "CurrentState");
+                var correctFilesList = _fileSystem.ReadLines(newFilesPath)
                     .Where(x => _fileSystem.IsFileExists(Path.Combine(currentStateDir, x)))
                     .ToArray();
 
                 // Adjust list of files to allign with actual files in current state
                 _fileSystem.WriteLines(newFilesPath, correctFilesList);
-
-                // Clear the dirty file
-                _fileSystem.DeleteFile(dirtyPath);
             }
         }
 
@@ -310,9 +306,6 @@ namespace BackyLogic
         {
             if (diff.NewFiles.Any())
             {
-                var dirtyPath = Path.Combine(historyDir, "new_dirty.txt");
-                _fileSystem.CreateFile(dirtyPath);
-
                 var newFilesPath = Path.Combine(historyDir, "new.txt");
                 _fileSystem.CreateFile(newFilesPath);                
                 _fileSystem.WriteLines(newFilesPath, diff.NewFiles.Select(x => x.RelativeName).ToArray());
@@ -323,8 +316,6 @@ namespace BackyLogic
                     var currentStatePath = Path.Combine(_targetForSource, "CurrentState", file.RelativeName);
                     _fileSystem.Copy(fullName, currentStatePath);
                 });
-                if (!this.Failures.Any())
-                    _fileSystem.DeleteFile(dirtyPath);
             }
         }
 
