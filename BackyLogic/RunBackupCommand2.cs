@@ -53,6 +53,8 @@ namespace BackyLogic
             try {
                 this.Progress?.StartStepWithoutProgress($"\nStarted backing up '{_source}' at: { DateTime.Now }");
 
+                MaybeCleanupDirtyOldBackup();
+
                 State currentState = GetCurrentState();
                 if (IsAborted()) return;
 
@@ -121,6 +123,33 @@ namespace BackyLogic
                         ErrorDetails = ex.Message
                     });
                 }
+            }
+        }
+
+        private void MaybeCleanupDirtyOldBackup()
+        {
+            var historyDir = Path.Combine(_targetForSource, "History");
+            var lastVersion = _fileSystem.GetTopLevelDirectories(historyDir)
+                .Select(x => x.Replace(historyDir + "\\", ""))
+                .Where(x => int.TryParse(x, out var _))
+                .Select(x => int.Parse(x))
+                .OrderBy(x => -x)
+                .FirstOrDefault();
+            if (lastVersion > 0)
+            {
+                var versionDir = Path.Combine(historyDir, lastVersion.ToString());
+
+                // Remove empty listing files if any
+                foreach (var listingFile in new[] { "new.txt" })
+                {
+                    var path = _fileSystem.FindFile(versionDir, listingFile);
+                    if (path != null && !_fileSystem.ReadLines(path).Any())
+                        _fileSystem.DeleteFile(path);
+                }
+
+                // Remove the whole version if it is empty
+                if (!_fileSystem.EnumerateFiles(versionDir).Any())
+                    _fileSystem.DeleteDirectory(versionDir);
             }
         }
 
@@ -244,7 +273,8 @@ namespace BackyLogic
             if (diff.NewFiles.Any())
             {
                 var newFilesPath = Path.Combine(historyDir, "new.txt");
-                _fileSystem.CreateFile(newFilesPath);
+                if (_fileSystem.FindFile(historyDir, "new.txt") == null)
+                    _fileSystem.CreateFile(newFilesPath);
 
                 Loop(diff.NewFiles, "Copying new files:", "Could not copy new file: ", x => x.RelativeName, file =>
                 {

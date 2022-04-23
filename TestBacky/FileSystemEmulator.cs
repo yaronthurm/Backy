@@ -17,6 +17,8 @@ namespace TestBacky
             _files = files.ToList();
         }
 
+        public Action<string, string> OnBeforeCopy { get; set; }
+
 
         public void AppendLines(string filename, params string[] lines)
         {
@@ -26,6 +28,8 @@ namespace TestBacky
 
         public void Copy(string sourceFileName, string destFileName)
         {
+            OnBeforeCopy?.Invoke(sourceFileName, destFileName);
+
             // Delete if already exists to simulate override
             _files.RemoveAll(x => x.Name == destFileName);
             var source = _files.First(x => x.Name == sourceFileName);
