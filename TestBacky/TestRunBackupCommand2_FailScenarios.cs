@@ -316,9 +316,9 @@ namespace TestBacky
                 new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file2.txt", content: "2"),
                 new EmulatorFile(@"d:\target\guid1\History\1\new.txt", content: "file1.txt\r\nfile2.txt\r\nfile3.txt\r\nsubdir\\file11.txt\r\n"),
-                new EmulatorFile(@"d:\target\guid1\History\2\deleted\file3.txt", content: "3"),
                 new EmulatorFile(@"d:\target\guid1\History\2\deleted\subdir\file11.txt", content: "11"),
-                new EmulatorFile(@"d:\target\guid1\History\3\deleted\file1.txt", content: "1"),                
+                new EmulatorFile(@"d:\target\guid1\History\3\deleted\file1.txt", content: "1"),
+                new EmulatorFile(@"d:\target\guid1\History\3\deleted\file3.txt", content: "3"),
             };
             var actual = fs.ListAllFiles();
             TestsUtils.AssertEmulatorFiles(fs, expected, actual, "");

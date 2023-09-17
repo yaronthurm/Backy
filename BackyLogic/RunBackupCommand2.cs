@@ -187,7 +187,7 @@ namespace BackyLogic
                 var currentStatePath = Path.Combine(currentStateDir, relativePath);
                 if (_fileSystem.IsFileExists(currentStatePath) &&
                     _fileSystem.AreEqualFiles(file, currentStatePath))
-                    _fileSystem.DeleteFile(currentStatePath);
+                    _fileSystem.DeleteFile(file);
             }
         }
 
