@@ -422,7 +422,7 @@ namespace TestBacky
             cmd.Execute();
 
 
-            // Expected to see 2 versions
+            // Expected to see 3 versions
             var expected = new[] {
                 new EmulatorFile(@"c:\source\file1_renamed.txt", new DateTime(2010, 1, 1), "1"),
                 new EmulatorFile(@"c:\source\file2.txt", new DateTime(2010, 1, 1), "2"),
@@ -434,7 +434,8 @@ namespace TestBacky
                 new EmulatorFile(@"d:\target\guid1\CurrentState\subdir_renamed\file11.txt", new DateTime(2010, 1, 1), "11"),
 
                 new EmulatorFile(@"d:\target\guid1\History\1\new.txt", content: "file1.txt\r\nfile2.txt\r\nsubdir\\file11.txt\r\n"),
-                new EmulatorFile(@"d:\target\guid1\History\2\renamed.txt", content: "{\"oldName\":\"file1.txt\",\"newName\":\"file1_renamed.txt\"}\r\n{\"oldName\":\"subdir\\\\file11.txt\",\"newName\":\"subdir_renamed\\\\file11.txt\"}\r\n"),
+                new EmulatorFile(@"d:\target\guid1\History\2\renamed.txt", content: "{\"oldName\":\"subdir\\\\file11.txt\",\"newName\":\"subdir_renamed\\\\file11.txt\"}\r\n"),
+                new EmulatorFile(@"d:\target\guid1\History\3\renamed.txt", content: "{\"oldName\":\"file1.txt\",\"newName\":\"file1_renamed.txt\"}\r\n"),
             };
             var actual = fs.ListAllFiles();
             TestsUtils.AssertEmulatorFiles(fs, expected, actual, "");

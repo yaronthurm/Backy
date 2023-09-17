@@ -169,7 +169,7 @@ namespace BackyLogic
 
         private void MaybeRemoveEmptyListingFiles(string versionDir)
         {
-            foreach (var listingFile in new[] { "new.txt" })
+            foreach (var listingFile in new[] { "new.txt", "renamed.txt" })
             {
                 var path = Path.Combine(versionDir, listingFile);
                 if (_fileSystem.IsFileExists(path) && !_fileSystem.ReadLines(path).Any())
@@ -218,14 +218,16 @@ namespace BackyLogic
                         oldName = x.Value<string>("oldName"),
                         newName = x.Value<string>("newName")
                     });
-                foreach (var item in renamedList)
-                {
-                    var oldFileFullPath = Path.Combine(currentStateDir, item.oldName);
-                    var newFileFullPath = Path.Combine(currentStateDir, item.newName);
-                    if (_fileSystem.IsFileExists(oldFileFullPath) &&
-                        !_fileSystem.IsFileExists(newFileFullPath))
-                        _fileSystem.RenameFile(oldFileFullPath, newFileFullPath);
-                }
+                var correctFilesList = renamedList
+                    .Where(x => _fileSystem.IsFileExists(Path.Combine(currentStateDir, x.newName)) && 
+                                !_fileSystem.IsFileExists(Path.Combine(currentStateDir, x.oldName)))
+                    .ToArray();
+
+                // Adjust list of files to allign with actual files in current state
+                _fileSystem.WriteLines(renamedFilesPath, correctFilesList
+                    .Select(x => new JObject(new JProperty("oldName", x.oldName), new JProperty("newName", x.newName)))
+                    .Select(x => x.ToString(Newtonsoft.Json.Formatting.None))
+                    .ToArray());
             }
         }
 
