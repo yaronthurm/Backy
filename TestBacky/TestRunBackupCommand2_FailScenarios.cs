@@ -417,7 +417,7 @@ namespace TestBacky
             cmd.Execute();
             cmd.Failures.Count.ShouldBe(1);
 
-            // Allow running withotu errors and run again
+            // Allow running without errors and run again
             fs.OnBeforeRename = (currentName, newName) => { };
             cmd.Execute();
 
