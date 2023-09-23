@@ -18,7 +18,7 @@ namespace BackyLogic
 
     }
 
-    public class RunBackupCommand
+    public class RunBackupCommand: IRunBackupCommand
     {
         private string _source;
         private string _targetForSource;

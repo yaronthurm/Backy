@@ -56,6 +56,7 @@
     <Compile Include="IMultiStepProgress.cs" />
     <Compile Include="BackyFolder.cs" />
     <Compile Include="BackupTheBackupCommand.cs" />
+    <Compile Include="IRunBackupCommand.cs" />
     <Compile Include="RunBackupCommand2.cs" />
     <Compile Include="Settings.cs" />
     <Compile Include="State2.cs" />

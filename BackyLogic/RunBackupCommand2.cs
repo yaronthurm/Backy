@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace BackyLogic
 {    
-    public class RunBackupCommand2
+    public class RunBackupCommand2 : IRunBackupCommand
     {
         private string _source;
         private string _targetForSource;
