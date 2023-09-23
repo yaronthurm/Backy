@@ -14,7 +14,7 @@ namespace Backy
     static class Program
     {
         static Mutex singleInstanceMutex = new Mutex(true, "{2FA0A600-7B60-4E7B-9C58-8FA0D3D575B0}");
-        
+
         [STAThread]
         static void Main(string[] args)
         {
@@ -74,7 +74,7 @@ namespace Backy
         private static void RunAsConsoleApp(string[] args)
         {
             IMultiStepProgress progress = null;
-            var mode = GetUIMode(args);            
+            var mode = GetUIMode(args);
             if (mode == UIModes.Console)
             {
                 AllocConsole();
@@ -87,10 +87,18 @@ namespace Backy
                 Environment.Exit(1);
                 return;
             }
-            
+
             var sourceOverride = ExtractSingleArgOrDefault(args, "source");
             var targetOverride = ExtractSingleArgOrDefault(args, "target");
-           
+            var backupMode = ExtractSingleArgOrDefault(args, "mode") ?? "diff";
+
+            if (backupMode != "diff" && backupMode != "current_state")
+            {
+                Console.WriteLine("Unsupported backup mode, either 'diff' or 'current_state' are supported");
+                Environment.Exit(1);
+                return;
+            }
+
             BackyLogic.Settings _settings = BackyLogic.Settings.Load();
             IFileSystem fileSystem = new OSFileSystem();
 
@@ -100,18 +108,27 @@ namespace Backy
                 Console.WriteLine($"Target directory '{target}' does not exist. Please select a different target.");
                 return;
             }
-            
+
             var activeSources = (sourceOverride != null ?
                 new[] { sourceOverride } :
                 _settings.Sources.Where(x => x.Enabled).Select(x => x.Path).ToArray())
                 .Where(x => Directory.Exists(x));
 
             var _cancelTokenSource = new CancellationTokenSource();
-            var backupCommands = activeSources
-                .Select(x =>
-                new RunBackupCommand(fileSystem, x, _settings.Target, new MachineID { Value = _settings.MachineID },
-                _cancelTokenSource.Token) {
-                    Progress = progress });
+            Func<string, IRunBackupCommand> backupCommandFactory = source =>
+            {
+                if (backupMode == "diff")
+                    return new RunBackupCommand(fileSystem, source, target, new MachineID { Value = _settings.MachineID },
+                        _cancelTokenSource.Token)
+                    { Progress = progress };
+                else if (backupMode == "current_state")
+                    return new RunBackupCommand2(fileSystem, source, target, new MachineID { Value = _settings.MachineID },
+                        _cancelTokenSource.Token)
+                    { Progress = progress };
+                throw new NotImplementedException("");
+            };
+
+            var backupCommands = activeSources.Select(x => backupCommandFactory(x));
 
             if (!backupCommands.Any()) {
                 new ConsoleProgress().StartStepWithoutProgress("There are no active sources");
