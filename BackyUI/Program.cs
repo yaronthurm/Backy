@@ -45,7 +45,7 @@ namespace Backy
 
         private static UIModes GetUIMode(string[] args)
         {
-            if (args != null && args.Length == 1)
+            if (args != null && args.Length >= 1)
             {
                 if (args[0] == "-console")
                     return UIModes.Console;
@@ -57,6 +57,19 @@ namespace Backy
         }
 
         public enum UIModes {WinForm, Console, Hidden, Undefined }
+
+        private static string ExtractSingleArgOrDefault(string[] args, string argName)
+        {
+            var argInstances = args.Where(x => x.StartsWith($"-{argName}="))
+                .Select(x => x.Replace($"-{argName}=", ""));
+            if (argInstances.Any() && argInstances.Skip(1).Any())
+            {
+                Console.WriteLine($"-{argName} arg should only appear once");
+                Environment.Exit(1);
+                return null;
+            }
+            return argInstances.FirstOrDefault();
+        }
 
         private static void RunAsConsoleApp(string[] args)
         {
@@ -75,21 +88,28 @@ namespace Backy
                 return;
             }
             
+            var sourceOverride = ExtractSingleArgOrDefault(args, "source");
+            var targetOverride = ExtractSingleArgOrDefault(args, "target");
+           
             BackyLogic.Settings _settings = BackyLogic.Settings.Load();
             IFileSystem fileSystem = new OSFileSystem();
 
-            if (!Directory.Exists(_settings.Target))
+            var target = targetOverride ?? _settings.Target;
+            if (!Directory.Exists(target))
             {
-                Console.WriteLine($"Target directory '{_settings.Target}' does not exist. Please select a different target.");
+                Console.WriteLine($"Target directory '{target}' does not exist. Please select a different target.");
                 return;
             }
-            var activeSources = _settings.Sources.Where(x => x.Enabled && Directory.Exists(x.Path)).ToArray();
             
+            var activeSources = (sourceOverride != null ?
+                new[] { sourceOverride } :
+                _settings.Sources.Where(x => x.Enabled).Select(x => x.Path).ToArray())
+                .Where(x => Directory.Exists(x));
 
             var _cancelTokenSource = new CancellationTokenSource();
             var backupCommands = activeSources
                 .Select(x =>
-                new RunBackupCommand(fileSystem, x.Path, _settings.Target, new MachineID { Value = _settings.MachineID },
+                new RunBackupCommand(fileSystem, x, _settings.Target, new MachineID { Value = _settings.MachineID },
                 _cancelTokenSource.Token) {
                     Progress = progress });
 
