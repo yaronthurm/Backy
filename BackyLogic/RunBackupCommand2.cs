@@ -53,6 +53,9 @@ namespace BackyLogic
             this.Failures.Clear();
             try
             {
+                if (BackupDirectory.FromPath(_targetForSource, _fileSystem).BackupMode != "current_state")
+                    throw new Exception("Target directoy is not using the 'diff' backup mode. Cannot proceed");
+
                 this.Progress?.StartStepWithoutProgress($"\nStarted backing up '{_source}' at: { DateTime.Now }");
 
                 MaybeCleanupDirtyPreviousBackup();
@@ -378,7 +381,7 @@ namespace BackyLogic
             if (sourceGuid == null)
             {
                 sourceGuid = Guid.NewGuid().ToString("N");
-                BackupDirectory.CreateIniFile(sourceGuid, target, source, fs, machineID);
+                BackupDirectory.CreateIniFile(sourceGuid, target, source, fs, machineID, "current_state");
             }
 
             var ret = Path.Combine(target, sourceGuid);
