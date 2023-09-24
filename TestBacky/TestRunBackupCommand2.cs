@@ -27,7 +27,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file1.txt", content: "1"),
                 new EmulatorFile(@"c:\source\file2.txt", content: "2"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt", content: "3"),
-                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n")
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\ncurrent_state\r\n")
             };
             var fs = new FileSystemEmulator(files);
             var cmd = new RunBackupCommand2(fs, source, target, MachineID.One);
@@ -38,7 +38,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file1.txt", content: "1"),
                 new EmulatorFile(@"c:\source\file2.txt", content: "2"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt", content: "3"),
-                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\ncurrent_state\r\n"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file1.txt", content: "1"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file2.txt", content: "2"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\subdir\file11.txt", content: "3"),
@@ -63,7 +63,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file1.txt", content: "1"),
                 new EmulatorFile(@"c:\source\file2.txt", content: "2"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt", content: "3"),
-                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n")
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\ncurrent_state\r\n")
             };
             var fs = new FileSystemEmulator(files);
             var cmd = new RunBackupCommand2(fs, source, target, MachineID.One);
@@ -77,7 +77,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file1.txt", content: "1"),
                 new EmulatorFile(@"c:\source\file2.txt", content: "2"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt", content: "3"),
-                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\ncurrent_state\r\n"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file1.txt", content: "1"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file2.txt", content: "2"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\subdir\file11.txt", content: "3"),
@@ -102,7 +102,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file1.txt", content: "1"),
                 new EmulatorFile(@"c:\source\file2.txt", content: "2"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt", content: "3"),
-                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n")
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\ncurrent_state\r\n")
             };
             var fs = new FileSystemEmulator(files);
             var cmd = new RunBackupCommand2(fs, source, target, MachineID.One);
@@ -114,7 +114,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file1.txt", content: "1"),
                 new EmulatorFile(@"c:\source\file2.txt", content: "2"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt", content: "3"),
-                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\ncurrent_state\r\n"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file1.txt", content: "1"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file2.txt", content: "2"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\subdir\file11.txt", content: "3"),
@@ -141,7 +141,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file1.txt", content: "1"),
                 new EmulatorFile(@"c:\source\file2.txt", content: "2"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt", content: "3"),
-                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n")
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\ncurrent_state\r\n")
             };
             var fs = new FileSystemEmulator(files);
             var cmd = new RunBackupCommand2(fs, source, target, MachineID.One);
@@ -164,7 +164,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file3.txt", content: "3"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt", content: "3"),
                 new EmulatorFile(@"c:\source\subdir\file22.txt", content: "22"),
-                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\ncurrent_state\r\n"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file1.txt", content: "1"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file2.txt", content: "2"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file3.txt", content: "3"),
@@ -193,7 +193,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file1.txt", content: "1"),
                 new EmulatorFile(@"c:\source\file2.txt", content: "2"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt", content: "11"),
-                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\ncurrent_state\r\n"),
             };
             var fs = new FileSystemEmulator(files);
             var cmd = new RunBackupCommand2(fs, source, target, MachineID.One);
@@ -210,7 +210,7 @@ namespace TestBacky
             // Expected to see 2 versions
             var expected = new[] {
                 new EmulatorFile(@"c:\source\file2.txt", content: "2"),                
-                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),                
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\ncurrent_state\r\n"),                
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file2.txt", content: "2"),
                 new EmulatorFile(@"d:\target\guid1\History\1\new.txt", content: "file1.txt\r\nfile2.txt\r\nsubdir\\file11.txt\r\n"),
                 new EmulatorFile(@"d:\target\guid1\History\2\deleted\file1.txt", content: "1"),
@@ -236,7 +236,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file1.txt", content: "1"),
                 new EmulatorFile(@"c:\source\file2.txt", content: "2"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt", content: "11"),
-                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\ncurrent_state\r\n"),
             };
             var fs = new FileSystemEmulator(files);
             var cmd = new RunBackupCommand2(fs, source, target, MachineID.One);
@@ -260,7 +260,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file3.txt", content: "3"),
                 new EmulatorFile(@"c:\source\file4.txt", content: "4"),
                 new EmulatorFile(@"c:\source\subdir2\file111.txt", content: "111"),
-                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\ncurrent_state\r\n"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file2.txt", content: "2"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file3.txt", content: "3"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file4.txt", content: "4"),
@@ -288,7 +288,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file1.txt", new DateTime(2010, 1, 1), "1"),
                 new EmulatorFile(@"c:\source\file2.txt", new DateTime(2010, 1, 1), "2"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1), "11"),
-                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\ncurrent_state\r\n"),
             };
             var fs = new FileSystemEmulator(files);
             var cmd = new RunBackupCommand2(fs, source, target, MachineID.One);
@@ -307,7 +307,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file1.txt", new DateTime(2015, 1, 1), "1_"),
                 new EmulatorFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1), "2_"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1), "11"),
-                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\ncurrent_state\r\n"),
 
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file1.txt", new DateTime(2015, 1, 1), "1_"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file2.txt", new DateTime(2015, 1, 1), "2_"),
@@ -334,7 +334,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file1.txt", new DateTime(2010, 1, 1), "1"),
                 new EmulatorFile(@"c:\source\file2.txt", new DateTime(2010, 1, 1), "2"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1), "11"),
-                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\ncurrent_state\r\n"),
             };
             var fs = new FileSystemEmulator(files);
             var cmd = new RunBackupCommand2(fs, source, target, MachineID.One);
@@ -358,7 +358,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1), "11"),
                 new EmulatorFile(@"c:\source\file3.txt", content: "new file 3"),
                 new EmulatorFile(@"c:\source\subdir3\file4.txt", content: "new file 4"),
-                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\ncurrent_state\r\n"),
 
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file1.txt", new DateTime(2015, 1, 1), "1_"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file2.txt", new DateTime(2015, 1, 1), "2_"),
@@ -391,7 +391,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file1.txt", new DateTime(2010, 1, 1), "1"),
                 new EmulatorFile(@"c:\source\file2.txt", new DateTime(2010, 1, 1), "2"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1), "11"),
-                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\ncurrent_state\r\n"),
             };
             var fs = new FileSystemEmulator(files);
             var cmd = new RunBackupCommand2(fs, source, target, MachineID.One);
@@ -415,7 +415,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file2.txt", new DateTime(2015, 1, 1), "2_"),
                 new EmulatorFile(@"c:\source\file3.txt", content: "new file 3"),
                 new EmulatorFile(@"c:\source\subdir3\file4.txt", content: "new file 4"),
-                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\ncurrent_state\r\n"),
 
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file1.txt", new DateTime(2015, 1, 1), "1_"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file2.txt", new DateTime(2015, 1, 1), "2_"),
@@ -446,7 +446,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file1.txt", new DateTime(2010, 1, 1), "1"),
                 new EmulatorFile(@"c:\source\file2.txt", new DateTime(2010, 1, 1), "2"),
                 new EmulatorFile(@"c:\source\subdir\file11.txt", new DateTime(2010, 1, 1), "11"),
-                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\ncurrent_state\r\n"),
             };
             var fs = new FileSystemEmulator(files);
             var cmd = new RunBackupCommand2(fs, source, target, MachineID.One);
@@ -465,7 +465,7 @@ namespace TestBacky
                 new EmulatorFile(@"c:\source\file1_renamed.txt", new DateTime(2010, 1, 1), "1"),
                 new EmulatorFile(@"c:\source\file2.txt", new DateTime(2010, 1, 1), "2"),
                 new EmulatorFile(@"c:\source\subdir_renamed\file11.txt", new DateTime(2010, 1, 1), "11"),
-                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\n"),
+                new EmulatorFile(@"d:\target\guid1\backy.ini", content: "c:\\source\r\nguid1\r\n1\r\ncurrent_state\r\n"),
 
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file1_renamed.txt", new DateTime(2010, 1, 1), "1"),
                 new EmulatorFile(@"d:\target\guid1\CurrentState\file2.txt", new DateTime(2010, 1, 1), "2"),
