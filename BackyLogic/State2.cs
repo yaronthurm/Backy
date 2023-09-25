@@ -35,7 +35,7 @@ namespace BackyLogic
         public static State GetLastBackedUpState(IFileSystem fileSystem, string target, string machineID, Action fileEnumaretedCallback)
         {
             var path = Path.Combine(target, "CurrentState");
-            var files = fileSystem.EnumerateFiles(path);
+            var files = fileSystem.IsDirectoryExist(path) ? fileSystem.EnumerateFiles(path) : new string[0];
 
             var ret = new State();
             foreach (var file in files)

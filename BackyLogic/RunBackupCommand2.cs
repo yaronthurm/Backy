@@ -129,12 +129,13 @@ namespace BackyLogic
         private void MaybeCleanupDirtyPreviousBackup()
         {
             var historyDir = Path.Combine(_targetForSource, "History");
-            var lastVersion = _fileSystem.GetTopLevelDirectories(historyDir)
+            var lastVersion = _fileSystem.IsDirectoryExist(historyDir) ?
+                _fileSystem.GetTopLevelDirectories(historyDir)
                 .Select(x => x.Replace(historyDir + "\\", ""))
                 .Where(x => int.TryParse(x, out var _))
                 .Select(x => int.Parse(x))
                 .OrderBy(x => -x)
-                .FirstOrDefault();
+                .FirstOrDefault() : 0;
             if (lastVersion > 0)
             {
                 var versionDir = Path.Combine(historyDir, lastVersion.ToString());
@@ -184,28 +185,30 @@ namespace BackyLogic
         {
             var currentStateDir = Path.Combine(_targetForSource, "CurrentState");
             var deleteDir = Path.Combine(versionDir, "deleted");
-            foreach (var file in _fileSystem.EnumerateFiles(deleteDir).ToArray())
-            {
-                var relativePath = file.Replace(deleteDir + "\\", "");
-                var currentStatePath = Path.Combine(currentStateDir, relativePath);
-                if (_fileSystem.IsFileExists(currentStatePath) &&
-                    _fileSystem.AreEqualFiles(file, currentStatePath))
-                    _fileSystem.DeleteFile(file);
-            }
+            if (_fileSystem.IsDirectoryExist(deleteDir))
+                foreach (var file in _fileSystem.EnumerateFiles(deleteDir).ToArray())
+                {
+                    var relativePath = file.Replace(deleteDir + "\\", "");
+                    var currentStatePath = Path.Combine(currentStateDir, relativePath);
+                    if (_fileSystem.IsFileExists(currentStatePath) &&
+                        _fileSystem.AreEqualFiles(file, currentStatePath))
+                        _fileSystem.DeleteFile(file);
+                }
         }
 
         private void MaybeCleanupModifiedFiles(string versionDir)
         {
             var currentStateDir = Path.Combine(_targetForSource, "CurrentState");
             var modifiedDir = Path.Combine(versionDir, "modified");
-            foreach (var file in _fileSystem.EnumerateFiles(modifiedDir).ToArray())
-            {
-                var relativePath = file.Replace(modifiedDir + "\\", "");
-                var currentStatePath = Path.Combine(currentStateDir, relativePath);
-                if (_fileSystem.IsFileExists(currentStatePath) &&
-                    _fileSystem.AreEqualFiles(file, currentStatePath))
-                    _fileSystem.DeleteFile(file);
-            }
+            if (_fileSystem.IsDirectoryExist(modifiedDir))
+                foreach (var file in _fileSystem.EnumerateFiles(modifiedDir).ToArray())
+                {
+                    var relativePath = file.Replace(modifiedDir + "\\", "");
+                    var currentStatePath = Path.Combine(currentStateDir, relativePath);
+                    if (_fileSystem.IsFileExists(currentStatePath) &&
+                        _fileSystem.AreEqualFiles(file, currentStatePath))
+                        _fileSystem.DeleteFile(file);
+                }
         }
 
         private void MaybeCleanupRenamedFiles(string versionDir)
@@ -370,7 +373,7 @@ namespace BackyLogic
         private string GetHistoryDirectory(State lastBackedupState)
         {
             var historyDir = Path.Combine(_targetForSource, "History");
-            var version = lastBackedupState.GetNextDirectory(_fileSystem, historyDir);
+            var version = _fileSystem.IsDirectoryExist(historyDir)? lastBackedupState.GetNextDirectory(_fileSystem, historyDir) : "1";
             var ret = Path.Combine(_targetForSource, "History", version);
             return ret;
         }
