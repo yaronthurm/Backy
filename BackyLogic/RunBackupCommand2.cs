@@ -348,7 +348,7 @@ namespace BackyLogic
                     var currentStatePath = Path.Combine(_targetForSource, "CurrentState", file.RelativeName);
                     var historyPath = Path.Combine(historyDir, "modified", file.RelativeName);
                     _fileSystem.Copy(currentStatePath, historyPath);
-                    _fileSystem.Copy(fullName, currentStatePath);
+                    _fileSystem.CopyOverwrite(fullName, currentStatePath);
                 });
             }
         }
