@@ -29,6 +29,14 @@ namespace BackyLogic
             File.Copy(sourceFileName, destFileName);
         }
 
+        public void CopyOverwrite(string sourceFileName, string destFileName)
+        {
+            if (!Directory.Exists(Path.GetDirectoryName(destFileName)))
+                Directory.CreateDirectory(Path.GetDirectoryName(destFileName));
+
+            File.Copy(sourceFileName, destFileName, true);
+        }
+
         public void CreateFile(string filename)
         {
             if (!Directory.Exists(Path.GetDirectoryName(filename)))

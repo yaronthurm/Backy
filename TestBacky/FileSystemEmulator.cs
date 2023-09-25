@@ -50,6 +50,18 @@ namespace TestBacky
             _files.Add(clone);
         }
 
+        public void CopyOverwrite(string sourceFileName, string destFileName)
+        {
+            OnBeforeCopy?.Invoke(sourceFileName, destFileName);
+
+            // Delete if already exists to simulate override
+            _files.RemoveAll(x => x.Name == destFileName);
+            var source = _files.First(x => x.Name == sourceFileName);
+            var clone = source.Clone();
+            clone.Name = destFileName;
+            _files.Add(clone);
+        }
+
         public void CreateFile(string filename)
         {
             _files.Add(new EmulatorFile(filename));

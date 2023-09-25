@@ -11,6 +11,8 @@ namespace BackyLogic
 
         void Copy(string sourceFileName, string destFileName);
 
+        void CopyOverwrite(string sourceFileName, string destFileName);
+
         IEnumerable<string> EnumerateFiles(string dirName);
 
         string FindFile(string dirName, string fileName);
