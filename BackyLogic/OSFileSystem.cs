@@ -193,6 +193,9 @@ namespace BackyLogic
 
         public void RenameFile(string currName, string newName)
         {
+            var targetDir = Path.GetDirectoryName(newName);
+            if (!Directory.Exists(targetDir))
+                Directory.CreateDirectory(targetDir);
             File.Move(currName, newName);
         }
 
