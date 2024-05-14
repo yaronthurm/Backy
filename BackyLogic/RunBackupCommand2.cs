@@ -62,10 +62,10 @@ namespace BackyLogic
 
                 MaybeCleanupDirtyPreviousBackup();
 
-                State currentState = GetCurrentState();
+                IState currentState = GetCurrentState();
                 if (IsAborted()) return;
 
-                State lastBackedupState = GetLastBackedUpState();
+                IState lastBackedupState = GetLastBackedUpState();
                 if (IsAborted()) return;
 
                 CalculateDiff(currentState, lastBackedupState);
@@ -249,7 +249,7 @@ namespace BackyLogic
             return _fileSystem.IsDirectoryExist(targetDir) && !_fileSystem.EnumerateFiles(targetDir).Any();
         }
 
-        private void CalculateDiff(State currentState, State lastBackedupState)
+        private void CalculateDiff(IState currentState, IState lastBackedupState)
         {
             this.Progress?.StartStepWithoutProgress("Calculating diff");
             _diff = GetDiff(currentState, lastBackedupState);
@@ -276,7 +276,7 @@ namespace BackyLogic
             return lastBackedupState;
         }
 
-        private State GetCurrentState()
+        private IState GetCurrentState()
         {
             int count = 0;
             this.Progress?.StartUnboundedStep("Scanning source files. Files scanned:");
@@ -299,7 +299,7 @@ namespace BackyLogic
             return _cancellationToken.IsCancellationRequested;
         }
 
-        private FoldersDiff GetDiff(State currentState, State lastBackedupState)
+        private FoldersDiff GetDiff(IState currentState, IState lastBackedupState)
         {
             var ret = new FoldersDiff(_fileSystem, currentState, lastBackedupState);
             ret.Progress = this.Progress;
@@ -372,7 +372,7 @@ namespace BackyLogic
             }
         }
 
-        private string GetHistoryDirectory(State lastBackedupState)
+        private string GetHistoryDirectory(IState lastBackedupState)
         {
             var historyDir = Path.Combine(_targetForSource, "History");
             var version = _fileSystem.IsDirectoryExist(historyDir)? lastBackedupState.GetNextDirectory(_fileSystem, historyDir) : "1";

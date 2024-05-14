@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace BackyLogic
 {
-    public class State
+    public class State: IState
     {
         private HierarchicalDictionary<string, BackyFile> _tree = new HierarchicalDictionary<string, BackyFile>();
 
-        internal string GetNextDirectory(IFileSystem fileSystem, string targetDir)
+        public string GetNextDirectory(IFileSystem fileSystem, string targetDir)
         {
             var firstLevel = GetFirstLevelDirectories(fileSystem, targetDir);
 
@@ -32,7 +32,7 @@ namespace BackyLogic
             return ret;
         }
 
-        public static State GetLastBackedUpState(IFileSystem fileSystem, string target, string machineID, Action fileEnumaretedCallback)
+        public static IState GetLastBackedUpState(IFileSystem fileSystem, string target, string machineID, Action fileEnumaretedCallback)
         {
             var stateCalculator = new StateCalculator(fileSystem, target, null, machineID);
             stateCalculator.OnProgress += fileEnumaretedCallback;

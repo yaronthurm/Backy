@@ -34,7 +34,7 @@ namespace BackyLogic
                 if (stateCalculator.MaxVersion < _version)
                     throw new ApplicationException("Invalid veriosn. max is " + stateCalculator.MaxVersion);
 
-                State cloneState = stateCalculator.GetState(_version);
+                IState cloneState = stateCalculator.GetState(_version);
                 this.Progress?.StartBoundedStep("Copy files: ", cloneState.GetFiles().Count());
                 foreach (var file in cloneState.GetFiles())
                 {

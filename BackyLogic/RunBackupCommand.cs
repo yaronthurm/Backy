@@ -66,10 +66,10 @@ namespace BackyLogic
 
                 this.Progress?.StartStepWithoutProgress($"\nStarted backing up '{_source}' at: { DateTime.Now }");
 
-                State currentState = GetCurrentState();
+                IState currentState = GetCurrentState();
                 if (IsAborted()) return;
 
-                State lastBackedupState = GetLastBackedUpState();
+                IState lastBackedupState = GetLastBackedUpState();
                 if (IsAborted()) return;
 
                 CalculateDiff(currentState, lastBackedupState);
@@ -120,7 +120,7 @@ namespace BackyLogic
             return _fileSystem.IsDirectoryExist(targetDir) && !_fileSystem.EnumerateFiles(targetDir).Any();
         }
 
-        private void CalculateDiff(State currentState, State lastBackedupState)
+        private void CalculateDiff(IState currentState, IState lastBackedupState)
         {
             this.Progress?.StartStepWithoutProgress("Calculating diff");
             _diff = GetDiff(currentState, lastBackedupState);
@@ -134,11 +134,11 @@ namespace BackyLogic
                 $"  Renamed files: {_diff.RenamedFiles.Count}");
         }
 
-        private State GetLastBackedUpState()
+        private IState GetLastBackedUpState()
         {
             int count = 0;
             this.Progress?.StartUnboundedStep("Scanning backup files. Files scanned:");
-            State lastBackedupState = State.GetLastBackedUpState(_fileSystem, _targetForSource, _machineID.Value, () =>
+            IState lastBackedupState = State.GetLastBackedUpState(_fileSystem, _targetForSource, _machineID.Value, () =>
             {
                 count++;
                 if (count % 100 == 0) this.Progress?.UpdateProgress(count);
@@ -147,7 +147,7 @@ namespace BackyLogic
             return lastBackedupState;
         }
 
-        private State GetCurrentState()
+        private IState GetCurrentState()
         {
             int count = 0;
             this.Progress?.StartUnboundedStep("Scanning source files. Files scanned:");
@@ -170,7 +170,7 @@ namespace BackyLogic
             return _cancellationToken.IsCancellationRequested;
         }
 
-        private FoldersDiff GetDiff(State currentState, State lastBackedupState)
+        private FoldersDiff GetDiff(IState currentState, IState lastBackedupState)
         {
             var ret = new FoldersDiff(_fileSystem, currentState, lastBackedupState);
             ret.Progress = this.Progress;
@@ -266,7 +266,7 @@ namespace BackyLogic
             }
         }
 
-        private string GetTargetDirectory(State lastBackedupState)
+        private string GetTargetDirectory(IState lastBackedupState)
         {
             var version = lastBackedupState.GetNextDirectory(_fileSystem, _targetForSource);
             var ret = Path.Combine(_targetForSource, version);

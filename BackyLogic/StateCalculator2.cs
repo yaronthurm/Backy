@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace BackyLogic
 {
 
-    public class StateCalculator: IStateCalculator
+    public class StateCalculator2: IStateCalculator
     {
         public event Action OnProgress;
 
@@ -18,7 +18,7 @@ namespace BackyLogic
 
         public string Target { get; }
 
-        public StateCalculator(IFileSystem fileSystem, string target, string source, string machineID)
+        public StateCalculator2(IFileSystem fileSystem, string target, string source, string machineID)
         {
             _fileSystem = fileSystem;
             if (source == null)
@@ -37,7 +37,7 @@ namespace BackyLogic
             return ret;
         }
 
-        public static string FindTargetForSourceOrNull(string source, string target, IFileSystem fs, string machineID)
+        private static string FindTargetForSourceOrNull(string source, string target, IFileSystem fs, string machineID)
         {
             string sourceGuid = null;
             var targetDir = fs.GetTopLevelDirectories(target);
@@ -56,13 +56,7 @@ namespace BackyLogic
                 return null;
             var ret = Path.Combine(target, sourceGuid);
             return ret;
-        }
-
-        public static bool IsTargetForSourceExist(string source, string target, IFileSystem fs, string machineID)
-        {
-            string sourceGuid = FindTargetForSourceOrNull(source, target, fs, machineID);
-            return sourceGuid != null;
-        }
+        }        
 
         public int MaxVersion
         {
@@ -156,37 +150,5 @@ namespace BackyLogic
             return backyFolder.DateCreated;
         }
     }
-
-    public class ShallowFoldersMaker
-    {
-        public static void MakeFolderShallow(IFileSystem fs, string target, string source, string machineID, int version)
-        {
-            var stateCalculator = new StateCalculator(fs, target, source, machineID);
-            var state = stateCalculator.GetDiff(version);
-            var files = state.GetFiles()
-                .Select(x => new { nameParts = x.RelativeName.Split(new[] { '\\' }, 2), orig = x })
-                .Where(x => x.nameParts.Length == 2)
-                .Select(x => new { type = x.nameParts[0], name = x.nameParts[1], x.orig})
-                .GroupBy(x => x.type);
-
-            var rootFolder = files.FirstOrDefault()?.FirstOrDefault()?.orig.Root;
-            if (rootFolder == null) return;
-            fs.MarkDirectoryAsFullControl(rootFolder);
-            foreach (var group in files)
-            {
-                var tmpFile = rootFolder + "\\" + group.Key + ".tmp";
-                var finalFile = rootFolder + "\\" + group.Key + ".txt";
-                if (fs.FindFile(rootFolder, group.Key + ".txt") != null)
-                    continue; // Shallow file already exists
-                fs.CreateFile(tmpFile);
-                var lines = group.Select(file => new JObject(new JProperty("name", file.name), new JProperty("lastWrite", file.orig.LastWriteTime)).ToString(Newtonsoft.Json.Formatting.None));
-                fs.AppendLines(tmpFile, lines.ToArray());
-                fs.Copy(tmpFile, finalFile);
-                fs.DeleteFile(tmpFile);
-                fs.RenameDirectory(rootFolder + "\\" + group.Key, rootFolder + "\\_" + group.Key);
-                fs.DeleteDirectory(rootFolder + "\\_" + group.Key);
-            }
-            fs.MakeDirectoryReadOnly(rootFolder);
-        }
-    }
+    
 }

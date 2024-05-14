@@ -22,7 +22,7 @@ namespace Backy
         private RestoreTo _restorToForm = new RestoreTo();
         private string _initialBackupFolder;
         private string _currentBackupFolder;
-        private ConcurrentDictionary<string, StateCalculator> _stateCalculatorPerSource = new ConcurrentDictionary<string, StateCalculator>();
+        private ConcurrentDictionary<string, IStateCalculator> _stateCalculatorPerSource = new ConcurrentDictionary<string, IStateCalculator>();
         private ConcurrentDictionary<string, string> _currentDirectoryPerSource = new ConcurrentDictionary<string, string>();
 
         public View(IFileSystem fileSystem, string backupFolder)
@@ -67,12 +67,12 @@ namespace Backy
             this.SetFiles(state.GetFiles().Select(x => new FileView { PhysicalPath = x.PhysicalPath, LogicalPath = x.RelativeName }));
         }
 
-        private StateCalculator CurrentStateCalculator
+        private IStateCalculator CurrentStateCalculator
         {
             get { return _stateCalculatorPerSource[_selectedSourceDirectory]; }
         }
 
-        private State GetStateOrDiff(int? version)
+        private IState GetStateOrDiff(int? version)
         {
             if (version == null)
                 version = CurrentStateCalculator.MaxVersion;
@@ -105,7 +105,7 @@ namespace Backy
                     .Select(x => BackupDirectory.FromPath(x, _fileSystem))
                     .First(x => x.OriginalSource == _selectedSourceDirectory)
                     .MachineID;
-                var stateCalculator = new StateCalculator(_fileSystem, _currentBackupFolder, _selectedSourceDirectory, machineID);
+                var stateCalculator = StateCalculator_Factory.GetStateCalculator(_fileSystem, _currentBackupFolder, _selectedSourceDirectory, machineID);
                 stateCalculator.OnProgress += OnScanProgressHandler;
                 _stateCalculatorPerSource[_selectedSourceDirectory] = stateCalculator;
                 await Task.Run(() => stateCalculator.GetLastState());
@@ -130,7 +130,7 @@ namespace Backy
         {
             if (_isLoaded)
             {
-                _stateCalculatorPerSource = new ConcurrentDictionary<string, StateCalculator>();
+                _stateCalculatorPerSource = new ConcurrentDictionary<string, IStateCalculator>();
                 PopulateCombo();
             }
         }
@@ -249,7 +249,7 @@ namespace Backy
             if (_currentBackupFolder == this.comboBackupFolder.SelectedItem?.ToString()) return;
             _selectedSourceDirectory = "";
             _currentBackupFolder = this.comboBackupFolder.SelectedItem?.ToString();
-            _stateCalculatorPerSource = new ConcurrentDictionary<string, StateCalculator>();
+            _stateCalculatorPerSource = new ConcurrentDictionary<string, IStateCalculator>();
             _currentDirectoryPerSource = new ConcurrentDictionary<string, string>();
             PopulateCombo();
         }

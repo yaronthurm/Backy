@@ -9,8 +9,8 @@ namespace BackyLogic
     public class FoldersDiff
     {
         private IFileSystem _fileSystem;
-        private State _currentState;
-        private State _lastBackedupState;
+        private IState _currentState;
+        private IState _lastBackedupState;
         private bool _abort;
 
 
@@ -21,7 +21,7 @@ namespace BackyLogic
 
         internal IMultiStepProgress Progress;
 
-        public FoldersDiff(IFileSystem fileSystem, State currentState, State lastBackedupState)
+        public FoldersDiff(IFileSystem fileSystem, IState currentState, IState lastBackedupState)
         {
             _fileSystem = fileSystem;
             _currentState = currentState;
