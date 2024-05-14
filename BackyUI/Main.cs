@@ -121,8 +121,9 @@ namespace Backy
 
             _cancelTokenSource = new CancellationTokenSource();
             var backupCommands = activeSources
-                .Select(x =>
-                new RunBackupCommand(_fileSystem, x.Path, _settings.Target, CurrentMachineID, _cancelTokenSource.Token) { Progress = this.multiStepProgress1 });
+                .Select(x => 
+                RunBackupCommand_Factory.GetRunBackupCommand(_fileSystem, x.Path, _settings.Target, CurrentMachineID, _cancelTokenSource.Token, this.multiStepProgress1))
+                .ToList();
 
             if (!backupCommands.Any())
                 return Task.Run(() => this.multiStepProgress1.StartStepWithoutProgress("There are no active sources"));

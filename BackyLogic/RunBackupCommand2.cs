@@ -35,13 +35,15 @@ namespace BackyLogic
         }
 
 
-        public RunBackupCommand2(IFileSystem fileSystem, string source, string target, MachineID machineID, CancellationToken cancellationToken = new CancellationToken())
+        public RunBackupCommand2(IFileSystem fileSystem, string source, string target, MachineID machineID, CancellationToken cancellationToken = new CancellationToken(), 
+            IMultiStepProgress progress = null)
         {
             _fileSystem = fileSystem;
             _source = source;
             _machineID = machineID;
             _targetForSource = FindOrCreateTargetForSource(source, target, fileSystem, _machineID.Value);            
             _cancellationToken = cancellationToken;
+            Progress = progress;
         }
 
 
