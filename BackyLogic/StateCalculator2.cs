@@ -157,7 +157,7 @@ namespace BackyLogic
 
             // Get all files in backup directory
             var ret = new State();
-            var rootPath = Path.Combine(Target, version.ToString());
+            var rootPath = Path.Combine(Target, "History", version.ToString());
             foreach (var file in _fileSystem.EnumerateFiles(rootPath)) 
             {
                 var backyFile = BackyFile.FromTargetFileName(_fileSystem, file, rootPath);
