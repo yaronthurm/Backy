@@ -166,9 +166,11 @@ namespace BackyLogic
             return ret;
         }
 
-        public DateTime GetDateByVersion(int currentVersion)
+        public DateTime GetDateByVersion(int version)
         {
-            return DateTime.MinValue;
+            var path = Path.Combine(Target, "History", version.ToString());
+            var ret = _fileSystem.GetCreateTime(path);
+            return ret;
         }
     }
     
