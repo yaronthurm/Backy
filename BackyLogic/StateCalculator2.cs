@@ -65,7 +65,17 @@ namespace BackyLogic
 
         public IState GetLastState()
         {
-            return this.GetState(this.MaxVersion);
+            var path = Path.Combine(Target, "CurrentState");
+            var files = _fileSystem.IsDirectoryExist(path) ? _fileSystem.EnumerateFiles(path) : new string[0];
+
+            var ret = new State();
+            foreach (var file in files)
+            {
+                var backy = BackyFile.FromSourceFileName(_fileSystem, file, path);
+                ret.AddFile(backy);
+                OnProgress?.Invoke();
+            }
+            return ret;
         }
 
         public IState GetState(int version)

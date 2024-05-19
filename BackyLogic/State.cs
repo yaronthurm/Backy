@@ -30,15 +30,7 @@ namespace BackyLogic
             var ret = dirs.Select(x => x.Replace(targetDir, "")).Select(x => x.Split('\\')[0]).Distinct();
 
             return ret;
-        }
-
-        public static IState GetLastBackedUpState(IFileSystem fileSystem, string target, string machineID, Action fileEnumaretedCallback)
-        {
-            var stateCalculator = new StateCalculator(fileSystem, target, null, machineID);
-            stateCalculator.OnProgress += fileEnumaretedCallback;
-            var ret = stateCalculator.GetLastState();
-            return ret;
-        }
+        }        
 
         public static State GetCurrentState(IFileSystem fileSystem, string source, Action fileEnumaretedCallback)
         {

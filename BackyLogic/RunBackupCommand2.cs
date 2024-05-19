@@ -263,17 +263,19 @@ namespace BackyLogic
                 $"  Renamed files: {_diff.RenamedFiles.Count}");
         }
 
-        private State GetLastBackedUpState()
+        private IState GetLastBackedUpState()
         {
             int count = 0;
             this.Progress?.StartUnboundedStep("Scanning backup files. Files scanned:");
-            State lastBackedupState = State2.GetLastBackedUpState(_fileSystem, _targetForSource, _machineID.Value, () =>
+            IStateCalculator stateCalculator = new StateCalculator2(_fileSystem, _targetForSource, null, _machineID.Value);
+            stateCalculator.OnProgress += () =>
             {
                 count++;
                 if (count % 100 == 0) this.Progress?.UpdateProgress(count);
-            });
+            };
+            var ret = stateCalculator.GetLastState();
             this.Progress?.UpdateProgress(count);
-            return lastBackedupState;
+            return ret;
         }
 
         private IState GetCurrentState()
