@@ -1,10 +1,8 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace BackyLogic
 {
@@ -13,8 +11,7 @@ namespace BackyLogic
     {
         public event Action OnProgress;
 
-        private IFileSystem _fileSystem;        
-        private Lazy<List<BackyFolder>> _backyFolders;
+        private IFileSystem _fileSystem;
 
         public string Target { get; }
 
@@ -25,7 +22,6 @@ namespace BackyLogic
                 Target = target;
             else
                 Target = FindTargetForSource(source, target, fileSystem, machineID);
-            _backyFolders = new Lazy<List<BackyFolder>>(this.GetFolders);
         }
 
         private static string FindTargetForSource(string source, string target, IFileSystem fs, string machineID)
@@ -60,7 +56,14 @@ namespace BackyLogic
 
         public int MaxVersion
         {
-            get { return _backyFolders.Value.Count; }
+            get {
+                var historyPath = Path.Combine(Target, "History");
+                var ret = _fileSystem.GetTopLevelDirectories(historyPath)
+                    .Select(x => Path.GetFileName(x))
+                    .Select(x => int.Parse(x))
+                    .Max();
+                return ret;
+            }
         }
 
         public IState GetLastState()
@@ -83,31 +86,64 @@ namespace BackyLogic
             if (version > this.MaxVersion)
                 throw new ApplicationException("max version exeeded");
 
-            var ret = new State();
-            foreach (BackyFolder backyFolder in _backyFolders.Value.OrderBy(x => x.SerialNumber).Take(version))
+            var ret = (State)this.GetLastState();
+            if (version == this.MaxVersion)
+                return ret;
+
+            var historyPath = Path.Combine(Target, "History");
+
+            for (int i = this.MaxVersion; i > version; i--)
             {
-                // Add new files
-                backyFolder.New.ForEach(x => ret.AddFile(x));
-
-                // Remove deleted files
-                backyFolder.Deleted.ForEach(x => ret.DeleteFileByPath(x));
-
-                // Handle renamed files
-                foreach (var rename in backyFolder.Renamed)
+                // Add files that were deleted
+                var deletedFolder = Path.Combine(historyPath, i.ToString(), "deleted");
+                if (_fileSystem.IsDirectoryExist(deletedFolder))
                 {
-                    // In order to not touching the refernce, we will clone the file and modify it.
-                    var file = ret.FindFile(rename.OldName);
-                    ret.DeleteFile(file);
-                    var renamedFile = file.Clone();
-                    renamedFile.RelativeName = rename.NewName;
-                    ret.AddFile(renamedFile);
+                    var deletedFiles = _fileSystem.EnumerateFiles(deletedFolder)
+                        .Select(x => BackyFile.FromTargetFileName(_fileSystem, x, deletedFolder));
+                    foreach (var deletedFile in deletedFiles)
+                        ret.AddFile(deletedFile);
                 }
 
-                // Handle modified files
-                foreach (var modified in backyFolder.Modified)
+                // Update location of files that were modified
+                var modifiedFolder = Path.Combine(historyPath, i.ToString(), "modified");
+                if (_fileSystem.IsDirectoryExist(modifiedFolder))
                 {
-                    ret.DeleteFileByPath(modified.RelativeName);
-                    ret.AddFile(modified);
+                    var modifiedFiles = _fileSystem.EnumerateFiles(modifiedFolder)
+                        .Select(x => BackyFile.FromTargetFileName(_fileSystem, x, modifiedFolder));
+                    foreach (var modifiedFile in modifiedFiles)
+                    {
+                        ret.DeleteFileByPath(modifiedFile.RelativeName);
+                        ret.AddFile(modifiedFile);
+                    }                                                
+                }
+
+
+                // Remove files that were added
+                var newPath = Path.Combine(historyPath, i.ToString(), "new.txt");
+                if (_fileSystem.IsFileExists(newPath))
+                {
+                    var newFiles = _fileSystem.ReadLines(newPath).ToList();
+                    foreach (var file in newFiles)
+                    {
+                        ret.DeleteFileByPath(file);
+                    }
+                }
+
+                // Restore names of files that were renamed
+                var renamedPath = Path.Combine(historyPath, i.ToString(), "renamed.txt");
+                if (_fileSystem.IsFileExists(renamedPath))
+                {
+                    var renamedFiles = _fileSystem.ReadLines(renamedPath)
+                        .Select(x => JObject.Parse(x))
+                        .Select(x => new RenameInfo { OldName = x.Value<string>("oldName"), NewName = x.Value<string>("newName") });
+                    foreach (var file in renamedFiles)
+                    {
+                        var newFile = ret.FindFile(file.NewName);
+                        ret.DeleteFile(newFile);
+                        var oldFile = newFile.Clone();
+                        oldFile.RelativeName = file.OldName;
+                        ret.AddFile(oldFile);
+                    }
                 }
             }
 
@@ -130,34 +166,9 @@ namespace BackyLogic
             return ret;
         }
 
-
-        private List<BackyFolder> GetFolders()
-        {
-            var tree = new HierarchicalDictionary<string, string>();
-            
-            // Get all backup files
-            foreach (var file in _fileSystem.EnumerateFiles(Target))
-            {
-                tree.Add(file, file.Split('\\'));
-                this.OnProgress?.Invoke();
-            }
-
-            var ret = new List<BackyFolder>();
-            foreach (string dir in tree.GetFirstLevelContainers(Target.Split('\\')))
-            {
-                var fullDirectoryPath = System.IO.Path.Combine(Target, dir);
-                var allFilesForThisDirectory = tree.GetAllDescendantsItems(fullDirectoryPath.Split('\\'));
-                var newFolder = BackyFolder.FromFileNames(_fileSystem, allFilesForThisDirectory, fullDirectoryPath);
-                ret.Add(newFolder);
-
-            }
-            return ret;
-        }
-
         public DateTime GetDateByVersion(int currentVersion)
         {
-            var backyFolder = _backyFolders.Value.First(x => x.SerialNumber == currentVersion);
-            return backyFolder.DateCreated;
+            return DateTime.MinValue;
         }
     }
     
