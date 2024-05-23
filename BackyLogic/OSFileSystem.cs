@@ -26,6 +26,7 @@ namespace BackyLogic
             if (!Directory.Exists(Path.GetDirectoryName(destFileName)))
                 Directory.CreateDirectory(Path.GetDirectoryName(destFileName));
 
+            destFileName = @"\\?\" + destFileName; // to handle long file names 
             File.Copy(sourceFileName, destFileName);
         }
 
@@ -34,6 +35,7 @@ namespace BackyLogic
             if (!Directory.Exists(Path.GetDirectoryName(destFileName)))
                 Directory.CreateDirectory(Path.GetDirectoryName(destFileName));
 
+            destFileName = @"\\?\" + destFileName; // to handle long file names 
             File.Copy(sourceFileName, destFileName, true);
         }
 
