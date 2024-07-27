@@ -50,9 +50,10 @@
             // btnRun
             // 
             this.btnRun.Enabled = false;
-            this.btnRun.Location = new System.Drawing.Point(98, 119);
+            this.btnRun.Location = new System.Drawing.Point(131, 146);
+            this.btnRun.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnRun.Name = "btnRun";
-            this.btnRun.Size = new System.Drawing.Size(75, 23);
+            this.btnRun.Size = new System.Drawing.Size(100, 28);
             this.btnRun.TabIndex = 4;
             this.btnRun.Text = "Run";
             this.btnRun.UseVisualStyleBackColor = true;
@@ -61,9 +62,10 @@
             // btnAbort
             // 
             this.btnAbort.Enabled = false;
-            this.btnAbort.Location = new System.Drawing.Point(315, 148);
+            this.btnAbort.Location = new System.Drawing.Point(420, 182);
+            this.btnAbort.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnAbort.Name = "btnAbort";
-            this.btnAbort.Size = new System.Drawing.Size(75, 23);
+            this.btnAbort.Size = new System.Drawing.Size(100, 28);
             this.btnAbort.TabIndex = 10;
             this.btnAbort.Text = "Abort";
             this.btnAbort.UseVisualStyleBackColor = true;
@@ -71,9 +73,10 @@
             // 
             // btnView
             // 
-            this.btnView.Location = new System.Drawing.Point(315, 116);
+            this.btnView.Location = new System.Drawing.Point(420, 143);
+            this.btnView.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnView.Name = "btnView";
-            this.btnView.Size = new System.Drawing.Size(75, 23);
+            this.btnView.Size = new System.Drawing.Size(100, 28);
             this.btnView.TabIndex = 18;
             this.btnView.Text = "View";
             this.btnView.UseVisualStyleBackColor = true;
@@ -83,9 +86,10 @@
             // 
             this.radManual.AutoSize = true;
             this.radManual.Checked = true;
-            this.radManual.Location = new System.Drawing.Point(16, 122);
+            this.radManual.Location = new System.Drawing.Point(21, 150);
+            this.radManual.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.radManual.Name = "radManual";
-            this.radManual.Size = new System.Drawing.Size(60, 17);
+            this.radManual.Size = new System.Drawing.Size(72, 20);
             this.radManual.TabIndex = 22;
             this.radManual.TabStop = true;
             this.radManual.Text = "Manual";
@@ -94,21 +98,25 @@
             // radScheduled
             // 
             this.radScheduled.AutoSize = true;
-            this.radScheduled.Location = new System.Drawing.Point(16, 151);
+            this.radScheduled.Location = new System.Drawing.Point(21, 186);
+            this.radScheduled.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.radScheduled.Name = "radScheduled";
-            this.radScheduled.Size = new System.Drawing.Size(76, 17);
+            this.radScheduled.Size = new System.Drawing.Size(93, 20);
             this.radScheduled.TabIndex = 23;
             this.radScheduled.Text = "Scheduled";
             this.radScheduled.UseVisualStyleBackColor = true;
+            this.radScheduled.Visible = false;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(237, 155);
+            this.label3.Location = new System.Drawing.Point(316, 191);
+            this.label3.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(32, 13);
+            this.label3.Size = new System.Drawing.Size(39, 16);
             this.label3.TabIndex = 26;
             this.label3.Text = "[Sec]";
+            this.label3.Visible = false;
             // 
             // autoRunTimer
             // 
@@ -118,17 +126,20 @@
             // radDetection
             // 
             this.radDetection.AutoSize = true;
-            this.radDetection.Location = new System.Drawing.Point(16, 180);
+            this.radDetection.Location = new System.Drawing.Point(21, 222);
+            this.radDetection.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.radDetection.Name = "radDetection";
-            this.radDetection.Size = new System.Drawing.Size(78, 17);
+            this.radDetection.Size = new System.Drawing.Size(93, 20);
             this.radDetection.TabIndex = 27;
             this.radDetection.Text = "On change";
             this.radDetection.UseVisualStyleBackColor = true;
+            this.radDetection.Visible = false;
             // 
             // numSeconds
             // 
             this.numSeconds.Enabled = false;
-            this.numSeconds.Location = new System.Drawing.Point(180, 150);
+            this.numSeconds.Location = new System.Drawing.Point(240, 185);
+            this.numSeconds.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.numSeconds.Maximum = new decimal(new int[] {
             600,
             0,
@@ -140,19 +151,21 @@
             0,
             0});
             this.numSeconds.Name = "numSeconds";
-            this.numSeconds.Size = new System.Drawing.Size(51, 20);
+            this.numSeconds.Size = new System.Drawing.Size(68, 22);
             this.numSeconds.TabIndex = 25;
             this.numSeconds.Value = new decimal(new int[] {
             10,
             0,
             0,
             0});
+            this.numSeconds.Visible = false;
             // 
             // btnSettings
             // 
-            this.btnSettings.Location = new System.Drawing.Point(315, 12);
+            this.btnSettings.Location = new System.Drawing.Point(420, 15);
+            this.btnSettings.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnSettings.Name = "btnSettings";
-            this.btnSettings.Size = new System.Drawing.Size(75, 23);
+            this.btnSettings.Size = new System.Drawing.Size(100, 28);
             this.btnSettings.TabIndex = 33;
             this.btnSettings.Text = "Settings";
             this.btnSettings.UseVisualStyleBackColor = true;
@@ -162,10 +175,11 @@
             // 
             this.richTextBox1.BackColor = System.Drawing.SystemColors.ControlDark;
             this.richTextBox1.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.richTextBox1.Location = new System.Drawing.Point(15, 12);
+            this.richTextBox1.Location = new System.Drawing.Point(20, 15);
+            this.richTextBox1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.richTextBox1.Name = "richTextBox1";
             this.richTextBox1.ReadOnly = true;
-            this.richTextBox1.Size = new System.Drawing.Size(294, 91);
+            this.richTextBox1.Size = new System.Drawing.Size(392, 112);
             this.richTextBox1.TabIndex = 37;
             this.richTextBox1.TabStop = false;
             this.richTextBox1.Text = "";
@@ -173,53 +187,60 @@
             // btnStartStop
             // 
             this.btnStartStop.Appearance = System.Windows.Forms.Appearance.Button;
-            this.btnStartStop.Location = new System.Drawing.Point(98, 148);
+            this.btnStartStop.Location = new System.Drawing.Point(131, 182);
+            this.btnStartStop.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnStartStop.Name = "btnStartStop";
-            this.btnStartStop.Size = new System.Drawing.Size(75, 23);
+            this.btnStartStop.Size = new System.Drawing.Size(100, 28);
             this.btnStartStop.TabIndex = 38;
             this.btnStartStop.Text = "Start";
             this.btnStartStop.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.btnStartStop.UseVisualStyleBackColor = true;
+            this.btnStartStop.Visible = false;
             this.btnStartStop.CheckedChanged += new System.EventHandler(this.btnStartStop_CheckedChanged);
             // 
             // multiStepProgress1
             // 
             this.multiStepProgress1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
             this.multiStepProgress1.BackColor = System.Drawing.SystemColors.ControlDark;
-            this.multiStepProgress1.Location = new System.Drawing.Point(0, 216);
+            this.multiStepProgress1.Location = new System.Drawing.Point(0, 266);
+            this.multiStepProgress1.Margin = new System.Windows.Forms.Padding(5, 5, 5, 5);
             this.multiStepProgress1.Name = "multiStepProgress1";
-            this.multiStepProgress1.Size = new System.Drawing.Size(440, 277);
+            this.multiStepProgress1.Size = new System.Drawing.Size(587, 341);
             this.multiStepProgress1.TabIndex = 19;
             this.multiStepProgress1.TabStop = false;
             // 
             // btnDetect
             // 
             this.btnDetect.Appearance = System.Windows.Forms.Appearance.Button;
-            this.btnDetect.Location = new System.Drawing.Point(98, 177);
+            this.btnDetect.Location = new System.Drawing.Point(131, 218);
+            this.btnDetect.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnDetect.Name = "btnDetect";
-            this.btnDetect.Size = new System.Drawing.Size(75, 23);
+            this.btnDetect.Size = new System.Drawing.Size(100, 28);
             this.btnDetect.TabIndex = 39;
             this.btnDetect.Text = "Run&&Detect";
             this.btnDetect.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.btnDetect.UseVisualStyleBackColor = true;
+            this.btnDetect.Visible = false;
             this.btnDetect.CheckedChanged += new System.EventHandler(this.btnDetect_CheckedChanged);
             // 
             // linkBackupTheBackup
             // 
             this.linkBackupTheBackup.AutoSize = true;
-            this.linkBackupTheBackup.Location = new System.Drawing.Point(315, 55);
+            this.linkBackupTheBackup.Location = new System.Drawing.Point(420, 68);
+            this.linkBackupTheBackup.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.linkBackupTheBackup.Name = "linkBackupTheBackup";
-            this.linkBackupTheBackup.Size = new System.Drawing.Size(102, 13);
+            this.linkBackupTheBackup.Size = new System.Drawing.Size(123, 16);
             this.linkBackupTheBackup.TabIndex = 40;
             this.linkBackupTheBackup.TabStop = true;
             this.linkBackupTheBackup.Text = "Backup the Backup";
+            this.linkBackupTheBackup.Visible = false;
             this.linkBackupTheBackup.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkBackupTheBackup_LinkClicked);
             // 
             // Main
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(440, 493);
+            this.ClientSize = new System.Drawing.Size(584, 607);
             this.Controls.Add(this.linkBackupTheBackup);
             this.Controls.Add(this.btnDetect);
             this.Controls.Add(this.btnStartStop);
@@ -234,8 +255,9 @@
             this.Controls.Add(this.btnView);
             this.Controls.Add(this.btnAbort);
             this.Controls.Add(this.btnRun);
-            this.MaximumSize = new System.Drawing.Size(456, 800);
-            this.MinimumSize = new System.Drawing.Size(456, 488);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.MaximumSize = new System.Drawing.Size(602, 974);
+            this.MinimumSize = new System.Drawing.Size(602, 590);
             this.Name = "Main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Backup";
